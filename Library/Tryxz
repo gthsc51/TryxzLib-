@@ -955,9 +955,9 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- DETACHED ELEMENT FACTORY
+-- DETACHED ELEMENT FACTORY (WITH KEYBIND REGISTRY HOOK)
 -- ==========================================
-local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable)
+local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
     local ElementOrder = 0
     local function NextOrder() ElementOrder += 1 return ElementOrder end
@@ -1192,17 +1192,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         ArrowHint.ZIndex = 3
         ArrowHint.Parent = Btn
 
-        Btn.MouseEnter:Connect(function()
-            if OnCooldown then return end
-            TryxzLib:PlaySound("Hover", 0.2)
-            Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
-            Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -21, 0.5, -9), TextColor3 = Theme.Accent})
-        end)
-        Btn.MouseLeave:Connect(function()
-            Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
-            Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -24, 0.5, -9), TextColor3 = Theme.SubText})
-        end)
-        Btn.MouseButton1Click:Connect(function()
+        local function FireButton()
             if OnCooldown then
                 TryxzLib:PlaySound("Error", 0.25)
                 return
@@ -1220,7 +1210,29 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 cdTween.Completed:Wait()
                 OnCooldown = false
             end
+        end
+
+        Btn.MouseEnter:Connect(function()
+            if OnCooldown then return end
+            TryxzLib:PlaySound("Hover", 0.2)
+            Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
+            Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -21, 0.5, -9), TextColor3 = Theme.Accent})
         end)
+        Btn.MouseLeave:Connect(function()
+            Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
+            Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -24, 0.5, -9), TextColor3 = Theme.SubText})
+        end)
+        Btn.MouseButton1Click:Connect(FireButton)
+
+        if RegisterBindable and bCfg.Bindable ~= false then
+            RegisterBindable({
+                Id = bCfg.Flag or ("Btn_" .. tostring(bCfg.Name or "Button")),
+                Name = bCfg.Name or "Button",
+                Kind = "Button",
+                DefaultKey = bCfg.Keybind,
+                Trigger = FireButton
+            })
+        end
     end
 
     function API:AddToggle(tCfg)
@@ -1290,6 +1302,17 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         local ToggleObj = {}
         function ToggleObj:Set(val, skipWrite) UpdateToggle(val, true, skipWrite) end
         if Flag then Window.Flags[Flag] = ToggleObj end
+
+        if RegisterBindable and tCfg.Bindable ~= false then
+            RegisterBindable({
+                Id = Flag or ("Tgl_" .. tostring(tCfg.Name or "Toggle")),
+                Name = tCfg.Name or "Toggle",
+                Kind = "Toggle",
+                DefaultKey = tCfg.Keybind,
+                Trigger = function() UpdateToggle(not StateVal, false, false) end
+            })
+        end
+
         return ToggleObj
     end
 
@@ -1297,10 +1320,13 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
         local Default = math.clamp(sCfg.Default or Min, Min, Max)
+        local CurrentVal = Default
+        local StepVal = sCfg.KeyStep or sCfg.Step or math.max(1, math.floor((Max - Min) * 0.05))
         local Callback = sCfg.Callback or function() end
 
         if Cfg.SaveEnabled and Flag and Cfg.SavedData[Flag] ~= nil then
             Default = math.clamp(tonumber(Cfg.SavedData[Flag]) or Default, Min, Max)
+            CurrentVal = Default
         end
 
         local SliderFrame = Instance.new("Frame")
@@ -1360,13 +1386,15 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", Dot).CornerRadius = UDim.new(1, 0)
 
         local Sliding, lastVal = false, Default
-        local function SetSlider(val, silent)
+        local function SetSlider(val, silent, saveNow)
             val = math.clamp(math.floor(val + 0.5), Min, Max)
+            CurrentVal = val
             if val ~= lastVal then
                 lastVal = val
                 if not silent then TriggerHaptic(0.12) TryxzLib:PlaySound("Hover", 0.15) end
             end
             if Flag then Cfg.SavedData[Flag] = val end
+            if saveNow then WriteConfigFile() end
             ValueLbl.Text = tostring(val)
             Tween(Fill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new((val - Min) / (Max - Min), 0, 1, 0)})
             task.spawn(Callback, val)
@@ -1374,7 +1402,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local function UpdateFromInput(input)
             local pos = math.clamp((input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
-            SetSlider(Min + (Max - Min) * pos, false)
+            SetSlider(Min + (Max - Min) * pos, false, false)
         end
 
         Track.InputBegan:Connect(function(input)
@@ -1401,10 +1429,24 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local SliderObj = {}
         function SliderObj:Set(val, skipWrite)
-            SetSlider(val, true)
-            if not skipWrite then WriteConfigFile() end
+            SetSlider(val, true, not skipWrite)
         end
         if Flag then Window.Flags[Flag] = SliderObj end
+
+        if RegisterBindable and sCfg.Bindable ~= false then
+            RegisterBindable({
+                Id = Flag or ("Sld_" .. tostring(sCfg.Name or "Slider")),
+                Name = (sCfg.Name or "Slider") .. " (+" .. tostring(StepVal) .. ")",
+                Kind = "Slider",
+                DefaultKey = sCfg.Keybind,
+                Trigger = function()
+                    local nextVal = CurrentVal + StepVal
+                    if nextVal > Max then nextVal = Min end
+                    SetSlider(nextVal, false, true)
+                end
+            })
+        end
+
         return SliderObj
     end
 
@@ -2021,7 +2063,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW
+-- CREATE MAIN WINDOW (WITH GEAR KEYBINDS DROPDOWN)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2056,7 +2098,6 @@ function TryxzLib:CreateWindow(config)
         SettingsOpen = false
     }
 
-    -- Configure Camera Blur from Window Options
     if type(config.Blur) == "boolean" then
         BlurState.Enabled = config.Blur
     elseif type(config.Blur) == "table" then
@@ -2212,7 +2253,6 @@ function TryxzLib:CreateWindow(config)
         end
     end
 
-    -- Collapse to "UI" button -> Removes Blur
     local function CollapseToFloatingUI()
         if State.Collapsed then return end
         State.Collapsed = true
@@ -2226,7 +2266,6 @@ function TryxzLib:CreateWindow(config)
         Tween(FloatingUIBtn, Tweens.Bounce, {Size = UDim2.new(0, 44, 0, 44)})
     end
 
-    -- Restore from "UI" button -> Restores Blur (unless minimized with "-")
     local function RestoreFromFloatingUI()
         if not State.Collapsed then return end
         State.Collapsed = false
@@ -2414,7 +2453,6 @@ function TryxzLib:CreateWindow(config)
     BodyContainer.BackgroundTransparency = 1
     BodyContainer.Parent = Main
 
-    -- Minimize "-" button -> Removes Blur when minimized, restores Blur when expanded
     MinBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.25)
         TryxzLib:PlaySound("Click")
@@ -2585,7 +2623,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE
+    -- SETTINGS PAGE + DISTINCT KEYBINDS DROPDOWN
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2625,7 +2663,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.2 by gthsc51"
+    CTitle.Text = "TryxzLib v3.3 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2647,9 +2685,261 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- 2. Segmented Diamond UI Scale Slider
+    -- 2. DISTINCT KEYBINDS DROPDOWN IN GEAR (Lists Toggles, Sliders, Buttons, etc.)
+    local BindableEntries = {}
+    local ListeningEntry = nil
+    local KeybindDropOpen = false
+
+    local KeybindDropCard = Instance.new("Frame")
+    KeybindDropCard.LayoutOrder = 2
+    KeybindDropCard.Size = UDim2.new(1, 0, 0, 36)
+    KeybindDropCard.BackgroundColor3 = Theme.Element
+    KeybindDropCard.ClipsDescendants = true
+    KeybindDropCard.ZIndex = 11
+    KeybindDropCard.Parent = SettingsPage
+    Instance.new("UICorner", KeybindDropCard).CornerRadius = UDim.new(0, 12)
+
+    local KDropStroke = Instance.new("UIStroke", KeybindDropCard)
+    KDropStroke.Color = Theme.Accent
+    KDropStroke.Thickness = 1.2
+    KDropStroke.Transparency = 0.45
+    BindAccent(KDropStroke, "Color")
+
+    local KDropHeader = Instance.new("TextButton")
+    KDropHeader.Size = UDim2.new(1, 0, 0, 36)
+    KDropHeader.BackgroundTransparency = 1
+    KDropHeader.Text = ""
+    KDropHeader.AutoButtonColor = false
+    KDropHeader.ZIndex = 12
+    KDropHeader.Parent = KeybindDropCard
+
+    local KDropIcon = Instance.new("TextLabel")
+    KDropIcon.Size = UDim2.new(0, 20, 0, 20)
+    KDropIcon.Position = UDim2.new(0, 10, 0.5, -10)
+    KDropIcon.BackgroundTransparency = 1
+    KDropIcon.Text = "⌨"
+    KDropIcon.TextColor3 = Theme.Accent
+    KDropIcon.Font = Enum.Font.GothamBold
+    KDropIcon.TextSize = 13
+    KDropIcon.ZIndex = 13
+    KDropIcon.Parent = KDropHeader
+    BindAccent(KDropIcon, "TextColor3")
+
+    local KDropTitle = Instance.new("TextLabel")
+    KDropTitle.Size = UDim2.new(0.62, 0, 1, 0)
+    KDropTitle.Position = UDim2.new(0, 32, 0, 0)
+    KDropTitle.BackgroundTransparency = 1
+    KDropTitle.Text = "Function Keybinds"
+    KDropTitle.TextColor3 = Theme.Text
+    KDropTitle.Font = Enum.Font.GothamBold
+    KDropTitle.TextSize = 11
+    KDropTitle.TextXAlignment = Enum.TextXAlignment.Left
+    KDropTitle.ZIndex = 13
+    KDropTitle.Parent = KDropHeader
+
+    local KDropCount = Instance.new("TextLabel")
+    KDropCount.Size = UDim2.new(0.25, -24, 1, 0)
+    KDropCount.Position = UDim2.new(0.7, 0, 0, 0)
+    KDropCount.BackgroundTransparency = 1
+    KDropCount.Text = "0 items"
+    KDropCount.TextColor3 = Theme.SubText
+    KDropCount.Font = Enum.Font.GothamSemibold
+    KDropCount.TextSize = 10
+    KDropCount.TextXAlignment = Enum.TextXAlignment.Right
+    KDropCount.ZIndex = 13
+    KDropCount.Parent = KDropHeader
+
+    local KDropArrow = Instance.new("TextLabel")
+    KDropArrow.Size = UDim2.new(0, 16, 0, 16)
+    KDropArrow.Position = UDim2.new(1, -22, 0.5, -8)
+    KDropArrow.BackgroundTransparency = 1
+    KDropArrow.Text = "▾"
+    KDropArrow.TextColor3 = Theme.Accent
+    KDropArrow.Font = Enum.Font.GothamBold
+    KDropArrow.TextSize = 12
+    KDropArrow.ZIndex = 13
+    KDropArrow.Parent = KDropHeader
+    BindAccent(KDropArrow, "TextColor3")
+
+    local KListHolder = Instance.new("Frame")
+    KListHolder.Size = UDim2.new(1, -16, 0, 0)
+    KListHolder.Position = UDim2.new(0, 8, 0, 40)
+    KListHolder.BackgroundTransparency = 1
+    KListHolder.ZIndex = 12
+    KListHolder.Parent = KeybindDropCard
+
+    local KListLayout = Instance.new("UIListLayout", KListHolder)
+    KListLayout.Padding = UDim.new(0, 4)
+    KListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local function RefreshKeybindDropdownHeight()
+        local rows = math.max(1, #BindableEntries)
+        KDropCount.Text = tostring(#BindableEntries) .. " items"
+        if KeybindDropOpen then
+            Tween(KeybindDropCard, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, 46 + rows * 30)})
+        end
+    end
+
+    KDropHeader.MouseButton1Click:Connect(function()
+        TriggerHaptic(0.2)
+        TryxzLib:PlaySound("Click")
+        KeybindDropOpen = not KeybindDropOpen
+        local rows = math.max(1, #BindableEntries)
+        Tween(KeybindDropCard, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, KeybindDropOpen and (46 + rows * 30) or 36)})
+        Tween(KDropArrow, Tweens.Smooth, {Rotation = KeybindDropOpen and 180 or 0})
+    end)
+
+    local EmptyBindLbl = Instance.new("TextLabel")
+    EmptyBindLbl.LayoutOrder = 0
+    EmptyBindLbl.Size = UDim2.new(1, 0, 0, 26)
+    EmptyBindLbl.BackgroundColor3 = Theme.Background
+    EmptyBindLbl.Text = "No bindable functions registered yet"
+    EmptyBindLbl.TextColor3 = Theme.SubText
+    EmptyBindLbl.Font = Enum.Font.Gotham
+    EmptyBindLbl.TextSize = 10
+    EmptyBindLbl.ZIndex = 13
+    EmptyBindLbl.Parent = KListHolder
+    Instance.new("UICorner", EmptyBindLbl).CornerRadius = UDim.new(0, 8)
+
+    local function RegisterBindable(info)
+        EmptyBindLbl.Visible = false
+        local idx = #BindableEntries + 1
+        local savedKeyName = Cfg.SaveEnabled and Cfg.SavedData["_FnBinds"] and Cfg.SavedData["_FnBinds"][info.Id]
+        local assignedKey = nil
+
+        if savedKeyName and savedKeyName ~= "None" and Enum.KeyCode[savedKeyName] then
+            assignedKey = Enum.KeyCode[savedKeyName]
+        elseif typeof(info.DefaultKey) == "EnumItem" then
+            assignedKey = info.DefaultKey
+        elseif type(info.DefaultKey) == "string" and Enum.KeyCode[info.DefaultKey] then
+            assignedKey = Enum.KeyCode[info.DefaultKey]
+        end
+
+        local Row = Instance.new("Frame")
+        Row.LayoutOrder = idx
+        Row.Size = UDim2.new(1, 0, 0, 26)
+        Row.BackgroundColor3 = Theme.GrayTranslucent
+        Row.BackgroundTransparency = 0.55
+        Row.ZIndex = 13
+        Row.Parent = KListHolder
+        Instance.new("UICorner", Row).CornerRadius = UDim.new(0, 9)
+
+        local KindTag = Instance.new("TextLabel")
+        KindTag.Size = UDim2.new(0, 44, 0, 16)
+        KindTag.Position = UDim2.new(0, 6, 0.5, -8)
+        KindTag.BackgroundColor3 = Theme.Background
+        KindTag.Text = tostring(info.Kind or "Fn")
+        KindTag.TextColor3 = Theme.Accent
+        KindTag.Font = Enum.Font.GothamBold
+        KindTag.TextSize = 9
+        KindTag.ZIndex = 14
+        KindTag.Parent = Row
+        Instance.new("UICorner", KindTag).CornerRadius = UDim.new(0, 6)
+        BindAccent(KindTag, "TextColor3")
+
+        local FnName = Instance.new("TextLabel")
+        FnName.Size = UDim2.new(1, -124, 1, 0)
+        FnName.Position = UDim2.new(0, 55, 0, 0)
+        FnName.BackgroundTransparency = 1
+        FnName.Text = tostring(info.Name)
+        FnName.TextColor3 = Theme.Text
+        FnName.Font = Enum.Font.GothamSemibold
+        FnName.TextSize = 10
+        FnName.TextXAlignment = Enum.TextXAlignment.Left
+        FnName.TextTruncate = Enum.TextTruncate.AtEnd
+        FnName.ZIndex = 14
+        FnName.Parent = Row
+
+        local KeyBadgeBtn = Instance.new("TextButton")
+        KeyBadgeBtn.Size = UDim2.new(0, 62, 0, 18)
+        KeyBadgeBtn.Position = UDim2.new(1, -66, 0.5, -9)
+        KeyBadgeBtn.BackgroundColor3 = Theme.Background
+        KeyBadgeBtn.Text = assignedKey and assignedKey.Name or "None"
+        KeyBadgeBtn.TextColor3 = assignedKey and Theme.Accent or Theme.SubText
+        KeyBadgeBtn.Font = Enum.Font.GothamBold
+        KeyBadgeBtn.TextSize = 9
+        KeyBadgeBtn.AutoButtonColor = false
+        KeyBadgeBtn.ZIndex = 14
+        KeyBadgeBtn.Parent = Row
+        Instance.new("UICorner", KeyBadgeBtn).CornerRadius = UDim.new(1, 0)
+
+        local entry = {
+            Id = info.Id,
+            Name = info.Name,
+            Kind = info.Kind,
+            Key = assignedKey,
+            Trigger = info.Trigger,
+            Badge = KeyBadgeBtn
+        }
+
+        function entry:SetKey(newKey, skipWrite)
+            if newKey == nil or newKey == "None" then
+                self.Key = nil
+                self.Badge.Text = "None"
+                self.Badge.TextColor3 = Theme.SubText
+            else
+                if type(newKey) == "string" and Enum.KeyCode[newKey] then newKey = Enum.KeyCode[newKey] end
+                self.Key = newKey
+                self.Badge.Text = newKey.Name
+                self.Badge.TextColor3 = Theme.Accent
+            end
+            if Cfg.SaveEnabled and not skipWrite then
+                Cfg.SavedData["_FnBinds"] = Cfg.SavedData["_FnBinds"] or {}
+                Cfg.SavedData["_FnBinds"][self.Id] = self.Key and self.Key.Name or "None"
+                WriteConfigFile()
+            end
+        end
+
+        KeyBadgeBtn.MouseButton1Click:Connect(function()
+            TriggerHaptic(0.25)
+            TryxzLib:PlaySound("Click")
+            if ListeningEntry == entry then
+                ListeningEntry = nil
+                entry:SetKey(nil, false)
+            else
+                if ListeningEntry then
+                    ListeningEntry.Badge.Text = ListeningEntry.Key and ListeningEntry.Key.Name or "None"
+                end
+                ListeningEntry = entry
+                KeyBadgeBtn.Text = "..."
+                KeyBadgeBtn.TextColor3 = Theme.Success
+            end
+        end)
+
+        table.insert(BindableEntries, entry)
+        Window.Keybinds = Window.Keybinds or {}
+        Window.Keybinds[info.Id] = entry
+        RefreshKeybindDropdownHeight()
+    end
+
+    -- Global listener for Gear Keybinds Dropdown
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if ListeningEntry then
+            if input.UserInputType == Enum.UserInputType.Keyboard then
+                if input.KeyCode == Enum.KeyCode.Backspace or input.KeyCode == Enum.KeyCode.Delete then
+                    ListeningEntry:SetKey(nil, false)
+                elseif input.KeyCode ~= Enum.KeyCode.Unknown then
+                    ListeningEntry:SetKey(input.KeyCode, false)
+                end
+                TriggerHaptic(0.3)
+                TryxzLib:PlaySound("Toggle")
+                ListeningEntry = nil
+            end
+            return
+        end
+
+        if not gpe and input.UserInputType == Enum.UserInputType.Keyboard then
+            for _, item in ipairs(BindableEntries) do
+                if item.Key and input.KeyCode == item.Key then
+                    task.spawn(item.Trigger)
+                end
+            end
+        end
+    end)
+
+    -- 3. Segmented Diamond UI Scale Slider
     local ScaleCard = Instance.new("Frame")
-    ScaleCard.LayoutOrder = 2
+    ScaleCard.LayoutOrder = 3
     ScaleCard.Size = UDim2.new(1, 0, 0, 56)
     ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
     ScaleCard.BackgroundTransparency = 0.45
@@ -2810,9 +3100,9 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- 3. Accent Theme Picker Card
+    -- 4. Accent Theme Picker Card
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.LayoutOrder = 3
+    ThemeCard.LayoutOrder = 4
     ThemeCard.Size = UDim2.new(1, 0, 0, 48)
     ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
     ThemeCard.BackgroundTransparency = 0.5
@@ -2866,7 +3156,7 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 4, 5 & 6. Special Diamond Settings Toggles (Haptics, Sounds, Camera Blur)
+    -- 5, 6 & 7. Special Diamond Settings Toggles
     local function CreateSpecialSettingsToggle(order, titleText, subText, initialState, onToggle)
         local st = initialState
         local Btn = Instance.new("TextButton")
@@ -2938,28 +3228,28 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    CreateSpecialSettingsToggle(4, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
+    CreateSpecialSettingsToggle(5, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
         BlurState.Enabled = val
         SetBlurActive(val and not State.Minimized and not State.Collapsed)
         TriggerHaptic(0.25)
         TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(5, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
+    CreateSpecialSettingsToggle(6, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
         Cfg.Haptics = val
         if val then TriggerHaptic(0.5) end
         TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(6, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
+    CreateSpecialSettingsToggle(7, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
         SoundState.Enabled = val
         TriggerHaptic(0.25)
         if val then TryxzLib:PlaySound("Toggle") end
     end)
 
-    -- 7. Sound Pack Selector
+    -- 8. Sound Pack Selector
     local SoundSelectBtn = Instance.new("TextButton")
-    SoundSelectBtn.LayoutOrder = 7
+    SoundSelectBtn.LayoutOrder = 8
     SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
     SoundSelectBtn.BackgroundColor3 = Theme.Element
     SoundSelectBtn.Text = ""
@@ -3003,10 +3293,10 @@ function TryxzLib:CreateWindow(config)
         WriteConfigFile()
     end)
 
-    -- 8. Multi-Profile Config Manager Card
+    -- 9. Multi-Profile Config Manager Card
     if Cfg.SaveEnabled then
         local ProfCard = Instance.new("Frame")
-        ProfCard.LayoutOrder = 8
+        ProfCard.LayoutOrder = 9
         ProfCard.Size = UDim2.new(1, 0, 0, 74)
         ProfCard.BackgroundColor3 = Theme.GrayTranslucent
         ProfCard.BackgroundTransparency = 0.5
@@ -3103,6 +3393,13 @@ function TryxzLib:CreateWindow(config)
                         flagObj:Set(loaded[flagKey], true)
                     end
                 end
+                if type(loaded["_FnBinds"]) == "table" then
+                    for fnId, bindObj in pairs(Window.Keybinds or {}) do
+                        if loaded["_FnBinds"][fnId] ~= nil and bindObj.SetKey then
+                            bindObj:SetKey(loaded["_FnBinds"][fnId], true)
+                        end
+                    end
+                end
                 if type(loaded["_Accent"]) == "table" and #loaded["_Accent"] == 3 then
                     TryxzLib:SetAccent(Color3.new(loaded["_Accent"][1], loaded["_Accent"][2], loaded["_Accent"][3]))
                 end
@@ -3134,9 +3431,9 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 9. Unload / Destroy UI Button -> Removes Blur completely
+    -- 10. Unload / Destroy UI Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 9
+    DestroyBtn.LayoutOrder = 10
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Theme.Error
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -3178,6 +3475,11 @@ function TryxzLib:CreateWindow(config)
     end)
 
     function Window:Save() WriteConfigFile() end
+
+    -- Public helper to register any custom function into the Gear Keybinds Dropdown
+    function Window:RegisterKeybind(bindInfo)
+        RegisterBindable(bindInfo)
+    end
 
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
@@ -3285,7 +3587,7 @@ function TryxzLib:CreateWindow(config)
             table.insert(TabData.Items, {Name = tostring(nameStr or ""), Obj = obj})
         end
 
-        local TabAPI = CreateElementFactory(DefaultPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable)
+        local TabAPI = CreateElementFactory(DefaultPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
 
         local SubTabBar, SubTabs = nil, {}
         function TabAPI:AddSubTab(subName)
@@ -3368,7 +3670,7 @@ function TryxzLib:CreateWindow(config)
             table.insert(SubTabs, subEntry)
             if #SubTabs == 1 then SelectSubTab() end
 
-            return CreateElementFactory(SubPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable)
+            return CreateElementFactory(SubPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
         end
 
         return TabAPI
@@ -3378,4 +3680,3 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
- 
