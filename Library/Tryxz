@@ -1,6 +1,6 @@
 --[[
-  TryxzLib developed by gthsc51
-   TryxzLib, I hope it is the most modern library available right now.
+    TryxzLib by gthsc51
+    TryxzLib = Library that I think should be famous.
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -570,7 +570,8 @@ function TryxzLib:Dialog(config)
     ConfirmBtn.MouseButton1Click:Connect(function() CloseDialog(OnConfirm) end)
 end
 
-local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback)
+-- Smooth Draggable Utility (Supports optional live position sync callback for attached bottom bar)
+local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback, onDragMove)
     local dragging, dragInput, dragStart, startPos, moved = false, nil, nil, nil, false
 
     dragHandle.InputBegan:Connect(function(input)
@@ -606,9 +607,13 @@ local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCall
                 newX = math.clamp(newX, 8, math.max(8, screenSize.X - objSize.X - 8))
                 newY = math.clamp(newY, 8, math.max(8, screenSize.Y - objSize.Y - 8))
             end
+            local nextPos = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
             Tween(targetFrame, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+                Position = nextPos
             })
+            if onDragMove then
+                onDragMove(nextPos)
+            end
         end
     end)
 end
@@ -955,7 +960,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- DETACHED ELEMENT FACTORY (WITH KEYBIND REGISTRY HOOK)
+-- DETACHED ELEMENT FACTORY (WITH ICONS ON DROPDOWNS & MULTIDROPDOWNS)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -1807,11 +1812,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
+    -- 12. DROPDOWN (Supports Icon on header & OptionIcons per option)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
+        local OptIcons = dCfg.OptionIcons or {}
         local Default = dCfg.Default or Options[1] or "Select"
         local Callback = dCfg.Callback or function() end
+        local hasIcon = dCfg.Icon ~= nil and tostring(dCfg.Icon) ~= ""
         local Open = false
 
         if Cfg.SaveEnabled and Flag and Cfg.SavedData[Flag] ~= nil then Default = Cfg.SavedData[Flag] end
@@ -1832,26 +1840,33 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Text = ""
         Header.Parent = DropFrame
 
+        if hasIcon then
+            CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+        end
+
+        local titleX = hasIcon and 30 or 10
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(0.5, 0, 1, 0)
-        Title.Position = UDim2.new(0, 10, 0, 0)
+        Title.Size = UDim2.new(0.46, -titleX, 1, 0)
+        Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = dCfg.Name or "Dropdown"
         Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamSemibold
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.TextTruncate = Enum.TextTruncate.AtEnd
         Title.Parent = Header
 
         local SelectedLbl = Instance.new("TextLabel")
-        SelectedLbl.Size = UDim2.new(0.5, -30, 1, 0)
-        SelectedLbl.Position = UDim2.new(0.5, 0, 0, 0)
+        SelectedLbl.Size = UDim2.new(0.54, -28, 1, 0)
+        SelectedLbl.Position = UDim2.new(0.46, 0, 0, 0)
         SelectedLbl.BackgroundTransparency = 1
         SelectedLbl.Text = tostring(Default)
         SelectedLbl.TextColor3 = Theme.Accent
         SelectedLbl.Font = Enum.Font.Gotham
         SelectedLbl.TextSize = 11
         SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
+        SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
         SelectedLbl.Parent = Header
         BindAccent(SelectedLbl, "TextColor3")
 
@@ -1886,26 +1901,48 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.MouseButton1Click:Connect(ToggleDrop)
 
         for i, opt in ipairs(Options) do
+            local optIcon = OptIcons[opt] or OptIcons[tostring(opt)] or (type(opt) == "table" and opt.Icon)
+            local optLabel = type(opt) == "table" and (opt.Text or opt.Name or tostring(opt)) or tostring(opt)
+            local optValue = type(opt) == "table" and (opt.Value or optLabel) or opt
+            local hasOptIcon = optIcon ~= nil and tostring(optIcon) ~= ""
+
             local OptBtn = Instance.new("TextButton")
             OptBtn.LayoutOrder = i
             OptBtn.Size = UDim2.new(1, 0, 0, 22)
             OptBtn.BackgroundColor3 = Theme.Background
-            OptBtn.Text = "  " .. tostring(opt)
-            OptBtn.TextColor3 = Theme.SubText
-            OptBtn.Font = Enum.Font.Gotham
-            OptBtn.TextSize = 11
-            OptBtn.TextXAlignment = Enum.TextXAlignment.Left
+            OptBtn.Text = ""
             OptBtn.AutoButtonColor = false
             OptBtn.Parent = ListHolder
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
 
-            OptBtn.MouseEnter:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover, TextColor3 = Theme.Text}) end)
-            OptBtn.MouseLeave:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background, TextColor3 = Theme.SubText}) end)
+            if hasOptIcon then
+                CreateIcon(OptBtn, optIcon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+            end
+
+            local OptTxt = Instance.new("TextLabel")
+            OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
+            OptTxt.Position = UDim2.new(0, hasOptIcon and 25 or 8, 0, 0)
+            OptTxt.BackgroundTransparency = 1
+            OptTxt.Text = optLabel
+            OptTxt.TextColor3 = Theme.SubText
+            OptTxt.Font = Enum.Font.Gotham
+            OptTxt.TextSize = 11
+            OptTxt.TextXAlignment = Enum.TextXAlignment.Left
+            OptTxt.Parent = OptBtn
+
+            OptBtn.MouseEnter:Connect(function()
+                Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
+                Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.Text})
+            end)
+            OptBtn.MouseLeave:Connect(function()
+                Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background})
+                Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.SubText})
+            end)
             OptBtn.MouseButton1Click:Connect(function()
-                SelectedLbl.Text = tostring(opt)
-                if Flag then Cfg.SavedData[Flag] = opt WriteConfigFile() end
+                SelectedLbl.Text = optLabel
+                if Flag then Cfg.SavedData[Flag] = optValue WriteConfigFile() end
                 ToggleDrop()
-                task.spawn(Callback, opt)
+                task.spawn(Callback, optValue)
             end)
         end
 
@@ -1921,11 +1958,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
+    -- 13. MULTI-DROPDOWN (Supports Icon on header & OptionIcons per option)
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
+        local OptIcons = mCfg.OptionIcons or {}
         local Selected = {}
         local Callback = mCfg.Callback or function() end
+        local hasIcon = mCfg.Icon ~= nil and tostring(mCfg.Icon) ~= ""
         local Open = false
 
         if Cfg.SaveEnabled and Flag and type(Cfg.SavedData[Flag]) == "table" then
@@ -1950,20 +1990,26 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Text = ""
         Header.Parent = DropFrame
 
+        if hasIcon then
+            CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+        end
+
+        local titleX = hasIcon and 30 or 10
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(0.45, 0, 1, 0)
-        Title.Position = UDim2.new(0, 10, 0, 0)
+        Title.Size = UDim2.new(0.42, -titleX, 1, 0)
+        Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = mCfg.Name or "MultiDropdown"
         Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamSemibold
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.TextTruncate = Enum.TextTruncate.AtEnd
         Title.Parent = Header
 
         local SelectedLbl = Instance.new("TextLabel")
-        SelectedLbl.Size = UDim2.new(0.55, -30, 1, 0)
-        SelectedLbl.Position = UDim2.new(0.45, 0, 0, 0)
+        SelectedLbl.Size = UDim2.new(0.58, -28, 1, 0)
+        SelectedLbl.Position = UDim2.new(0.42, 0, 0, 0)
         SelectedLbl.BackgroundTransparency = 1
         SelectedLbl.Text = "None"
         SelectedLbl.TextColor3 = Theme.Accent
@@ -2014,27 +2060,43 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local OptButtons = {}
         for i, opt in ipairs(Options) do
+            local optIcon = OptIcons[opt] or OptIcons[tostring(opt)]
+            local hasOptIcon = optIcon ~= nil and tostring(optIcon) ~= ""
+
             local OptBtn = Instance.new("TextButton")
             OptBtn.LayoutOrder = i
             OptBtn.Size = UDim2.new(1, 0, 0, 22)
             OptBtn.BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background
-            OptBtn.Text = "  " .. tostring(opt)
-            OptBtn.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
-            OptBtn.Font = Enum.Font.Gotham
-            OptBtn.TextSize = 11
-            OptBtn.TextXAlignment = Enum.TextXAlignment.Left
+            OptBtn.Text = ""
             OptBtn.AutoButtonColor = false
             OptBtn.Parent = ListHolder
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
             BindAccent(OptBtn, "BackgroundColor3", function() return Selected[opt] end)
             OptButtons[opt] = OptBtn
 
+            if hasOptIcon then
+                CreateIcon(OptBtn, optIcon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+            end
+
+            local OptTxt = Instance.new("TextLabel")
+            OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
+            OptTxt.Position = UDim2.new(0, hasOptIcon and 25 or 8, 0, 0)
+            OptTxt.BackgroundTransparency = 1
+            OptTxt.Text = tostring(opt)
+            OptTxt.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
+            OptTxt.Font = Enum.Font.Gotham
+            OptTxt.TextSize = 11
+            OptTxt.TextXAlignment = Enum.TextXAlignment.Left
+            OptTxt.Parent = OptBtn
+
             OptBtn.MouseButton1Click:Connect(function()
                 TriggerHaptic(0.25)
                 TryxzLib:PlaySound("Toggle")
                 Selected[opt] = not Selected[opt]
                 Tween(OptBtn, Tweens.Fast, {
-                    BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background,
+                    BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background
+                })
+                Tween(OptTxt, Tweens.Fast, {
                     TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
                 })
                 UpdateSummary(true)
@@ -2051,7 +2113,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             end
             for opt, btn in pairs(OptButtons) do
                 btn.BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background
-                btn.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
             end
             UpdateSummary(not skipWrite)
         end
@@ -2063,7 +2124,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (WITH GEAR KEYBINDS DROPDOWN)
+-- CREATE MAIN WINDOW (WITH TRANSLUCENT WHITE BOTTOM DRAG BAR)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2211,6 +2272,67 @@ function TryxzLib:CreateWindow(config)
     MainStroke.Thickness = 1.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+    -- Translucent White Animated Drag Line Below the GUI
+    local BottomDragBar = Instance.new("TextButton")
+    BottomDragBar.Name = "BottomDragLine"
+    BottomDragBar.Size = UDim2.new(0, 130, 0, 5)
+    BottomDragBar.Position = UDim2.new(0.5, 0, 0.5, (Cfg.WinH * Cfg.UIScale) / 2 + 10)
+    BottomDragBar.AnchorPoint = Vector2.new(0.5, 0)
+    BottomDragBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    BottomDragBar.BackgroundTransparency = 0.42
+    BottomDragBar.Text = ""
+    BottomDragBar.AutoButtonColor = false
+    BottomDragBar.Visible = false
+    BottomDragBar.ZIndex = 12
+    BottomDragBar.Parent = ScreenGui
+    Instance.new("UICorner", BottomDragBar).CornerRadius = UDim.new(1, 0)
+
+    local function SyncBottomDragBar(curH)
+        local heightPx = (curH or (State.Minimized and Cfg.TopH or Cfg.WinH)) * MainUIScale.Scale
+        local centerX = Main.Position.X.Offset + (Main.AbsoluteSize.X / 2)
+        local centerY = Main.Position.Y.Offset + (Main.AbsoluteSize.Y / 2)
+        BottomDragBar.Position = UDim2.new(0, centerX, 0, centerY + (heightPx / 2) + 10)
+    end
+
+    BottomDragBar.MouseEnter:Connect(function()
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 165, 0, 6), BackgroundTransparency = 0.15})
+    end)
+    BottomDragBar.MouseLeave:Connect(function()
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+    end)
+
+    -- Smooth drag from the bottom white line moves Main and keeps the line synced
+    local bDragging, bDragInput, bDragStart, bStartMainPos = false, nil, nil, nil
+    BottomDragBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            bDragging = true
+            bDragStart = input.Position
+            bStartMainPos = Main.Position
+            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 180, 0, 6), BackgroundTransparency = 0.1})
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    bDragging = false
+                    Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+                end
+            end)
+        end
+    end)
+    BottomDragBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            bDragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == bDragInput and bDragging then
+            local delta = input.Position - bDragStart
+            local nextMainPos = UDim2.new(bStartMainPos.X.Scale, bStartMainPos.X.Offset + delta.X, bStartMainPos.Y.Scale, bStartMainPos.Y.Offset + delta.Y)
+            Tween(Main, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = nextMainPos})
+            Tween(BottomDragBar, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, nextMainPos.X.Offset + (Main.AbsoluteSize.X / 2), 0, nextMainPos.Y.Offset + Main.AbsoluteSize.Y + 10)
+            })
+        end
+    end)
+
     local FloatingUIBtn = Instance.new("TextButton")
     FloatingUIBtn.Name = "FloatingUIButton"
     FloatingUIBtn.Size = UDim2.new(0, 0, 0, 0)
@@ -2232,8 +2354,14 @@ function TryxzLib:CreateWindow(config)
 
     local function OpenMainWindow(autoKeyBypassed)
         Main.Visible = true
+        BottomDragBar.Visible = true
+        BottomDragBar.Size = UDim2.new(0, 0, 0, 5)
         SetBlurActive(true)
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+        task.delay(0.12, function()
+            SyncBottomDragBar(Cfg.WinH)
+            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 130, 0, 5)})
+        end)
         if autoKeyBypassed then
             task.delay(0.35, function()
                 TryxzLib:Notify({
@@ -2259,9 +2387,11 @@ function TryxzLib:CreateWindow(config)
         TriggerHaptic(0.3)
         TryxzLib:PlaySound("Click")
         SetBlurActive(false)
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 5), BackgroundTransparency = 1})
         local closeT = Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
         closeT.Completed:Wait()
         Main.Visible = false
+        BottomDragBar.Visible = false
         FloatingUIBtn.Visible = true
         Tween(FloatingUIBtn, Tweens.Bounce, {Size = UDim2.new(0, 44, 0, 44)})
     end
@@ -2275,8 +2405,14 @@ function TryxzLib:CreateWindow(config)
         closeF.Completed:Wait()
         FloatingUIBtn.Visible = false
         Main.Visible = true
+        BottomDragBar.Visible = true
         SetBlurActive(not State.Minimized)
-        Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+        local targetH = State.Minimized and Cfg.TopH or Cfg.WinH
+        Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, targetH)})
+        task.delay(0.12, function()
+            SyncBottomDragBar(targetH)
+            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+        end)
     end
 
     MakeDraggable(FloatingUIBtn, FloatingUIBtn, true, RestoreFromFloatingUI)
@@ -2288,6 +2424,8 @@ function TryxzLib:CreateWindow(config)
                 0, math.clamp(FloatingUIBtn.Position.X.Offset, 8, math.max(8, s.X - 52)),
                 0, math.clamp(FloatingUIBtn.Position.Y.Offset, 8, math.max(8, s.Y - 52))
             )
+        elseif Main.Visible then
+            SyncBottomDragBar()
         end
     end)
 
@@ -2308,7 +2446,9 @@ function TryxzLib:CreateWindow(config)
     Topbar.BackgroundTransparency = 1
     Topbar.ZIndex = 5
     Topbar.Parent = Main
-    MakeDraggable(Topbar, Main, false)
+    MakeDraggable(Topbar, Main, false, nil, function(nextPos)
+        BottomDragBar.Position = UDim2.new(0, nextPos.X.Offset + (Main.AbsoluteSize.X / 2), 0, nextPos.Y.Offset + Main.AbsoluteSize.Y + 10)
+    end)
 
     local TopDivider = Instance.new("Frame")
     TopDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -2463,12 +2603,14 @@ function TryxzLib:CreateWindow(config)
             TopDivider.Visible = false
             SetBlurActive(false)
             Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.TopH)})
+            task.delay(0.1, function() SyncBottomDragBar(Cfg.TopH) end)
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
             TopDivider.Visible = true
             SetBlurActive(true)
             Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+            task.delay(0.12, function() SyncBottomDragBar(Cfg.WinH) end)
         end
     end)
 
@@ -2478,13 +2620,17 @@ function TryxzLib:CreateWindow(config)
             State.Hidden = not State.Hidden
             if State.Hidden then
                 SetBlurActive(false)
+                BottomDragBar.Visible = false
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
                 Main.Visible = false
             else
                 Main.Visible = true
+                BottomDragBar.Visible = true
                 SetBlurActive(not State.Minimized)
-                Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+                local targetH = State.Minimized and Cfg.TopH or Cfg.WinH
+                Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, targetH)})
+                task.delay(0.12, function() SyncBottomDragBar(targetH) end)
             end
         end
     end)
@@ -2623,7 +2769,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE + DISTINCT KEYBINDS DROPDOWN
+    -- SETTINGS PAGE + FIXED KEYBINDS DROPDOWN
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2646,7 +2792,6 @@ function TryxzLib:CreateWindow(config)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- 1. Credits Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
     CreditsCard.Size = UDim2.new(1, 0, 0, 62)
@@ -2663,7 +2808,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.3 by gthsc51"
+    CTitle.Text = "TryxzLib v3.4 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2676,7 +2821,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.Size = UDim2.new(1, -20, 0, 28)
     CDesc.Position = UDim2.new(0, 10, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Smooth animated UI library built for executors.\nPress [" .. Cfg.Keybind.Name .. "] or tap UI to toggle visibility."
+    CDesc.Text = "Smooth animated UI library built for executors.\nDrag the bottom white line or press [" .. Cfg.Keybind.Name .. "] to move/toggle."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -2685,7 +2830,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- 2. DISTINCT KEYBINDS DROPDOWN IN GEAR (Lists Toggles, Sliders, Buttons, etc.)
+    -- Function Keybinds Dropdown (Clean non-overlapping header layout)
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
@@ -2726,7 +2871,7 @@ function TryxzLib:CreateWindow(config)
     BindAccent(KDropIcon, "TextColor3")
 
     local KDropTitle = Instance.new("TextLabel")
-    KDropTitle.Size = UDim2.new(0.62, 0, 1, 0)
+    KDropTitle.Size = UDim2.new(1, -116, 1, 0)
     KDropTitle.Position = UDim2.new(0, 32, 0, 0)
     KDropTitle.BackgroundTransparency = 1
     KDropTitle.Text = "Function Keybinds"
@@ -2734,12 +2879,13 @@ function TryxzLib:CreateWindow(config)
     KDropTitle.Font = Enum.Font.GothamBold
     KDropTitle.TextSize = 11
     KDropTitle.TextXAlignment = Enum.TextXAlignment.Left
+    KDropTitle.TextTruncate = Enum.TextTruncate.AtEnd
     KDropTitle.ZIndex = 13
     KDropTitle.Parent = KDropHeader
 
     local KDropCount = Instance.new("TextLabel")
-    KDropCount.Size = UDim2.new(0.25, -24, 1, 0)
-    KDropCount.Position = UDim2.new(0.7, 0, 0, 0)
+    KDropCount.Size = UDim2.new(0, 56, 1, 0)
+    KDropCount.Position = UDim2.new(1, -80, 0, 0)
     KDropCount.BackgroundTransparency = 1
     KDropCount.Text = "0 items"
     KDropCount.TextColor3 = Theme.SubText
@@ -2912,7 +3058,6 @@ function TryxzLib:CreateWindow(config)
         RefreshKeybindDropdownHeight()
     end
 
-    -- Global listener for Gear Keybinds Dropdown
     UserInputService.InputBegan:Connect(function(input, gpe)
         if ListeningEntry then
             if input.UserInputType == Enum.UserInputType.Keyboard then
@@ -3067,7 +3212,9 @@ function TryxzLib:CreateWindow(config)
         Cfg.UIScale = clamped
         MainUIScale.Scale = clamped
         ScaleValLbl.Text = string.format("%.2fx", clamped)
-        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new((clamped - 0.75) / 0.60, 0, 1, 0)})
+        local pct = (clamped - 0.75) / 0.60
+        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(pct, 0, 1, 0)})
+        SyncBottomDragBar()
         if saveNow then WriteConfigFile() end
     end
 
@@ -3456,10 +3603,12 @@ function TryxzLib:CreateWindow(config)
             OnConfirm = function()
                 TriggerHaptic(0.4)
                 SetBlurActive(false)
+                BottomDragBar.Visible = false
                 if StatsConnection then StatsConnection:Disconnect() end
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
                 DestroyBlur()
+                BottomDragBar:Destroy()
                 ScreenGui:Destroy()
             end
         })
@@ -3476,7 +3625,6 @@ function TryxzLib:CreateWindow(config)
 
     function Window:Save() WriteConfigFile() end
 
-    -- Public helper to register any custom function into the Gear Keybinds Dropdown
     function Window:RegisterKeybind(bindInfo)
         RegisterBindable(bindInfo)
     end
@@ -3680,3 +3828,4 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
+ 
