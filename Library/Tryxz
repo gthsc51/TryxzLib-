@@ -1,5 +1,5 @@
 --[[
-    TryxzLib v3.0 by gthsc51
+    TryxzLib v3.1 by gthsc51
     Complete, Modular, Fully Animated UI Library for Roblox Executors
 ]]
 
@@ -604,7 +604,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     local KScale = Instance.new("UIScale", KeyBox)
     KScale.Scale = 0
 
-    -- Bright Glowing Red "X" Close Button in Top-Right Corner
     local CloseKeyBtn = Instance.new("TextButton")
     CloseKeyBtn.Name = "CloseKeySystemBtn"
     CloseKeyBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -642,7 +641,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
         ScreenGui:Destroy()
     end)
 
-    -- Content Container inside KeyBox
     local KInner = Instance.new("Frame")
     KInner.Size = UDim2.new(1, 0, 0, 0)
     KInner.AutomaticSize = Enum.AutomaticSize.Y
@@ -905,14 +903,13 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- DETACHED ELEMENT FACTORY (Shared by Tabs & SubTabs)
+-- DETACHED ELEMENT FACTORY
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable)
     local API = {}
     local ElementOrder = 0
     local function NextOrder() ElementOrder += 1 return ElementOrder end
 
-    -- 1. SECTION
     function API:AddSection(text)
         local SecFrame = Instance.new("Frame")
         SecFrame.LayoutOrder = NextOrder()
@@ -935,7 +932,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SecLbl
     end
 
-    -- 2. DIVIDER
     function API:AddDivider()
         local DivHolder = Instance.new("Frame")
         DivHolder.LayoutOrder = NextOrder()
@@ -955,7 +951,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
     end
 
-    -- 3. LABEL
     function API:AddLabel(text)
         local LblFrame = Instance.new("Frame")
         LblFrame.LayoutOrder = NextOrder()
@@ -982,7 +977,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return LabelObj
     end
 
-    -- 4. PARAGRAPH
     function API:AddParagraph(pCfg)
         local ParaFrame = Instance.new("Frame")
         ParaFrame.LayoutOrder = NextOrder()
@@ -1033,7 +1027,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ParaObj
     end
 
-    -- 5. PROGRESS BAR (Dynamic Animated Meter)
     function API:AddProgressBar(bCfg)
         local MaxVal = bCfg.Max or 100
         local CurVal = math.clamp(bCfg.Default or 0, 0, MaxVal)
@@ -1095,7 +1088,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
-    -- 6. BUTTON (Supports Icon, Sound, Tooltip & Cooldown)
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -1179,7 +1171,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         end)
     end
 
-    -- 7. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -1250,7 +1241,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ToggleObj
     end
 
-    -- 8. SLIDER
     function API:AddSlider(sCfg)
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
@@ -1366,7 +1356,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SliderObj
     end
 
-    -- 9. INPUT / TEXTBOX
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
@@ -1453,7 +1442,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
-    -- 10. KEYBIND PICKER
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
@@ -1540,7 +1528,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
-    -- 11. COLOR PICKER
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
@@ -1726,7 +1713,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 12. DROPDOWN
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -1841,7 +1827,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
-    -- 13. MULTI-DROPDOWN
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -1984,7 +1969,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (WITH MULTI-PROFILE CONFIG MANAGER & UI SCALE)
+-- CREATE MAIN WINDOW
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2021,7 +2006,6 @@ function TryxzLib:CreateWindow(config)
 
     if config.Accent then Theme.Accent = config.Accent end
 
-    -- Setup Multi-Profile SaveConfig & SaveKey
     if type(config.SaveConfig) == "boolean" then
         Cfg.SaveEnabled = config.SaveConfig
     elseif type(config.SaveConfig) == "table" then
@@ -2105,7 +2089,6 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- Main Window Frame
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
@@ -2125,7 +2108,6 @@ function TryxzLib:CreateWindow(config)
     MainStroke.Thickness = 1.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    -- Floating UI Button
     local FloatingUIBtn = Instance.new("TextButton")
     FloatingUIBtn.Name = "FloatingUIButton"
     FloatingUIBtn.Size = UDim2.new(0, 0, 0, 0)
@@ -2203,7 +2185,6 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- Check KeySystem + SaveKey
     local KeyConfig = config.KeySystem
     if KeyConfig and KeyConfig.Enabled ~= false then
         if Cfg.SaveEnabled and Cfg.SaveKey and Cfg.SavedKey and CheckKeyValid(KeyConfig, Cfg.SavedKey) then
@@ -2474,7 +2455,6 @@ function TryxzLib:CreateWindow(config)
     local Window = {Tabs = {}, TabOrder = 0, Flags = {}}
     local PageTopOffset = 0
 
-    -- Optional Live Search Bar
     if Cfg.SearchBar then
         PageTopOffset = 34
         local SearchHolder = Instance.new("Frame")
@@ -2533,7 +2513,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS & MULTI-PROFILE CONFIG MANAGER
+    -- SETTINGS PAGE (WITH UNIQUE SEGMENTED DIAMOND UI SCALE SLIDER)
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2573,7 +2553,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.0 by gthsc51"
+    CTitle.Text = "TryxzLib v3.1 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2595,21 +2575,27 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- 2. UI Scale Control Card
+    -- 2. UNIQUE SEGMENTED STEPPER + DIAMOND KNOB UI SCALE SLIDER
     local ScaleCard = Instance.new("Frame")
     ScaleCard.LayoutOrder = 2
-    ScaleCard.Size = UDim2.new(1, 0, 0, 42)
+    ScaleCard.Size = UDim2.new(1, 0, 0, 56)
     ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
-    ScaleCard.BackgroundTransparency = 0.5
+    ScaleCard.BackgroundTransparency = 0.45
     ScaleCard.ZIndex = 11
     ScaleCard.Parent = SettingsPage
     Instance.new("UICorner", ScaleCard).CornerRadius = UDim.new(0, 12)
 
+    local SCStroke = Instance.new("UIStroke", ScaleCard)
+    SCStroke.Color = Theme.Accent
+    SCStroke.Thickness = 1
+    SCStroke.Transparency = 0.55
+    BindAccent(SCStroke, "Color")
+
     local ScaleTitle = Instance.new("TextLabel")
-    ScaleTitle.Size = UDim2.new(0.6, 0, 0, 20)
-    ScaleTitle.Position = UDim2.new(0, 12, 0, 3)
+    ScaleTitle.Size = UDim2.new(0.6, 0, 0, 18)
+    ScaleTitle.Position = UDim2.new(0, 12, 0, 6)
     ScaleTitle.BackgroundTransparency = 1
-    ScaleTitle.Text = "UI Scale (Screen Size)"
+    ScaleTitle.Text = "UI Viewport Scale"
     ScaleTitle.TextColor3 = Theme.Text
     ScaleTitle.Font = Enum.Font.GothamBold
     ScaleTitle.TextSize = 11
@@ -2617,22 +2603,57 @@ function TryxzLib:CreateWindow(config)
     ScaleTitle.ZIndex = 12
     ScaleTitle.Parent = ScaleCard
 
+    -- Glowing Pill Badge for Current Scale Value
+    local ScaleBadge = Instance.new("Frame")
+    ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
+    ScaleBadge.Position = UDim2.new(1, -60, 0, 6)
+    ScaleBadge.BackgroundColor3 = Theme.Accent
+    ScaleBadge.ZIndex = 12
+    ScaleBadge.Parent = ScaleCard
+    Instance.new("UICorner", ScaleBadge).CornerRadius = UDim.new(1, 0)
+    BindAccent(ScaleBadge, "BackgroundColor3")
+
     local ScaleValLbl = Instance.new("TextLabel")
-    ScaleValLbl.Size = UDim2.new(0.4, -14, 0, 20)
-    ScaleValLbl.Position = UDim2.new(0.6, 0, 0, 3)
+    ScaleValLbl.Size = UDim2.new(1, 0, 1, 0)
     ScaleValLbl.BackgroundTransparency = 1
     ScaleValLbl.Text = string.format("%.2fx", Cfg.UIScale)
-    ScaleValLbl.TextColor3 = Theme.Accent
-    ScaleValLbl.Font = Enum.Font.GothamBold
-    ScaleValLbl.TextSize = 11
-    ScaleValLbl.TextXAlignment = Enum.TextXAlignment.Right
-    ScaleValLbl.ZIndex = 12
-    ScaleValLbl.Parent = ScaleCard
-    BindAccent(ScaleValLbl, "TextColor3")
+    ScaleValLbl.TextColor3 = Theme.Text
+    ScaleValLbl.Font = Enum.Font.GothamBlack
+    ScaleValLbl.TextSize = 10
+    ScaleValLbl.ZIndex = 13
+    ScaleValLbl.Parent = ScaleBadge
 
+    -- Minus (-) and Plus (+) Quick Stepper Buttons flanking the track
+    local MinusScaleBtn = Instance.new("TextButton")
+    MinusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
+    MinusScaleBtn.Position = UDim2.new(0, 10, 0, 29)
+    MinusScaleBtn.BackgroundColor3 = Theme.Background
+    MinusScaleBtn.Text = "-"
+    MinusScaleBtn.TextColor3 = Theme.Text
+    MinusScaleBtn.Font = Enum.Font.GothamBold
+    MinusScaleBtn.TextSize = 13
+    MinusScaleBtn.AutoButtonColor = false
+    MinusScaleBtn.ZIndex = 13
+    MinusScaleBtn.Parent = ScaleCard
+    Instance.new("UICorner", MinusScaleBtn).CornerRadius = UDim.new(1, 0)
+
+    local PlusScaleBtn = Instance.new("TextButton")
+    PlusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
+    PlusScaleBtn.Position = UDim2.new(1, -30, 0, 29)
+    PlusScaleBtn.BackgroundColor3 = Theme.Background
+    PlusScaleBtn.Text = "+"
+    PlusScaleBtn.TextColor3 = Theme.Text
+    PlusScaleBtn.Font = Enum.Font.GothamBold
+    PlusScaleBtn.TextSize = 12
+    PlusScaleBtn.AutoButtonColor = false
+    PlusScaleBtn.ZIndex = 13
+    PlusScaleBtn.Parent = ScaleCard
+    Instance.new("UICorner", PlusScaleBtn).CornerRadius = UDim.new(1, 0)
+
+    -- Thick Segmented Track with Notches
     local ScaleTrack = Instance.new("TextButton")
-    ScaleTrack.Size = UDim2.new(1, -24, 0, 5)
-    ScaleTrack.Position = UDim2.new(0, 12, 0, 28)
+    ScaleTrack.Size = UDim2.new(1, -72, 0, 10)
+    ScaleTrack.Position = UDim2.new(0, 36, 0, 34)
     ScaleTrack.BackgroundColor3 = Theme.Background
     ScaleTrack.Text = ""
     ScaleTrack.AutoButtonColor = false
@@ -2640,38 +2661,90 @@ function TryxzLib:CreateWindow(config)
     ScaleTrack.Parent = ScaleCard
     Instance.new("UICorner", ScaleTrack).CornerRadius = UDim.new(1, 0)
 
+    -- 5 Snap Tick Marks along the track (0.75, 0.90, 1.05, 1.20, 1.35)
+    for idx = 0, 4 do
+        local tickDot = Instance.new("Frame")
+        tickDot.Size = UDim2.new(0, 3, 0, 3)
+        tickDot.AnchorPoint = Vector2.new(0.5, 0.5)
+        tickDot.Position = UDim2.new(idx / 4, 0, 0.5, 0)
+        tickDot.BackgroundColor3 = Theme.SubText
+        tickDot.BackgroundTransparency = 0.4
+        tickDot.BorderSizePixel = 0
+        tickDot.ZIndex = 13
+        tickDot.Parent = ScaleTrack
+        Instance.new("UICorner", tickDot).CornerRadius = UDim.new(1, 0)
+    end
+
+    local initScalePct = (Cfg.UIScale - 0.75) / 0.60
     local ScaleFill = Instance.new("Frame")
-    ScaleFill.Size = UDim2.new((Cfg.UIScale - 0.75) / 0.60, 0, 1, 0)
+    ScaleFill.Size = UDim2.new(initScalePct, 0, 1, 0)
     ScaleFill.BackgroundColor3 = Theme.Accent
     ScaleFill.ZIndex = 13
     ScaleFill.Parent = ScaleTrack
     Instance.new("UICorner", ScaleFill).CornerRadius = UDim.new(1, 0)
     BindAccent(ScaleFill, "BackgroundColor3")
 
+    -- Rotating Diamond Thumb Knob (Completely distinct from normal sliders)
+    local DiamondKnob = Instance.new("Frame")
+    DiamondKnob.Size = UDim2.new(0, 14, 0, 14)
+    DiamondKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+    DiamondKnob.Position = UDim2.new(1, 0, 0.5, 0)
+    DiamondKnob.Rotation = 45
+    DiamondKnob.BackgroundColor3 = Theme.Text
+    DiamondKnob.ZIndex = 15
+    DiamondKnob.Parent = ScaleFill
+    Instance.new("UICorner", DiamondKnob).CornerRadius = UDim.new(0, 4)
+
+    local KnobStroke = Instance.new("UIStroke", DiamondKnob)
+    KnobStroke.Color = Theme.Accent
+    KnobStroke.Thickness = 2
+    BindAccent(KnobStroke, "Color")
+
+    local lastScaleStep = Cfg.UIScale
+    local function ApplyNewUIScale(targetScale, saveNow)
+        local clamped = math.clamp(math.floor(targetScale * 20 + 0.5) / 20, 0.75, 1.35)
+        if clamped ~= lastScaleStep then
+            lastScaleStep = clamped
+            TriggerHaptic(0.18)
+            TryxzLib:PlaySound("Hover", 0.2)
+        end
+        Cfg.UIScale = clamped
+        MainUIScale.Scale = clamped
+        ScaleValLbl.Text = string.format("%.2fx", clamped)
+        local pct = (clamped - 0.75) / 0.60
+        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(pct, 0, 1, 0)})
+        if saveNow then WriteConfigFile() end
+    end
+
+    MinusScaleBtn.MouseButton1Click:Connect(function()
+        ApplyNewUIScale(Cfg.UIScale - 0.05, true)
+    end)
+    PlusScaleBtn.MouseButton1Click:Connect(function()
+        ApplyNewUIScale(Cfg.UIScale + 0.05, true)
+    end)
+
     local draggingScale = false
-    local function UpdateUIScale(inp)
+    local function UpdateScaleFromInput(inp)
         local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
-        local newScale = math.floor((0.75 + pos * 0.60) * 20 + 0.5) / 20
-        Cfg.UIScale = newScale
-        MainUIScale.Scale = newScale
-        ScaleValLbl.Text = string.format("%.2fx", newScale)
-        Tween(ScaleFill, TweenInfo.new(0.06), {Size = UDim2.new((newScale - 0.75) / 0.60, 0, 1, 0)})
+        ApplyNewUIScale(0.75 + pos * 0.60, false)
     end
 
     ScaleTrack.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             draggingScale = true
-            UpdateUIScale(inp)
+            Tween(DiamondKnob, Tweens.Bounce, {Size = UDim2.new(0, 17, 0, 17), Rotation = 135})
+            UpdateScaleFromInput(inp)
         end
     end)
     UserInputService.InputChanged:Connect(function(inp)
         if draggingScale and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-            UpdateUIScale(inp)
+            UpdateScaleFromInput(inp)
         end
     end)
     UserInputService.InputEnded:Connect(function(inp)
         if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) and draggingScale then
             draggingScale = false
+            Tween(DiamondKnob, Tweens.Bounce, {Size = UDim2.new(0, 14, 0, 14), Rotation = 45})
             WriteConfigFile()
         end
     end)
@@ -2965,6 +3038,9 @@ function TryxzLib:CreateWindow(config)
                 if type(loaded["_Accent"]) == "table" and #loaded["_Accent"] == 3 then
                     TryxzLib:SetAccent(Color3.new(loaded["_Accent"][1], loaded["_Accent"][2], loaded["_Accent"][3]))
                 end
+                if loaded["_UIScale"] ~= nil then
+                    ApplyNewUIScale(tonumber(loaded["_UIScale"]) or 1, false)
+                end
                 TriggerHaptic(0.35)
                 TryxzLib:Notify({Title = "Profile Loaded", Text = "Loaded profile '" .. pName .. "'.", Duration = 3})
             else
@@ -3033,9 +3109,6 @@ function TryxzLib:CreateWindow(config)
 
     function Window:Save() WriteConfigFile() end
 
-    -- ==========================================
-    -- CREATE TAB (WITH OPTIONAL SUB-TABS)
-    -- ==========================================
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
         local hasIcon = icon ~= nil and tostring(icon) ~= ""
@@ -3073,7 +3146,6 @@ function TryxzLib:CreateWindow(config)
         TabLbl.TextTruncate = Enum.TextTruncate.AtEnd
         TabLbl.Parent = TabBtn
 
-        -- Wrapper Frame for Tab (Supports both direct scrolling page or horizontal SubTabs)
         local TabWrapper = Instance.new("Frame")
         TabWrapper.Size = UDim2.new(1, 0, 1, -PageTopOffset)
         TabWrapper.Position = UDim2.new(0, 16, 0, PageTopOffset)
@@ -3145,7 +3217,6 @@ function TryxzLib:CreateWindow(config)
 
         local TabAPI = CreateElementFactory(DefaultPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable)
 
-        -- Horizontal SubTabs Support
         local SubTabBar, SubTabs = nil, {}
         function TabAPI:AddSubTab(subName)
             if not SubTabBar then
@@ -3237,4 +3308,3 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
- 
