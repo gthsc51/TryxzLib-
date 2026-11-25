@@ -1,6 +1,7 @@
 --[[
-    tryxzlib by gthsc51
-    Fully animated UI Library for Roblox executors (Luau Register-Safe Build)
+    TryxzLib by gthsc51
+    Fully animated UI Library for Roblox executors
+    Modular Architecture (Zero Luau Register/Upvalue Overflow)
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -14,9 +15,10 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local tryxzlib = {}
-tryxzlib.__index = tryxzlib
+local TryxzLib = {}
+TryxzLib.__index = TryxzLib
 
+-- Animation Presets
 local Tweens = {
     Fast = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
     Smooth = TweenInfo.new(0.26, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
@@ -24,6 +26,7 @@ local Tweens = {
     Elastic = TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 }
 
+-- Color Palette
 local Theme = {
     Background = Color3.fromRGB(16, 16, 20),
     Sidebar = Color3.fromRGB(22, 22, 28),
@@ -39,15 +42,52 @@ local Theme = {
     Divider = Color3.fromRGB(55, 55, 68)
 }
 
-local SoundConfig = {
+-- Sound Presets & Customizable Sound System
+local SoundPresets = {
+    ["Soft Pop"] = {
+        Click = "rbxassetid://6895079853",
+        Hover = "rbxassetid://6895079733",
+        Toggle = "rbxassetid://6895079853",
+        Notify = "rbxassetid://4590657391",
+        Success = "rbxassetid://4590662766",
+        Error = "rbxassetid://4590656842"
+    },
+    ["Mechanical"] = {
+        Click = "rbxassetid://421058925",
+        Hover = "rbxassetid://10066931761",
+        Toggle = "rbxassetid://421058925",
+        Notify = "rbxassetid://4590657391",
+        Success = "rbxassetid://4590662766",
+        Error = "rbxassetid://4590656842"
+    },
+    ["Bubble"] = {
+        Click = "rbxassetid://9119713951",
+        Hover = "rbxassetid://9119713951",
+        Toggle = "rbxassetid://9119713951",
+        Notify = "rbxassetid://4590657391",
+        Success = "rbxassetid://4590662766",
+        Error = "rbxassetid://4590656842"
+    },
+    ["Cyber"] = {
+        Click = "rbxassetid://876939830",
+        Hover = "rbxassetid://876939830",
+        Toggle = "rbxassetid://876939830",
+        Notify = "rbxassetid://4590657391",
+        Success = "rbxassetid://4590662766",
+        Error = "rbxassetid://4590656842"
+    }
+}
+
+local SoundState = {
     Enabled = true,
     Volume = 0.45,
-    Click = "rbxassetid://6895079853",
-    Hover = "rbxassetid://6895079733",
-    Toggle = "rbxassetid://6895079853",
-    Notify = "rbxassetid://4590657391",
-    Success = "rbxassetid://4590662766",
-    Error = "rbxassetid://4590656842"
+    Preset = "Soft Pop",
+    Click = SoundPresets["Soft Pop"].Click,
+    Hover = SoundPresets["Soft Pop"].Hover,
+    Toggle = SoundPresets["Soft Pop"].Toggle,
+    Notify = SoundPresets["Soft Pop"].Notify,
+    Success = SoundPresets["Soft Pop"].Success,
+    Error = SoundPresets["Soft Pop"].Error
 }
 
 local function Tween(obj, info, props)
@@ -90,7 +130,7 @@ end
 
 -- ScreenGui Setup
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "tryxzlib_" .. tostring(math.random(1000, 9999))
+ScreenGui.Name = "TryxzLib_" .. tostring(math.random(1000, 9999))
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -102,16 +142,46 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
-function tryxzlib:PlaySound(soundOrType, customVolume)
-    if not SoundConfig.Enabled then return end
-    local id = SoundConfig[soundOrType] or tostring(soundOrType)
-    if not id or id == "" then return end
+-- Public Sound API
+function TryxzLib:SetSoundPreset(presetName)
+    local preset = SoundPresets[presetName]
+    if preset then
+        SoundState.Preset = presetName
+        for k, v in pairs(preset) do
+            SoundState[k] = v
+        end
+    end
+end
+
+function TryxzLib:SetSounds(soundTable)
+    if type(soundTable) == "boolean" then
+        SoundState.Enabled = soundTable
+        return
+    end
+    if type(soundTable) ~= "table" then return end
+    if soundTable.Enabled ~= nil then SoundState.Enabled = soundTable.Enabled end
+    if soundTable.Volume ~= nil then SoundState.Volume = soundTable.Volume end
+    if soundTable.Preset and SoundPresets[soundTable.Preset] then
+        TryxzLib:SetSoundPreset(soundTable.Preset)
+    end
+    for _, key in ipairs({"Click", "Hover", "Toggle", "Notify", "Success", "Error"}) do
+        if soundTable[key] ~= nil then
+            local val = tostring(soundTable[key])
+            SoundState[key] = tonumber(val) and ("rbxassetid://" .. val) or val
+        end
+    end
+end
+
+function TryxzLib:PlaySound(soundOrType, customVolume)
+    if not SoundState.Enabled then return end
+    local id = SoundState[soundOrType] or tostring(soundOrType)
+    if not id or id == "" or id == "none" then return end
     if tonumber(id) then id = "rbxassetid://" .. id end
     task.spawn(function()
         pcall(function()
             local snd = Instance.new("Sound")
             snd.SoundId = id
-            snd.Volume = customVolume or SoundConfig.Volume
+            snd.Volume = customVolume or SoundState.Volume
             snd.Parent = SoundService
             snd:Play()
             snd.Ended:Connect(function() snd:Destroy() end)
@@ -134,11 +204,12 @@ NotifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 NotifLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 NotifLayout.Padding = UDim.new(0, 8)
 
-function tryxzlib:Notify(config)
+function TryxzLib:Notify(config)
+    config = config or {}
     local Title = config.Title or "Notification"
     local Text = config.Text or ""
     local Duration = config.Duration or 4
-    tryxzlib:PlaySound(config.Sound or "Notify")
+    TryxzLib:PlaySound(config.Sound or "Notify")
 
     local NotifFrame = Instance.new("Frame")
     NotifFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -252,11 +323,296 @@ local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCall
     end)
 end
 
+-- Detached KeySystem Builder (Keeps CreateWindow clean and lightweight)
+local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, OnSuccess)
+    local KeyBox = Instance.new("Frame")
+    KeyBox.Name = "KeySystemWindow"
+    KeyBox.Size = UDim2.new(0, 340, 0, 0)
+    KeyBox.AutomaticSize = Enum.AutomaticSize.Y
+    KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
+    KeyBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+    KeyBox.BackgroundColor3 = Theme.Background
+    KeyBox.BorderSizePixel = 0
+    KeyBox.ZIndex = 10
+    KeyBox.Parent = ScreenGui
+    MakeDraggable(KeyBox, KeyBox, true)
+
+    Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 18)
+    local KStroke = Instance.new("UIStroke", KeyBox)
+    KStroke.Color = Theme.Accent
+    KStroke.Thickness = 1.2
+    KStroke.Transparency = 0.35
+
+    local KScale = Instance.new("UIScale", KeyBox)
+    KScale.Scale = 0
+
+    local KPad = Instance.new("UIPadding", KeyBox)
+    KPad.PaddingTop, KPad.PaddingBottom = UDim.new(0, 18), UDim.new(0, 18)
+    KPad.PaddingLeft, KPad.PaddingRight = UDim.new(0, 20), UDim.new(0, 20)
+
+    local KLayout = Instance.new("UIListLayout", KeyBox)
+    KLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    KLayout.Padding = UDim.new(0, 10)
+    KLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local IconBadge = Instance.new("Frame")
+    IconBadge.LayoutOrder = 1
+    IconBadge.Size = UDim2.new(0, 44, 0, 44)
+    IconBadge.BackgroundColor3 = Theme.Element
+    IconBadge.ZIndex = 12
+    IconBadge.Parent = KeyBox
+    Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
+    local IBStroke = Instance.new("UIStroke", IconBadge)
+    IBStroke.Color = Theme.Accent
+    IBStroke.Thickness = 1.2
+
+    CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 22, UDim2.new(0.5, -11, 0.5, -11), 15)
+
+    local KTitleLbl = Instance.new("TextLabel")
+    KTitleLbl.LayoutOrder = 2
+    KTitleLbl.Size = UDim2.new(1, 0, 0, 20)
+    KTitleLbl.BackgroundTransparency = 1
+    KTitleLbl.Text = KeyConfig.Title or Cfg.Title
+    KTitleLbl.TextColor3 = Theme.Text
+    KTitleLbl.Font = Enum.Font.GothamBold
+    KTitleLbl.TextSize = 15
+    KTitleLbl.ZIndex = 12
+    KTitleLbl.Parent = KeyBox
+
+    local NoteFrame = Instance.new("Frame")
+    NoteFrame.LayoutOrder = 3
+    NoteFrame.Size = UDim2.new(1, 0, 0, 28)
+    NoteFrame.AutomaticSize = Enum.AutomaticSize.Y
+    NoteFrame.BackgroundColor3 = Theme.GrayTranslucent
+    NoteFrame.BackgroundTransparency = 0.6
+    NoteFrame.ZIndex = 12
+    NoteFrame.Parent = KeyBox
+    Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
+
+    local NPad = Instance.new("UIPadding", NoteFrame)
+    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
+    NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+
+    local NoteLbl = Instance.new("TextLabel")
+    NoteLbl.Size = UDim2.new(1, 0, 0, 0)
+    NoteLbl.AutomaticSize = Enum.AutomaticSize.Y
+    NoteLbl.BackgroundTransparency = 1
+    NoteLbl.Text = KeyConfig.Note or "Enter your access key below to continue."
+    NoteLbl.TextColor3 = Theme.SubText
+    NoteLbl.Font = Enum.Font.Gotham
+    NoteLbl.TextSize = 11
+    NoteLbl.TextWrapped = true
+    NoteLbl.ZIndex = 13
+    NoteLbl.Parent = NoteFrame
+
+    if KeyConfig.Info then
+        local InfoCard = Instance.new("Frame")
+        InfoCard.LayoutOrder = 4
+        InfoCard.Size = UDim2.new(1, 0, 0, 40)
+        InfoCard.AutomaticSize = Enum.AutomaticSize.Y
+        InfoCard.BackgroundColor3 = Theme.GrayTranslucent
+        InfoCard.BackgroundTransparency = 0.65
+        InfoCard.ZIndex = 12
+        InfoCard.Parent = KeyBox
+        Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
+
+        local IPad = Instance.new("UIPadding", InfoCard)
+        IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
+        IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
+
+        local IList = Instance.new("UIListLayout", InfoCard)
+        IList.Padding = UDim.new(0, 2)
+        IList.SortOrder = Enum.SortOrder.LayoutOrder
+
+        local ITitle = Instance.new("TextLabel")
+        ITitle.LayoutOrder = 1
+        ITitle.Size = UDim2.new(1, 0, 0, 14)
+        ITitle.BackgroundTransparency = 1
+        ITitle.Text = KeyConfig.Info.Title or "Information"
+        ITitle.TextColor3 = Theme.Text
+        ITitle.Font = Enum.Font.GothamBold
+        ITitle.TextSize = 11
+        ITitle.TextXAlignment = Enum.TextXAlignment.Left
+        ITitle.ZIndex = 13
+        ITitle.Parent = InfoCard
+
+        local IBody = Instance.new("TextLabel")
+        IBody.LayoutOrder = 2
+        IBody.Size = UDim2.new(1, 0, 0, 0)
+        IBody.AutomaticSize = Enum.AutomaticSize.Y
+        IBody.BackgroundTransparency = 1
+        IBody.Text = KeyConfig.Info.Content or KeyConfig.Info.Text or ""
+        IBody.TextColor3 = Theme.SubText
+        IBody.Font = Enum.Font.Gotham
+        IBody.TextSize = 10
+        IBody.TextWrapped = true
+        IBody.TextXAlignment = Enum.TextXAlignment.Left
+        IBody.ZIndex = 13
+        IBody.Parent = InfoCard
+    end
+
+    local InputHolder = Instance.new("Frame")
+    InputHolder.LayoutOrder = 5
+    InputHolder.Size = UDim2.new(1, 0, 0, 36)
+    InputHolder.BackgroundColor3 = Theme.Element
+    InputHolder.ZIndex = 12
+    InputHolder.Parent = KeyBox
+    Instance.new("UICorner", InputHolder).CornerRadius = UDim.new(0, 12)
+
+    local InputStroke = Instance.new("UIStroke", InputHolder)
+    InputStroke.Color = Theme.Divider
+    InputStroke.Thickness = 1
+
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Size = UDim2.new(1, -24, 1, 0)
+    KeyInput.Position = UDim2.new(0, 12, 0, 0)
+    KeyInput.BackgroundTransparency = 1
+    KeyInput.PlaceholderText = "Paste your key here..."
+    KeyInput.PlaceholderColor3 = Theme.SubText
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Theme.Text
+    KeyInput.Font = Enum.Font.GothamSemibold
+    KeyInput.TextSize = 12
+    KeyInput.ClearTextOnFocus = false
+    KeyInput.ZIndex = 13
+    KeyInput.Parent = InputHolder
+
+    KeyInput.Focused:Connect(function() Tween(InputStroke, Tweens.Fast, {Color = Theme.Accent}) end)
+    KeyInput.FocusLost:Connect(function() Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider}) end)
+
+    local AccessBtn = Instance.new("TextButton")
+    AccessBtn.LayoutOrder = 6
+    AccessBtn.Size = UDim2.new(1, 0, 0, 38)
+    AccessBtn.BackgroundColor3 = Theme.Accent
+    AccessBtn.Text = ""
+    AccessBtn.AutoButtonColor = false
+    AccessBtn.ZIndex = 12
+    AccessBtn.Parent = KeyBox
+    Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
+
+    local AccStroke = Instance.new("UIStroke", AccessBtn)
+    AccStroke.Color = Color3.fromRGB(185, 165, 255)
+    AccStroke.Thickness = 1.2
+    AccStroke.Transparency = 0.3
+
+    local KBtnText = KeyConfig.ButtonText or "Unlock Access"
+    local AccLbl = Instance.new("TextLabel")
+    AccLbl.Size = UDim2.new(1, -40, 1, 0)
+    AccLbl.Position = UDim2.new(0, 14, 0, 0)
+    AccLbl.BackgroundTransparency = 1
+    AccLbl.Text = KBtnText
+    AccLbl.TextColor3 = Theme.Text
+    AccLbl.Font = Enum.Font.GothamBold
+    AccLbl.TextSize = 12
+    AccLbl.ZIndex = 13
+    AccLbl.Parent = AccessBtn
+
+    local AccBadge = Instance.new("Frame")
+    AccBadge.Size = UDim2.new(0, 24, 0, 24)
+    AccBadge.Position = UDim2.new(1, -31, 0.5, -12)
+    AccBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    AccBadge.BackgroundTransparency = 0.85
+    AccBadge.ZIndex = 13
+    AccBadge.Parent = AccessBtn
+    Instance.new("UICorner", AccBadge).CornerRadius = UDim.new(1, 0)
+
+    local AccArrow = Instance.new("TextLabel")
+    AccArrow.Size = UDim2.new(1, 0, 1, 0)
+    AccArrow.BackgroundTransparency = 1
+    AccArrow.Text = "→"
+    AccArrow.TextColor3 = Theme.Text
+    AccArrow.Font = Enum.Font.GothamBold
+    AccArrow.TextSize = 14
+    AccArrow.ZIndex = 14
+    AccArrow.Parent = AccBadge
+
+    AccessBtn.MouseEnter:Connect(function()
+        TryxzLib:PlaySound("Hover", 0.25)
+        Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.AccentHover})
+        Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -28, 0.5, -12)})
+    end)
+    AccessBtn.MouseLeave:Connect(function()
+        Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
+        Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
+    end)
+
+    if KeyConfig.GetKeyLink and KeyConfig.GetKeyLink ~= "" then
+        local LinkBtn = Instance.new("TextButton")
+        LinkBtn.LayoutOrder = 7
+        LinkBtn.Size = UDim2.new(1, 0, 0, 26)
+        LinkBtn.BackgroundColor3 = Theme.GrayTranslucent
+        LinkBtn.BackgroundTransparency = 0.65
+        LinkBtn.Text = "Copy Key Link"
+        LinkBtn.TextColor3 = Theme.SubText
+        LinkBtn.Font = Enum.Font.GothamSemibold
+        LinkBtn.TextSize = 11
+        LinkBtn.AutoButtonColor = false
+        LinkBtn.ZIndex = 12
+        LinkBtn.Parent = KeyBox
+        Instance.new("UICorner", LinkBtn).CornerRadius = UDim.new(1, 0)
+
+        LinkBtn.MouseButton1Click:Connect(function()
+            TriggerHaptic(0.2)
+            if setclipboard then setclipboard(KeyConfig.GetKeyLink) end
+            TryxzLib:Notify({Title = "Link Copied", Text = "Key link copied to your clipboard.", Duration = 3})
+        end)
+    end
+
+    Tween(KScale, Tweens.Bounce, {Scale = 1})
+
+    local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
+    local function ValidateKey(entered)
+        if type(ValidKeys) == "function" then return ValidKeys(entered)
+        elseif type(ValidKeys) == "table" then
+            for _, k in ipairs(ValidKeys) do
+                if tostring(entered) == tostring(k) then return true end
+            end
+        elseif type(ValidKeys) == "string" then
+            return tostring(entered) == ValidKeys
+        end
+        return false
+    end
+
+    AccessBtn.MouseButton1Click:Connect(function()
+        if ValidateKey(KeyInput.Text) then
+            TriggerHaptic(0.5)
+            TryxzLib:PlaySound("Success")
+            AccLbl.Text = "Access Granted!"
+            AccArrow.Text = "✓"
+            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
+            Tween(InputStroke, Tweens.Fast, {Color = Theme.Success})
+            task.wait(0.35)
+            local closeK = Tween(KScale, Tweens.Smooth, {Scale = 0})
+            closeK.Completed:Wait()
+            KeyBox:Destroy()
+            OnSuccess()
+        else
+            TriggerHaptic(0.45)
+            TryxzLib:PlaySound("Error")
+            Tween(InputStroke, Tweens.Fast, {Color = Theme.Error})
+            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error})
+            AccLbl.Text = "Invalid Key"
+            local origPos = KeyBox.Position
+            for _, offset in ipairs({-8, 8, -5, 5, 0}) do
+                Tween(KeyBox, TweenInfo.new(0.05), {Position = UDim2.new(origPos.X.Scale, origPos.X.Offset + offset, origPos.Y.Scale, origPos.Y.Offset)})
+                task.wait(0.05)
+            end
+            task.delay(0.6, function()
+                if AccessBtn and AccessBtn.Parent then
+                    Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
+                    Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
+                    AccLbl.Text = KBtnText
+                end
+            end)
+        end
+    end)
+end
+
 -- Create Main Window
-function tryxzlib:CreateWindow(config)
+function TryxzLib:CreateWindow(config)
     config = config or {}
     local Cfg = {
-        Title = config.Title or "tryxzlib",
+        Title = config.Title or "TryxzLib",
         Subtitle = config.Subtitle or "",
         Icon = config.Icon,
         Profile = config.Profile ~= false,
@@ -297,7 +653,8 @@ function tryxzlib:CreateWindow(config)
             if makefolder and isfolder and not isfolder(Cfg.SaveFolder) then makefolder(Cfg.SaveFolder) end
             if writefile then
                 Cfg.SavedData["_Haptics"] = Cfg.Haptics
-                Cfg.SavedData["_Sounds"] = SoundConfig.Enabled
+                Cfg.SavedData["_Sounds"] = SoundState.Enabled
+                Cfg.SavedData["_SoundPreset"] = SoundState.Preset
                 writefile(Cfg.SaveFile, HttpService:JSONEncode(Cfg.SavedData))
             end
         end)
@@ -311,19 +668,19 @@ function tryxzlib:CreateWindow(config)
                     Cfg.SavedData = decoded
                     Cfg.HasExistingSave = true
                     if decoded["_Haptics"] ~= nil then Cfg.Haptics = decoded["_Haptics"] end
-                    if decoded["_Sounds"] ~= nil then SoundConfig.Enabled = decoded["_Sounds"] end
+                    if decoded["_Sounds"] ~= nil then SoundState.Enabled = decoded["_Sounds"] end
+                    if decoded["_SoundPreset"] and SoundPresets[decoded["_SoundPreset"]] then
+                        TryxzLib:SetSoundPreset(decoded["_SoundPreset"])
+                    end
                 end
             end
         end)
     end
 
-    if type(config.Sounds) == "boolean" then
-        if not Cfg.HasExistingSave then SoundConfig.Enabled = config.Sounds end
-    elseif type(config.Sounds) == "table" then
-        if config.Sounds.Enabled ~= nil and not Cfg.HasExistingSave then SoundConfig.Enabled = config.Sounds.Enabled end
-        if config.Sounds.Volume ~= nil then SoundConfig.Volume = config.Sounds.Volume end
-        for k, v in pairs(config.Sounds) do
-            if SoundConfig[k] ~= nil and k ~= "Enabled" and k ~= "Volume" then SoundConfig[k] = v end
+    if config.Sounds ~= nil then
+        TryxzLib:SetSounds(config.Sounds)
+        if Cfg.HasExistingSave and Cfg.SavedData["_Sounds"] ~= nil then
+            SoundState.Enabled = Cfg.SavedData["_Sounds"]
         end
     end
 
@@ -337,7 +694,7 @@ function tryxzlib:CreateWindow(config)
         end)
     end
 
-    -- Main Frame
+    -- Main Window Frame
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
@@ -378,7 +735,7 @@ function tryxzlib:CreateWindow(config)
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
         if Cfg.SaveEnabled and Cfg.HasExistingSave then
             task.delay(0.35, function()
-                tryxzlib:Notify({
+                TryxzLib:Notify({
                     Title = "Config Loaded",
                     Text = "Your previously saved configuration has been restored.",
                     Duration = 4
@@ -391,7 +748,7 @@ function tryxzlib:CreateWindow(config)
         if State.Collapsed then return end
         State.Collapsed = true
         TriggerHaptic(0.3)
-        tryxzlib:PlaySound("Click")
+        TryxzLib:PlaySound("Click")
         local closeT = Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
         closeT.Completed:Wait()
         Main.Visible = false
@@ -403,7 +760,7 @@ function tryxzlib:CreateWindow(config)
         if not State.Collapsed then return end
         State.Collapsed = false
         TriggerHaptic(0.3)
-        tryxzlib:PlaySound("Click")
+        TryxzLib:PlaySound("Click")
         local closeF = Tween(FloatingUIBtn, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
         closeF.Completed:Wait()
         FloatingUIBtn.Visible = false
@@ -423,308 +780,13 @@ function tryxzlib:CreateWindow(config)
         end
     end)
 
-    -- ==========================================
-    -- KEY SYSTEM GATE (Uses UIScale so it NEVER fails or stays 0x0)
-    -- ==========================================
-    local KeyConfig = config.KeySystem
-    if KeyConfig and KeyConfig.Enabled ~= false then
-        task.spawn(function()
-            local KWidth = 340
-            local KeyBox = Instance.new("Frame")
-            KeyBox.Name = "KeySystemWindow"
-            KeyBox.Size = UDim2.new(0, KWidth, 0, 0)
-            KeyBox.AutomaticSize = Enum.AutomaticSize.Y
-            KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
-            KeyBox.Position = UDim2.new(0.5, 0, 0.5, 0)
-            KeyBox.BackgroundColor3 = Theme.Background
-            KeyBox.BorderSizePixel = 0
-            KeyBox.ZIndex = 10
-            KeyBox.Parent = ScreenGui
-            MakeDraggable(KeyBox, KeyBox, true)
-
-            Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 18)
-            local KStroke = Instance.new("UIStroke", KeyBox)
-            KStroke.Color = Theme.Accent
-            KStroke.Thickness = 1.2
-            KStroke.Transparency = 0.35
-
-            local KScale = Instance.new("UIScale", KeyBox)
-            KScale.Scale = 0
-
-            local KPad = Instance.new("UIPadding", KeyBox)
-            KPad.PaddingTop = UDim.new(0, 18)
-            KPad.PaddingBottom = UDim.new(0, 18)
-            KPad.PaddingLeft = UDim.new(0, 20)
-            KPad.PaddingRight = UDim.new(0, 20)
-
-            local KLayout = Instance.new("UIListLayout", KeyBox)
-            KLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-            KLayout.Padding = UDim.new(0, 10)
-            KLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-            local IconBadge = Instance.new("Frame")
-            IconBadge.LayoutOrder = 1
-            IconBadge.Size = UDim2.new(0, 44, 0, 44)
-            IconBadge.BackgroundColor3 = Theme.Element
-            IconBadge.ZIndex = 12
-            IconBadge.Parent = KeyBox
-            Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
-            local IBStroke = Instance.new("UIStroke", IconBadge)
-            IBStroke.Color = Theme.Accent
-            IBStroke.Thickness = 1.2
-
-            CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 22, UDim2.new(0.5, -11, 0.5, -11), 15)
-
-            local KTitleLbl = Instance.new("TextLabel")
-            KTitleLbl.LayoutOrder = 2
-            KTitleLbl.Size = UDim2.new(1, 0, 0, 20)
-            KTitleLbl.BackgroundTransparency = 1
-            KTitleLbl.Text = KeyConfig.Title or Cfg.Title
-            KTitleLbl.TextColor3 = Theme.Text
-            KTitleLbl.Font = Enum.Font.GothamBold
-            KTitleLbl.TextSize = 15
-            KTitleLbl.ZIndex = 12
-            KTitleLbl.Parent = KeyBox
-
-            local NoteFrame = Instance.new("Frame")
-            NoteFrame.LayoutOrder = 3
-            NoteFrame.Size = UDim2.new(1, 0, 0, 28)
-            NoteFrame.AutomaticSize = Enum.AutomaticSize.Y
-            NoteFrame.BackgroundColor3 = Theme.GrayTranslucent
-            NoteFrame.BackgroundTransparency = 0.6
-            NoteFrame.ZIndex = 12
-            NoteFrame.Parent = KeyBox
-            Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
-
-            local NPad = Instance.new("UIPadding", NoteFrame)
-            NPad.PaddingTop = UDim.new(0, 6)
-            NPad.PaddingBottom = UDim.new(0, 6)
-            NPad.PaddingLeft = UDim.new(0, 10)
-            NPad.PaddingRight = UDim.new(0, 10)
-
-            local NoteLbl = Instance.new("TextLabel")
-            NoteLbl.Size = UDim2.new(1, 0, 0, 0)
-            NoteLbl.AutomaticSize = Enum.AutomaticSize.Y
-            NoteLbl.BackgroundTransparency = 1
-            NoteLbl.Text = KeyConfig.Note or "Enter your access key below to continue."
-            NoteLbl.TextColor3 = Theme.SubText
-            NoteLbl.Font = Enum.Font.Gotham
-            NoteLbl.TextSize = 11
-            NoteLbl.TextWrapped = true
-            NoteLbl.ZIndex = 13
-            NoteLbl.Parent = NoteFrame
-
-            if KeyConfig.Info then
-                local InfoCard = Instance.new("Frame")
-                InfoCard.LayoutOrder = 4
-                InfoCard.Size = UDim2.new(1, 0, 0, 40)
-                InfoCard.AutomaticSize = Enum.AutomaticSize.Y
-                InfoCard.BackgroundColor3 = Theme.GrayTranslucent
-                InfoCard.BackgroundTransparency = 0.65
-                InfoCard.ZIndex = 12
-                InfoCard.Parent = KeyBox
-                Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
-
-                local IPad = Instance.new("UIPadding", InfoCard)
-                IPad.PaddingTop = UDim.new(0, 8)
-                IPad.PaddingBottom = UDim.new(0, 8)
-                IPad.PaddingLeft = UDim.new(0, 12)
-                IPad.PaddingRight = UDim.new(0, 12)
-
-                local IList = Instance.new("UIListLayout", InfoCard)
-                IList.Padding = UDim.new(0, 2)
-                IList.SortOrder = Enum.SortOrder.LayoutOrder
-
-                local ITitle = Instance.new("TextLabel")
-                ITitle.LayoutOrder = 1
-                ITitle.Size = UDim2.new(1, 0, 0, 14)
-                ITitle.BackgroundTransparency = 1
-                ITitle.Text = KeyConfig.Info.Title or "Information"
-                ITitle.TextColor3 = Theme.Text
-                ITitle.Font = Enum.Font.GothamBold
-                ITitle.TextSize = 11
-                ITitle.TextXAlignment = Enum.TextXAlignment.Left
-                ITitle.ZIndex = 13
-                ITitle.Parent = InfoCard
-
-                local IBody = Instance.new("TextLabel")
-                IBody.LayoutOrder = 2
-                IBody.Size = UDim2.new(1, 0, 0, 0)
-                IBody.AutomaticSize = Enum.AutomaticSize.Y
-                IBody.BackgroundTransparency = 1
-                IBody.Text = KeyConfig.Info.Content or KeyConfig.Info.Text or ""
-                IBody.TextColor3 = Theme.SubText
-                IBody.Font = Enum.Font.Gotham
-                IBody.TextSize = 10
-                IBody.TextWrapped = true
-                IBody.TextXAlignment = Enum.TextXAlignment.Left
-                IBody.ZIndex = 13
-                IBody.Parent = InfoCard
-            end
-
-            local InputHolder = Instance.new("Frame")
-            InputHolder.LayoutOrder = 5
-            InputHolder.Size = UDim2.new(1, 0, 0, 36)
-            InputHolder.BackgroundColor3 = Theme.Element
-            InputHolder.ZIndex = 12
-            InputHolder.Parent = KeyBox
-            Instance.new("UICorner", InputHolder).CornerRadius = UDim.new(0, 12)
-
-            local InputStroke = Instance.new("UIStroke", InputHolder)
-            InputStroke.Color = Theme.Divider
-            InputStroke.Thickness = 1
-
-            local KeyInput = Instance.new("TextBox")
-            KeyInput.Size = UDim2.new(1, -24, 1, 0)
-            KeyInput.Position = UDim2.new(0, 12, 0, 0)
-            KeyInput.BackgroundTransparency = 1
-            KeyInput.PlaceholderText = "Paste your key here..."
-            KeyInput.PlaceholderColor3 = Theme.SubText
-            KeyInput.Text = ""
-            KeyInput.TextColor3 = Theme.Text
-            KeyInput.Font = Enum.Font.GothamSemibold
-            KeyInput.TextSize = 12
-            KeyInput.ClearTextOnFocus = false
-            KeyInput.ZIndex = 13
-            KeyInput.Parent = InputHolder
-
-            KeyInput.Focused:Connect(function() Tween(InputStroke, Tweens.Fast, {Color = Theme.Accent}) end)
-            KeyInput.FocusLost:Connect(function() Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider}) end)
-
-            local AccessBtn = Instance.new("TextButton")
-            AccessBtn.LayoutOrder = 6
-            AccessBtn.Size = UDim2.new(1, 0, 0, 38)
-            AccessBtn.BackgroundColor3 = Theme.Accent
-            AccessBtn.Text = ""
-            AccessBtn.AutoButtonColor = false
-            AccessBtn.ZIndex = 12
-            AccessBtn.Parent = KeyBox
-            Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
-
-            local AccStroke = Instance.new("UIStroke", AccessBtn)
-            AccStroke.Color = Color3.fromRGB(185, 165, 255)
-            AccStroke.Thickness = 1.2
-            AccStroke.Transparency = 0.3
-
-            local KBtnText = KeyConfig.ButtonText or "Unlock Access"
-            local AccLbl = Instance.new("TextLabel")
-            AccLbl.Size = UDim2.new(1, -40, 1, 0)
-            AccLbl.Position = UDim2.new(0, 14, 0, 0)
-            AccLbl.BackgroundTransparency = 1
-            AccLbl.Text = KBtnText
-            AccLbl.TextColor3 = Theme.Text
-            AccLbl.Font = Enum.Font.GothamBold
-            AccLbl.TextSize = 12
-            AccLbl.ZIndex = 13
-            AccLbl.Parent = AccessBtn
-
-            local AccBadge = Instance.new("Frame")
-            AccBadge.Size = UDim2.new(0, 24, 0, 24)
-            AccBadge.Position = UDim2.new(1, -31, 0.5, -12)
-            AccBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            AccBadge.BackgroundTransparency = 0.85
-            AccBadge.ZIndex = 13
-            AccBadge.Parent = AccessBtn
-            Instance.new("UICorner", AccBadge).CornerRadius = UDim.new(1, 0)
-
-            local AccArrow = Instance.new("TextLabel")
-            AccArrow.Size = UDim2.new(1, 0, 1, 0)
-            AccArrow.BackgroundTransparency = 1
-            AccArrow.Text = "→"
-            AccArrow.TextColor3 = Theme.Text
-            AccArrow.Font = Enum.Font.GothamBold
-            AccArrow.TextSize = 14
-            AccArrow.ZIndex = 14
-            AccArrow.Parent = AccBadge
-
-            AccessBtn.MouseEnter:Connect(function()
-                tryxzlib:PlaySound("Hover", 0.25)
-                Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.AccentHover})
-                Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -28, 0.5, -12)})
-            end)
-            AccessBtn.MouseLeave:Connect(function()
-                Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
-                Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
-            end)
-
-            if KeyConfig.GetKeyLink and KeyConfig.GetKeyLink ~= "" then
-                local LinkBtn = Instance.new("TextButton")
-                LinkBtn.LayoutOrder = 7
-                LinkBtn.Size = UDim2.new(1, 0, 0, 26)
-                LinkBtn.BackgroundColor3 = Theme.GrayTranslucent
-                LinkBtn.BackgroundTransparency = 0.65
-                LinkBtn.Text = "Copy Key Link"
-                LinkBtn.TextColor3 = Theme.SubText
-                LinkBtn.Font = Enum.Font.GothamSemibold
-                LinkBtn.TextSize = 11
-                LinkBtn.AutoButtonColor = false
-                LinkBtn.ZIndex = 12
-                LinkBtn.Parent = KeyBox
-                Instance.new("UICorner", LinkBtn).CornerRadius = UDim.new(1, 0)
-
-                LinkBtn.MouseButton1Click:Connect(function()
-                    TriggerHaptic(0.2)
-                    if setclipboard then setclipboard(KeyConfig.GetKeyLink) end
-                    tryxzlib:Notify({Title = "Link Copied", Text = "Key link copied to your clipboard.", Duration = 3})
-                end)
-            end
-
-            Tween(KScale, Tweens.Bounce, {Scale = 1})
-
-            local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
-            local function ValidateKey(entered)
-                if type(ValidKeys) == "function" then return ValidKeys(entered)
-                elseif type(ValidKeys) == "table" then
-                    for _, k in ipairs(ValidKeys) do
-                        if tostring(entered) == tostring(k) then return true end
-                    end
-                elseif type(ValidKeys) == "string" then
-                    return tostring(entered) == ValidKeys
-                end
-                return false
-            end
-
-            AccessBtn.MouseButton1Click:Connect(function()
-                if ValidateKey(KeyInput.Text) then
-                    TriggerHaptic(0.5)
-                    tryxzlib:PlaySound("Success")
-                    AccLbl.Text = "Access Granted!"
-                    AccArrow.Text = "✓"
-                    Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
-                    Tween(InputStroke, Tweens.Fast, {Color = Theme.Success})
-                    task.wait(0.35)
-                    local closeK = Tween(KScale, Tweens.Smooth, {Scale = 0})
-                    closeK.Completed:Wait()
-                    KeyBox:Destroy()
-                    OpenMainWindow()
-                else
-                    TriggerHaptic(0.45)
-                    tryxzlib:PlaySound("Error")
-                    Tween(InputStroke, Tweens.Fast, {Color = Theme.Error})
-                    Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error})
-                    AccLbl.Text = "Invalid Key"
-                    local origPos = KeyBox.Position
-                    for _, offset in ipairs({-8, 8, -5, 5, 0}) do
-                        Tween(KeyBox, TweenInfo.new(0.05), {Position = UDim2.new(origPos.X.Scale, origPos.X.Offset + offset, origPos.Y.Scale, origPos.Y.Offset)})
-                        task.wait(0.05)
-                    end
-                    task.delay(0.6, function()
-                        if AccessBtn and AccessBtn.Parent then
-                            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
-                            Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
-                            AccLbl.Text = KBtnText
-                        end
-                    end)
-                end
-            end)
-        end)
+    if config.KeySystem and config.KeySystem.Enabled ~= false then
+        BuildKeySystem(config.KeySystem, Cfg, TriggerHaptic, OpenMainWindow)
     else
         OpenMainWindow()
     end
 
-    -- ==========================================
-    -- MAIN WINDOW TOPBAR & BODY
-    -- ==========================================
+    -- Topbar
     local Topbar = Instance.new("Frame")
     Topbar.Size = UDim2.new(1, 0, 0, Cfg.TopH)
     Topbar.BackgroundTransparency = 1
@@ -741,9 +803,7 @@ function tryxzlib:CreateWindow(config)
     TopDivider.Parent = Topbar
 
     local hasWinIcon = Cfg.Icon ~= nil and tostring(Cfg.Icon) ~= ""
-    if hasWinIcon then
-        CreateIcon(Topbar, Cfg.Icon, 20, UDim2.new(0, 14, 0.5, -10), 6)
-    end
+    if hasWinIcon then CreateIcon(Topbar, Cfg.Icon, 20, UDim2.new(0, 14, 0.5, -10), 6) end
 
     local textStartX = hasWinIcon and 40 or 16
     local rightReserved = Cfg.Stats and 204 or 104
@@ -868,7 +928,7 @@ function tryxzlib:CreateWindow(config)
 
     MinBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.25)
-        tryxzlib:PlaySound("Click")
+        TryxzLib:PlaySound("Click")
         State.Minimized = not State.Minimized
         if State.Minimized then
             MinBtn.Text = "+"
@@ -986,10 +1046,8 @@ function tryxzlib:CreateWindow(config)
     Instance.new("UICorner", SettingsPage).CornerRadius = UDim.new(0, 14)
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
-    SettingsPadding.PaddingTop = UDim.new(0, 10)
-    SettingsPadding.PaddingBottom = UDim.new(0, 10)
-    SettingsPadding.PaddingLeft = UDim.new(0, 12)
-    SettingsPadding.PaddingRight = UDim.new(0, 12)
+    SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 10)
+    SettingsPadding.PaddingLeft, SettingsPadding.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
 
     local SettingsLayout = Instance.new("UIListLayout", SettingsPage)
     SettingsLayout.Padding = UDim.new(0, 8)
@@ -1010,7 +1068,7 @@ function tryxzlib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "tryxzlib by gthsc51"
+    CTitle.Text = "TryxzLib by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -1103,18 +1161,64 @@ function tryxzlib:CreateWindow(config)
     CreateSpecialSettingsToggle(2, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
         Cfg.Haptics = val
         if val then TriggerHaptic(0.5) end
-        tryxzlib:PlaySound("Toggle")
+        TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(3, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundConfig.Enabled, function(val)
-        SoundConfig.Enabled = val
+    CreateSpecialSettingsToggle(3, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
+        SoundState.Enabled = val
         TriggerHaptic(0.25)
-        if val then tryxzlib:PlaySound("Toggle") end
+        if val then TryxzLib:PlaySound("Toggle") end
+    end)
+
+    -- Interactive Sound Theme Selector inside Settings
+    local PresetList = {"Soft Pop", "Mechanical", "Bubble", "Cyber"}
+    local SoundSelectBtn = Instance.new("TextButton")
+    SoundSelectBtn.LayoutOrder = 4
+    SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
+    SoundSelectBtn.BackgroundColor3 = Theme.Element
+    SoundSelectBtn.Text = ""
+    SoundSelectBtn.AutoButtonColor = false
+    SoundSelectBtn.ZIndex = 11
+    SoundSelectBtn.Parent = SettingsPage
+    Instance.new("UICorner", SoundSelectBtn).CornerRadius = UDim.new(0, 12)
+
+    local SndTitle = Instance.new("TextLabel")
+    SndTitle.Size = UDim2.new(0.55, 0, 1, 0)
+    SndTitle.Position = UDim2.new(0, 12, 0, 0)
+    SndTitle.BackgroundTransparency = 1
+    SndTitle.Text = "Sound Pack (Tap to switch)"
+    SndTitle.TextColor3 = Theme.Text
+    SndTitle.Font = Enum.Font.GothamSemibold
+    SndTitle.TextSize = 11
+    SndTitle.TextXAlignment = Enum.TextXAlignment.Left
+    SndTitle.ZIndex = 12
+    SndTitle.Parent = SoundSelectBtn
+
+    local SndCurrent = Instance.new("TextLabel")
+    SndCurrent.Size = UDim2.new(0.45, -14, 1, 0)
+    SndCurrent.Position = UDim2.new(0.55, 0, 0, 0)
+    SndCurrent.BackgroundTransparency = 1
+    SndCurrent.Text = SoundState.Preset
+    SndCurrent.TextColor3 = Theme.Accent
+    SndCurrent.Font = Enum.Font.GothamBold
+    SndCurrent.TextSize = 11
+    SndCurrent.TextXAlignment = Enum.TextXAlignment.Right
+    SndCurrent.ZIndex = 12
+    SndCurrent.Parent = SoundSelectBtn
+
+    SoundSelectBtn.MouseButton1Click:Connect(function()
+        local idx = table.find(PresetList, SoundState.Preset) or 1
+        local nextPreset = PresetList[(idx % #PresetList) + 1]
+        TryxzLib:SetSoundPreset(nextPreset)
+        SndCurrent.Text = nextPreset
+        TriggerHaptic(0.25)
+        TryxzLib:PlaySound("Click")
+        WriteConfigFile()
     end)
 
     if Cfg.SaveEnabled then
         local ResetCfgBtn = Instance.new("TextButton")
-        ResetCfgBtn.LayoutOrder = 4
+        ResetCfgBtn.LayoutOrder = 5
         ResetCfgBtn.Size = UDim2.new(1, 0, 0, 30)
         ResetCfgBtn.BackgroundColor3 = Theme.Element
         ResetCfgBtn.Text = "Reset Saved Config"
@@ -1132,12 +1236,12 @@ function tryxzlib:CreateWindow(config)
             pcall(function()
                 if delfile and isfile and isfile(Cfg.SaveFile) then delfile(Cfg.SaveFile) end
             end)
-            tryxzlib:Notify({Title = "Config Reset", Text = "Saved configuration file cleared.", Duration = 3})
+            TryxzLib:Notify({Title = "Config Reset", Text = "Saved configuration file cleared.", Duration = 3})
         end)
     end
 
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 5
+    DestroyBtn.LayoutOrder = 6
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 60)
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -1153,7 +1257,7 @@ function tryxzlib:CreateWindow(config)
     DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(180, 50, 60)}) end)
     DestroyBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.4)
-        tryxzlib:PlaySound("Click")
+        TryxzLib:PlaySound("Click")
         if StatsConnection then StatsConnection:Disconnect() end
         local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
         t.Completed:Wait()
@@ -1163,7 +1267,7 @@ function tryxzlib:CreateWindow(config)
     SettingsBtn.MouseButton1Click:Connect(function()
         if State.Minimized then return end
         TriggerHaptic(0.25)
-        tryxzlib:PlaySound("Click")
+        TryxzLib:PlaySound("Click")
         State.SettingsOpen = not State.SettingsOpen
         Tween(SettingsBtn, Tweens.Smooth, {Rotation = State.SettingsOpen and 90 or 0, BackgroundColor3 = State.SettingsOpen and Theme.Accent or Theme.Element})
         Tween(SettingsPage, Tweens.Smooth, {Position = State.SettingsOpen and UDim2.new(0, 0, 0, 0) or UDim2.new(0, 0, 1, 0)})
@@ -1221,10 +1325,8 @@ function tryxzlib:CreateWindow(config)
         Page.Parent = PagesContainer
 
         local PagePad = Instance.new("UIPadding", Page)
-        PagePad.PaddingTop = UDim.new(0, 10)
-        PagePad.PaddingBottom = UDim.new(0, 10)
-        PagePad.PaddingLeft = UDim.new(0, 10)
-        PagePad.PaddingRight = UDim.new(0, 10)
+        PagePad.PaddingTop, PagePad.PaddingBottom = UDim.new(0, 10), UDim.new(0, 10)
+        PagePad.PaddingLeft, PagePad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
 
         local PageLayout = Instance.new("UIListLayout", Page)
         PageLayout.Padding = UDim.new(0, 6)
@@ -1252,7 +1354,7 @@ function tryxzlib:CreateWindow(config)
 
         TabBtn.MouseEnter:Connect(function()
             if not Page.Visible then
-                tryxzlib:PlaySound("Hover", 0.2)
+                TryxzLib:PlaySound("Hover", 0.2)
                 Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
             end
         end)
@@ -1261,7 +1363,7 @@ function tryxzlib:CreateWindow(config)
         end)
         TabBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.2)
-            tryxzlib:PlaySound("Click")
+            TryxzLib:PlaySound("Click")
             SelectTab()
         end)
 
@@ -1424,7 +1526,7 @@ function tryxzlib:CreateWindow(config)
             ArrowHint.Parent = Btn
 
             Btn.MouseEnter:Connect(function()
-                tryxzlib:PlaySound("Hover", 0.2)
+                TryxzLib:PlaySound("Hover", 0.2)
                 Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
                 Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -21, 0.5, -9), TextColor3 = Theme.Accent})
             end)
@@ -1434,7 +1536,7 @@ function tryxzlib:CreateWindow(config)
             end)
             Btn.MouseButton1Click:Connect(function()
                 TriggerHaptic(0.3)
-                tryxzlib:PlaySound(bCfg.Sound or "Click")
+                TryxzLib:PlaySound(bCfg.Sound or "Click")
                 Tween(Btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {BackgroundColor3 = Theme.Accent})
                 task.delay(0.1, function() Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover}) end)
                 task.spawn(Callback)
@@ -1490,7 +1592,7 @@ function tryxzlib:CreateWindow(config)
             local function UpdateToggle(val, silent)
                 StateVal = val
                 if Flag then Cfg.SavedData[Flag] = StateVal WriteConfigFile() end
-                if not silent then TriggerHaptic(0.28) tryxzlib:PlaySound(tCfg.Sound or "Toggle") end
+                if not silent then TriggerHaptic(0.28) TryxzLib:PlaySound(tCfg.Sound or "Toggle") end
                 Tween(SwitchBg, Tweens.Fast, {BackgroundColor3 = StateVal and Theme.Accent or Theme.Background})
                 Tween(Knob, Tweens.Bounce, {Position = StateVal and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
                 task.spawn(Callback, StateVal)
@@ -1575,7 +1677,7 @@ function tryxzlib:CreateWindow(config)
                 val = math.clamp(math.floor(val + 0.5), Min, Max)
                 if val ~= lastVal then
                     lastVal = val
-                    if not silent then TriggerHaptic(0.12) tryxzlib:PlaySound("Hover", 0.15) end
+                    if not silent then TriggerHaptic(0.12) TryxzLib:PlaySound("Hover", 0.15) end
                 end
                 if Flag then Cfg.SavedData[Flag] = val end
                 ValueLbl.Text = tostring(val)
@@ -1683,7 +1785,7 @@ function tryxzlib:CreateWindow(config)
 
             local function ToggleDrop()
                 TriggerHaptic(0.2)
-                tryxzlib:PlaySound("Click")
+                TryxzLib:PlaySound("Click")
                 Open = not Open
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and (38 + (#Options * 26)) or 32)})
                 Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
@@ -1800,7 +1902,7 @@ function tryxzlib:CreateWindow(config)
 
             Header.MouseButton1Click:Connect(function()
                 TriggerHaptic(0.2)
-                tryxzlib:PlaySound("Click")
+                TryxzLib:PlaySound("Click")
                 Open = not Open
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and (38 + (#Options * 26)) or 32)})
                 Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
@@ -1822,7 +1924,7 @@ function tryxzlib:CreateWindow(config)
 
                 OptBtn.MouseButton1Click:Connect(function()
                     TriggerHaptic(0.25)
-                    tryxzlib:PlaySound("Toggle")
+                    TryxzLib:PlaySound("Toggle")
                     Selected[opt] = not Selected[opt]
                     Tween(OptBtn, Tweens.Fast, {
                         BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background,
@@ -1841,5 +1943,4 @@ function tryxzlib:CreateWindow(config)
     return Window
 end
 
-return tryxzlib
- 
+return TryxzLib
