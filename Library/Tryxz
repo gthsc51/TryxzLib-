@@ -1,6 +1,6 @@
 --[[
     tryxzlib by gthsc51
-    UI Library full animada para ejecutores de Roblox
+    Fully animated UI Library for Roblox executors
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -12,12 +12,12 @@ local LocalPlayer = Players.LocalPlayer
 local tryxzlib = {}
 tryxzlib.__index = tryxzlib
 
--- Configuración de animaciones globales
+-- Global animation presets
 local Tweens = {
     Fast = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    Smooth = TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-    Bounce = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-    Elastic = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+    Smooth = TweenInfo.new(0.26, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+    Bounce = TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+    Elastic = TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 }
 
 local function Tween(obj, info, props)
@@ -26,19 +26,20 @@ local function Tween(obj, info, props)
     return t
 end
 
--- Paleta de colores base
+-- Color Palette
 local Theme = {
     Background = Color3.fromRGB(16, 16, 20),
     Sidebar = Color3.fromRGB(22, 22, 28),
-    Element = Color3.fromRGB(28, 28, 36),
-    ElementHover = Color3.fromRGB(36, 36, 46),
+    Element = Color3.fromRGB(30, 30, 38),
+    ElementHover = Color3.fromRGB(38, 38, 48),
+    GrayTranslucent = Color3.fromRGB(48, 48, 58),
     Accent = Color3.fromRGB(115, 85, 255),
     Text = Color3.fromRGB(240, 240, 245),
-    SubText = Color3.fromRGB(150, 150, 165),
-    Divider = Color3.fromRGB(45, 45, 58)
+    SubText = Color3.fromRGB(165, 165, 180),
+    Divider = Color3.fromRGB(55, 55, 68)
 }
 
--- Contenedor principal en CoreGui (con fallback a PlayerGui)
+-- Main ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "tryxzlib_" .. tostring(math.random(1000, 9999))
 ScreenGui.ResetOnSpawn = false
@@ -51,11 +52,11 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
--- Sistema de Notificaciones
+-- Notification System
 local NotifHolder = Instance.new("Frame")
 NotifHolder.Name = "Notifications"
-NotifHolder.Size = UDim2.new(0, 280, 1, -20)
-NotifHolder.Position = UDim2.new(1, -290, 0, 10)
+NotifHolder.Size = UDim2.new(0, 250, 1, -20)
+NotifHolder.Position = UDim2.new(1, -260, 0, 10)
 NotifHolder.BackgroundTransparency = 1
 NotifHolder.Parent = ScreenGui
 
@@ -66,7 +67,7 @@ NotifLayout.Padding = UDim.new(0, 8)
 NotifLayout.Parent = NotifHolder
 
 function tryxzlib:Notify(config)
-    local Title = config.Title or "Notificación"
+    local Title = config.Title or "Notification"
     local Text = config.Text or ""
     local Duration = config.Duration or 4
 
@@ -78,38 +79,40 @@ function tryxzlib:Notify(config)
     NotifFrame.Parent = NotifHolder
 
     local Corner = Instance.new("UICorner", NotifFrame)
-    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.CornerRadius = UDim.new(0, 12)
 
     local Stroke = Instance.new("UIStroke", NotifFrame)
     Stroke.Color = Theme.Accent
     Stroke.Thickness = 1
-    Stroke.Transparency = 0.5
+    Stroke.Transparency = 0.45
 
     local AccentBar = Instance.new("Frame")
-    AccentBar.Size = UDim2.new(0, 4, 1, 0)
+    AccentBar.Size = UDim2.new(0, 4, 1, -12)
+    AccentBar.Position = UDim2.new(0, 4, 0, 6)
     AccentBar.BackgroundColor3 = Theme.Accent
     AccentBar.BorderSizePixel = 0
     AccentBar.Parent = NotifFrame
+    Instance.new("UICorner", AccentBar).CornerRadius = UDim.new(1, 0)
 
     local TitleLbl = Instance.new("TextLabel")
-    TitleLbl.Size = UDim2.new(1, -20, 0, 20)
-    TitleLbl.Position = UDim2.new(0, 14, 0, 8)
+    TitleLbl.Size = UDim2.new(1, -22, 0, 18)
+    TitleLbl.Position = UDim2.new(0, 14, 0, 7)
     TitleLbl.BackgroundTransparency = 1
     TitleLbl.Text = Title
     TitleLbl.TextColor3 = Theme.Text
     TitleLbl.Font = Enum.Font.GothamBold
-    TitleLbl.TextSize = 13
+    TitleLbl.TextSize = 12
     TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
     TitleLbl.Parent = NotifFrame
 
     local BodyLbl = Instance.new("TextLabel")
-    BodyLbl.Size = UDim2.new(1, -20, 0, 32)
-    BodyLbl.Position = UDim2.new(0, 14, 0, 28)
+    BodyLbl.Size = UDim2.new(1, -22, 0, 30)
+    BodyLbl.Position = UDim2.new(0, 14, 0, 25)
     BodyLbl.BackgroundTransparency = 1
     BodyLbl.Text = Text
     BodyLbl.TextColor3 = Theme.SubText
     BodyLbl.Font = Enum.Font.Gotham
-    BodyLbl.TextSize = 12
+    BodyLbl.TextSize = 11
     BodyLbl.TextWrapped = true
     BodyLbl.TextXAlignment = Enum.TextXAlignment.Left
     BodyLbl.TextYAlignment = Enum.TextYAlignment.Top
@@ -122,8 +125,7 @@ function tryxzlib:Notify(config)
     TimerBar.BorderSizePixel = 0
     TimerBar.Parent = NotifFrame
 
-    -- Animación de entrada
-    Tween(NotifFrame, Tweens.Bounce, {Size = UDim2.new(1, 0, 0, 68)})
+    Tween(NotifFrame, Tweens.Bounce, {Size = UDim2.new(1, 0, 0, 62)})
     Tween(TimerBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 2)})
 
     task.delay(Duration, function()
@@ -134,7 +136,7 @@ function tryxzlib:Notify(config)
     end)
 end
 
--- Función para hacer arrastrable la ventana
+-- Draggable utility
 local function MakeDraggable(topbar, main)
     local dragging, dragInput, dragStart, startPos
     topbar.InputBegan:Connect(function(input)
@@ -164,36 +166,39 @@ local function MakeDraggable(topbar, main)
     end)
 end
 
--- Creación de Ventana Principal
+-- Create Main Window (Compact Size: 460x300)
 function tryxzlib:CreateWindow(config)
     local Title = config.Title or "tryxzlib"
-    local ShowProfile = config.Profile ~= false -- Activado por defecto si no es false
+    local ShowProfile = config.Profile ~= false
     local Keybind = config.ToggleKey or Enum.KeyCode.RightControl
+
+    local WinWidth, WinHeight = 460, 300
+    local TopbarHeight = 38
 
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
-    Main.Position = UDim2.new(0.5, -280, 0.5, -185)
+    Main.Position = UDim2.new(0.5, -WinWidth/2, 0.5, -WinHeight/2)
     Main.BackgroundColor3 = Theme.Background
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
     Main.Parent = ScreenGui
 
     local MainCorner = Instance.new("UICorner", Main)
-    MainCorner.CornerRadius = UDim.new(0, 10)
+    MainCorner.CornerRadius = UDim.new(0, 14)
 
     local MainStroke = Instance.new("UIStroke", Main)
     MainStroke.Color = Theme.Divider
     MainStroke.Thickness = 1
 
-    -- Animación de apertura inicial
-    Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, 560, 0, 370)})
+    Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
 
     -- Topbar
     local Topbar = Instance.new("Frame")
-    Topbar.Size = UDim2.new(1, 0, 0, 42)
+    Topbar.Size = UDim2.new(1, 0, 0, TopbarHeight)
     Topbar.BackgroundColor3 = Theme.Sidebar
     Topbar.BorderSizePixel = 0
+    Topbar.ZIndex = 5
     Topbar.Parent = Main
     MakeDraggable(Topbar, Main)
 
@@ -202,65 +207,79 @@ function tryxzlib:CreateWindow(config)
     TopDivider.Position = UDim2.new(0, 0, 1, -1)
     TopDivider.BackgroundColor3 = Theme.Divider
     TopDivider.BorderSizePixel = 0
+    TopDivider.ZIndex = 6
     TopDivider.Parent = Topbar
 
     local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(0, 250, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 16, 0, 0)
+    TitleLabel.Size = UDim2.new(1, -90, 1, 0)
+    TitleLabel.Position = UDim2.new(0, 14, 0, 0)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = Title
     TitleLabel.TextColor3 = Theme.Text
     TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextSize = 15
+    TitleLabel.TextSize = 13
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    TitleLabel.ZIndex = 6
     TitleLabel.Parent = Topbar
 
-    -- Botón Minimizar
+    -- Minimize Button
     local MinBtn = Instance.new("TextButton")
-    MinBtn.Size = UDim2.new(0, 28, 0, 28)
-    MinBtn.Position = UDim2.new(1, -36, 0.5, -14)
+    MinBtn.Size = UDim2.new(0, 24, 0, 24)
+    MinBtn.Position = UDim2.new(1, -32, 0.5, -12)
     MinBtn.BackgroundColor3 = Theme.Element
     MinBtn.Text = "-"
     MinBtn.TextColor3 = Theme.Text
     MinBtn.Font = Enum.Font.GothamBold
-    MinBtn.TextSize = 16
+    MinBtn.TextSize = 14
     MinBtn.AutoButtonColor = false
+    MinBtn.ZIndex = 6
     MinBtn.Parent = Topbar
-    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 8)
 
-    -- Botón Ajustes (al lado de minimizar)
+    -- Settings Button (Next to Minimize)
     local SettingsBtn = Instance.new("TextButton")
-    SettingsBtn.Size = UDim2.new(0, 28, 0, 28)
-    SettingsBtn.Position = UDim2.new(1, -70, 0.5, -14)
+    SettingsBtn.Size = UDim2.new(0, 24, 0, 24)
+    SettingsBtn.Position = UDim2.new(1, -62, 0.5, -12)
     SettingsBtn.BackgroundColor3 = Theme.Element
     SettingsBtn.Text = "⚙"
     SettingsBtn.TextColor3 = Theme.Text
     SettingsBtn.Font = Enum.Font.GothamBold
-    SettingsBtn.TextSize = 14
+    SettingsBtn.TextSize = 12
     SettingsBtn.AutoButtonColor = false
+    SettingsBtn.ZIndex = 6
     SettingsBtn.Parent = Topbar
-    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 8)
 
-    -- Animaciones Hover en Topbar Buttons
     for _, btn in ipairs({MinBtn, SettingsBtn}) do
         btn.MouseEnter:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover}) end)
         btn.MouseLeave:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.Element}) end)
     end
 
-    -- Lógica de Minimizar
+    -- Body Container (Holds Sidebar + Pages cleanly so minimizing never glitches Profile)
+    local BodyContainer = Instance.new("Frame")
+    BodyContainer.Size = UDim2.new(1, 0, 1, -TopbarHeight)
+    BodyContainer.Position = UDim2.new(0, 0, 0, TopbarHeight)
+    BodyContainer.BackgroundTransparency = 1
+    BodyContainer.ClipsDescendants = true
+    BodyContainer.Parent = Main
+
+    -- Minimize Logic
     local Minimized = false
     MinBtn.MouseButton1Click:Connect(function()
         Minimized = not Minimized
         if Minimized then
             MinBtn.Text = "+"
-            Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 560, 0, 42)})
+            BodyContainer.Visible = false
+            Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, WinWidth, 0, TopbarHeight)})
         else
             MinBtn.Text = "-"
-            Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, 560, 0, 370)})
+            BodyContainer.Visible = true
+            Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
         end
     end)
 
-    -- Tecla para ocultar/mostrar UI completa
+    -- Toggle Keybind
     local UIHidden = false
     UserInputService.InputBegan:Connect(function(input, gpe)
         if not gpe and input.KeyCode == Keybind then
@@ -271,18 +290,20 @@ function tryxzlib:CreateWindow(config)
                 Main.Visible = false
             else
                 Main.Visible = true
-                Tween(Main, Tweens.Bounce, {Size = Minimized and UDim2.new(0, 560, 0, 42) or UDim2.new(0, 560, 0, 370)})
+                Tween(Main, Tweens.Bounce, {Size = Minimized and UDim2.new(0, WinWidth, 0, TopbarHeight) or UDim2.new(0, WinWidth, 0, WinHeight)})
             end
         end
     end)
 
-    -- Barra Lateral (Sidebar)
+    -- Sidebar
+    local SidebarWidth = 128
     local Sidebar = Instance.new("Frame")
-    Sidebar.Size = UDim2.new(0, 150, 1, -42)
-    Sidebar.Position = UDim2.new(0, 0, 0, 42)
+    Sidebar.Size = UDim2.new(0, SidebarWidth, 1, 0)
+    Sidebar.Position = UDim2.new(0, 0, 0, 0)
     Sidebar.BackgroundColor3 = Theme.Sidebar
     Sidebar.BorderSizePixel = 0
-    Sidebar.Parent = Main
+    Sidebar.ClipsDescendants = true
+    Sidebar.Parent = BodyContainer
 
     local SideDivider = Instance.new("Frame")
     SideDivider.Size = UDim2.new(0, 1, 1, 0)
@@ -292,66 +313,70 @@ function tryxzlib:CreateWindow(config)
     SideDivider.Parent = Sidebar
 
     local TabContainer = Instance.new("ScrollingFrame")
-    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -64 or -12)
-    TabContainer.Position = UDim2.new(0, 6, 0, 8)
+    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -54 or -12)
+    TabContainer.Position = UDim2.new(0, 6, 0, 6)
     TabContainer.BackgroundTransparency = 1
     TabContainer.ScrollBarThickness = 0
     TabContainer.Parent = Sidebar
 
     local TabLayout = Instance.new("UIListLayout", TabContainer)
-    TabLayout.Padding = UDim.new(0, 5)
+    TabLayout.Padding = UDim.new(0, 4)
+    TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- Perfil Opcional
+    -- Fixed Profile Card (Clamped proportions so it never distorts)
     if ShowProfile then
         local ProfileFrame = Instance.new("Frame")
-        ProfileFrame.Size = UDim2.new(1, -12, 0, 46)
-        ProfileFrame.Position = UDim2.new(0, 6, 1, -52)
+        ProfileFrame.Size = UDim2.new(1, -12, 0, 40)
+        ProfileFrame.Position = UDim2.new(0, 6, 1, -46)
         ProfileFrame.BackgroundColor3 = Theme.Element
+        ProfileFrame.ClipsDescendants = true
         ProfileFrame.Parent = Sidebar
-        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 10)
 
         local Avatar = Instance.new("ImageLabel")
-        Avatar.Size = UDim2.new(0, 32, 0, 32)
-        Avatar.Position = UDim2.new(0, 7, 0.5, -16)
+        Avatar.Size = UDim2.new(0, 26, 0, 26)
+        Avatar.Position = UDim2.new(0, 7, 0.5, -13)
         Avatar.BackgroundColor3 = Theme.Background
+        Avatar.ScaleType = Enum.ScaleType.Fit
         Avatar.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
         Avatar.Parent = ProfileFrame
         Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
+        Instance.new("UIAspectRatioConstraint", Avatar).AspectRatio = 1
 
         local DisplayName = Instance.new("TextLabel")
-        DisplayName.Size = UDim2.new(1, -48, 0, 16)
-        DisplayName.Position = UDim2.new(0, 44, 0, 7)
+        DisplayName.Size = UDim2.new(1, -40, 0, 14)
+        DisplayName.Position = UDim2.new(0, 38, 0, 6)
         DisplayName.BackgroundTransparency = 1
         DisplayName.Text = LocalPlayer.DisplayName
         DisplayName.TextColor3 = Theme.Text
         DisplayName.Font = Enum.Font.GothamBold
-        DisplayName.TextSize = 11
+        DisplayName.TextSize = 10
         DisplayName.TextXAlignment = Enum.TextXAlignment.Left
         DisplayName.TextTruncate = Enum.TextTruncate.AtEnd
         DisplayName.Parent = ProfileFrame
 
         local UserTag = Instance.new("TextLabel")
-        UserTag.Size = UDim2.new(1, -48, 0, 14)
-        UserTag.Position = UDim2.new(0, 44, 0, 23)
+        UserTag.Size = UDim2.new(1, -40, 0, 12)
+        UserTag.Position = UDim2.new(0, 38, 0, 20)
         UserTag.BackgroundTransparency = 1
         UserTag.Text = "@" .. LocalPlayer.Name
         UserTag.TextColor3 = Theme.SubText
         UserTag.Font = Enum.Font.Gotham
-        UserTag.TextSize = 10
+        UserTag.TextSize = 9
         UserTag.TextXAlignment = Enum.TextXAlignment.Left
         UserTag.TextTruncate = Enum.TextTruncate.AtEnd
         UserTag.Parent = ProfileFrame
     end
 
-    -- Contenedor de Páginas
+    -- Pages Container
     local PagesContainer = Instance.new("Frame")
-    PagesContainer.Size = UDim2.new(1, -150, 1, -42)
-    PagesContainer.Position = UDim2.new(0, 150, 0, 42)
+    PagesContainer.Size = UDim2.new(1, -SidebarWidth, 1, 0)
+    PagesContainer.Position = UDim2.new(0, SidebarWidth, 0, 0)
     PagesContainer.BackgroundTransparency = 1
     PagesContainer.ClipsDescendants = true
-    PagesContainer.Parent = Main
+    PagesContainer.Parent = BodyContainer
 
-    -- Panel de Ajustes y Créditos (Overlay animado)
+    -- Settings & Credits Overlay
     local SettingsOpen = false
     local SettingsPage = Instance.new("Frame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -361,59 +386,62 @@ function tryxzlib:CreateWindow(config)
     SettingsPage.Parent = PagesContainer
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
-    SettingsPadding.PaddingTop = UDim.new(0, 16)
-    SettingsPadding.PaddingLeft = UDim.new(0, 18)
-    SettingsPadding.PaddingRight = UDim.new(0, 18)
+    SettingsPadding.PaddingTop = UDim.new(0, 12)
+    SettingsPadding.PaddingLeft = UDim.new(0, 14)
+    SettingsPadding.PaddingRight = UDim.new(0, 14)
 
     local SettingsLayout = Instance.new("UIListLayout", SettingsPage)
-    SettingsLayout.Padding = UDim.new(0, 10)
+    SettingsLayout.Padding = UDim.new(0, 8)
+    SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
     local CreditsCard = Instance.new("Frame")
-    CreditsCard.Size = UDim2.new(1, 0, 0, 75)
+    CreditsCard.LayoutOrder = 1
+    CreditsCard.Size = UDim2.new(1, 0, 0, 68)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
-    Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 10)
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Theme.Accent
     CStroke.Thickness = 1
 
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -24, 0, 24)
-    CTitle.Position = UDim2.new(0, 12, 0, 10)
+    CTitle.Size = UDim2.new(1, -20, 0, 20)
+    CTitle.Position = UDim2.new(0, 10, 0, 8)
     CTitle.BackgroundTransparency = 1
     CTitle.Text = "tryxzlib by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
-    CTitle.TextSize = 16
+    CTitle.TextSize = 14
     CTitle.TextXAlignment = Enum.TextXAlignment.Left
     CTitle.ZIndex = 12
     CTitle.Parent = CreditsCard
 
     local CDesc = Instance.new("TextLabel")
-    CDesc.Size = UDim2.new(1, -24, 0, 32)
-    CDesc.Position = UDim2.new(0, 12, 0, 34)
+    CDesc.Size = UDim2.new(1, -20, 0, 30)
+    CDesc.Position = UDim2.new(0, 10, 0, 29)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Librería de interfaz fluida y animada diseñada para ejecutores.\nPresiona [" .. Keybind.Name .. "] para ocultar o mostrar la ventana."
+    CDesc.Text = "Smooth animated UI library built for executors.\nPress [" .. Keybind.Name .. "] to toggle window visibility."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
-    CDesc.TextSize = 12
+    CDesc.TextSize = 11
+    CDesc.TextWrapped = true
     CDesc.TextXAlignment = Enum.TextXAlignment.Left
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Botón para destruir la UI en Ajustes
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.Size = UDim2.new(1, 0, 0, 36)
+    DestroyBtn.LayoutOrder = 2
+    DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 60)
-    DestroyBtn.Text = "Descargar / Cerrar UI"
+    DestroyBtn.Text = "Unload / Destroy UI"
     DestroyBtn.TextColor3 = Theme.Text
     DestroyBtn.Font = Enum.Font.GothamBold
-    DestroyBtn.TextSize = 13
+    DestroyBtn.TextSize = 12
     DestroyBtn.AutoButtonColor = false
     DestroyBtn.ZIndex = 11
     DestroyBtn.Parent = SettingsPage
-    Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(0, 10)
 
     DestroyBtn.MouseEnter:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(210, 60, 70)}) end)
     DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(180, 50, 60)}) end)
@@ -432,25 +460,28 @@ function tryxzlib:CreateWindow(config)
 
     local Window = {
         Tabs = {},
-        ActiveTab = nil
+        TabOrder = 0
     }
 
     function Window:CreateTab(name)
+        Window.TabOrder += 1
+
         local TabBtn = Instance.new("TextButton")
-        TabBtn.Size = UDim2.new(1, 0, 0, 32)
+        TabBtn.LayoutOrder = Window.TabOrder
+        TabBtn.Size = UDim2.new(1, 0, 0, 28)
         TabBtn.BackgroundColor3 = Theme.Sidebar
-        TabBtn.Text = "  " .. name
+        TabBtn.Text = "   " .. name
         TabBtn.TextColor3 = Theme.SubText
         TabBtn.Font = Enum.Font.GothamSemibold
-        TabBtn.TextSize = 13
+        TabBtn.TextSize = 11
         TabBtn.TextXAlignment = Enum.TextXAlignment.Left
         TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabContainer
-        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 8)
 
         local Indicator = Instance.new("Frame")
         Indicator.Size = UDim2.new(0, 3, 0, 0)
-        Indicator.Position = UDim2.new(0, 0, 0.5, 0)
+        Indicator.Position = UDim2.new(0, 2, 0.5, 0)
         Indicator.AnchorPoint = Vector2.new(0, 0.5)
         Indicator.BackgroundColor3 = Theme.Accent
         Indicator.BorderSizePixel = 0
@@ -459,9 +490,9 @@ function tryxzlib:CreateWindow(config)
 
         local Page = Instance.new("ScrollingFrame")
         Page.Size = UDim2.new(1, 0, 1, 0)
-        Page.Position = UDim2.new(0, 20, 0, 0)
+        Page.Position = UDim2.new(0, 16, 0, 0)
         Page.BackgroundTransparency = 1
-        Page.ScrollBarThickness = 3
+        Page.ScrollBarThickness = 2
         Page.ScrollBarImageColor3 = Theme.Accent
         Page.Visible = false
         Page.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -469,13 +500,14 @@ function tryxzlib:CreateWindow(config)
         Page.Parent = PagesContainer
 
         local PagePad = Instance.new("UIPadding", Page)
-        PagePad.PaddingTop = UDim.new(0, 12)
-        PagePad.PaddingBottom = UDim.new(0, 12)
-        PagePad.PaddingLeft = UDim.new(0, 14)
-        PagePad.PaddingRight = UDim.new(0, 14)
+        PagePad.PaddingTop = UDim.new(0, 10)
+        PagePad.PaddingBottom = UDim.new(0, 10)
+        PagePad.PaddingLeft = UDim.new(0, 10)
+        PagePad.PaddingRight = UDim.new(0, 10)
 
         local PageLayout = Instance.new("UIListLayout", Page)
-        PageLayout.Padding = UDim.new(0, 8)
+        PageLayout.Padding = UDim.new(0, 6)
+        PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
         local function SelectTab()
             if SettingsOpen then
@@ -491,10 +523,10 @@ function tryxzlib:CreateWindow(config)
             end
 
             Page.Visible = true
-            Page.Position = UDim2.new(0, 15, 0, 0)
+            Page.Position = UDim2.new(0, 12, 0, 0)
             Tween(Page, Tweens.Smooth, {Position = UDim2.new(0, 0, 0, 0)})
             Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Element, TextColor3 = Theme.Text})
-            Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, 18)})
+            Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, 14)})
         end
 
         TabBtn.MouseEnter:Connect(function()
@@ -515,24 +547,39 @@ function tryxzlib:CreateWindow(config)
         end
 
         local TabAPI = {}
+        local ElementOrder = 0
+        local function NextOrder()
+            ElementOrder += 1
+            return ElementOrder
+        end
 
-        -- 1. SECCIONES
+        -- 1. SECTIONS (Translucent Gray Badge Style & Fixed LayoutOrder)
         function TabAPI:AddSection(text)
+            local SecFrame = Instance.new("Frame")
+            SecFrame.LayoutOrder = NextOrder()
+            SecFrame.Size = UDim2.new(1, 0, 0, 24)
+            SecFrame.BackgroundColor3 = Theme.GrayTranslucent
+            SecFrame.BackgroundTransparency = 0.65
+            SecFrame.Parent = Page
+            Instance.new("UICorner", SecFrame).CornerRadius = UDim.new(0, 8)
+
             local SecLbl = Instance.new("TextLabel")
-            SecLbl.Size = UDim2.new(1, 0, 0, 22)
+            SecLbl.Size = UDim2.new(1, -16, 1, 0)
+            SecLbl.Position = UDim2.new(0, 10, 0, 0)
             SecLbl.BackgroundTransparency = 1
             SecLbl.Text = string.upper(text)
-            SecLbl.TextColor3 = Theme.Accent
+            SecLbl.TextColor3 = Theme.SubText
             SecLbl.Font = Enum.Font.GothamBold
-            SecLbl.TextSize = 11
+            SecLbl.TextSize = 10
             SecLbl.TextXAlignment = Enum.TextXAlignment.Left
-            SecLbl.Parent = Page
+            SecLbl.Parent = SecFrame
             return SecLbl
         end
 
-        -- 2. DIVIDERS
+        -- 2. DIVIDERS (Fixed LayoutOrder & Centered Smooth Line)
         function TabAPI:AddDivider()
             local DivHolder = Instance.new("Frame")
+            DivHolder.LayoutOrder = NextOrder()
             DivHolder.Size = UDim2.new(1, 0, 0, 8)
             DivHolder.BackgroundTransparency = 1
             DivHolder.Parent = Page
@@ -542,28 +589,32 @@ function tryxzlib:CreateWindow(config)
             Line.Position = UDim2.new(0.5, 0, 0.5, 0)
             Line.AnchorPoint = Vector2.new(0.5, 0.5)
             Line.BackgroundColor3 = Theme.Divider
+            Line.BackgroundTransparency = 0.3
             Line.BorderSizePixel = 0
             Line.Parent = DivHolder
+            Instance.new("UICorner", Line).CornerRadius = UDim.new(1, 0)
 
-            Tween(Line, Tweens.Elastic, {Size = UDim2.new(1, 0, 0, 1)})
+            Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
         end
 
-        -- 3. LABELS
+        -- 3. LABELS (Translucent Gray & Rounded)
         function TabAPI:AddLabel(text)
             local LblFrame = Instance.new("Frame")
-            LblFrame.Size = UDim2.new(1, 0, 0, 30)
-            LblFrame.BackgroundColor3 = Theme.Element
+            LblFrame.LayoutOrder = NextOrder()
+            LblFrame.Size = UDim2.new(1, 0, 0, 28)
+            LblFrame.BackgroundColor3 = Theme.GrayTranslucent
+            LblFrame.BackgroundTransparency = 0.6
             LblFrame.Parent = Page
-            Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 10)
 
             local Lbl = Instance.new("TextLabel")
-            Lbl.Size = UDim2.new(1, -20, 1, 0)
+            Lbl.Size = UDim2.new(1, -18, 1, 0)
             Lbl.Position = UDim2.new(0, 10, 0, 0)
             Lbl.BackgroundTransparency = 1
             Lbl.Text = text
             Lbl.TextColor3 = Theme.SubText
             Lbl.Font = Enum.Font.Gotham
-            Lbl.TextSize = 12
+            Lbl.TextSize = 11
             Lbl.TextXAlignment = Enum.TextXAlignment.Left
             Lbl.Parent = LblFrame
 
@@ -574,41 +625,98 @@ function tryxzlib:CreateWindow(config)
             return LabelObj
         end
 
-        -- 4. TOGGLES
+        -- 4. PARAGRAPHS (Translucent Gray, Rounded & Auto-Height)
+        function TabAPI:AddParagraph(config)
+            local TitleText = config.Title or "Title"
+            local ContentText = config.Content or config.Text or ""
+
+            local ParaFrame = Instance.new("Frame")
+            ParaFrame.LayoutOrder = NextOrder()
+            ParaFrame.Size = UDim2.new(1, 0, 0, 48)
+            ParaFrame.AutomaticSize = Enum.AutomaticSize.Y
+            ParaFrame.BackgroundColor3 = Theme.GrayTranslucent
+            ParaFrame.BackgroundTransparency = 0.6
+            ParaFrame.Parent = Page
+            Instance.new("UICorner", ParaFrame).CornerRadius = UDim.new(0, 10)
+
+            local Pad = Instance.new("UIPadding", ParaFrame)
+            Pad.PaddingTop = UDim.new(0, 8)
+            Pad.PaddingBottom = UDim.new(0, 8)
+            Pad.PaddingLeft = UDim.new(0, 10)
+            Pad.PaddingRight = UDim.new(0, 10)
+
+            local List = Instance.new("UIListLayout", ParaFrame)
+            List.Padding = UDim.new(0, 3)
+            List.SortOrder = Enum.SortOrder.LayoutOrder
+
+            local PTitle = Instance.new("TextLabel")
+            PTitle.LayoutOrder = 1
+            PTitle.Size = UDim2.new(1, 0, 0, 14)
+            PTitle.BackgroundTransparency = 1
+            PTitle.Text = TitleText
+            PTitle.TextColor3 = Theme.Text
+            PTitle.Font = Enum.Font.GothamBold
+            PTitle.TextSize = 12
+            PTitle.TextXAlignment = Enum.TextXAlignment.Left
+            PTitle.Parent = ParaFrame
+
+            local PBody = Instance.new("TextLabel")
+            PBody.LayoutOrder = 2
+            PBody.Size = UDim2.new(1, 0, 0, 0)
+            PBody.AutomaticSize = Enum.AutomaticSize.Y
+            PBody.BackgroundTransparency = 1
+            PBody.Text = ContentText
+            PBody.TextColor3 = Theme.SubText
+            PBody.Font = Enum.Font.Gotham
+            PBody.TextSize = 11
+            PBody.TextWrapped = true
+            PBody.TextXAlignment = Enum.TextXAlignment.Left
+            PBody.Parent = ParaFrame
+
+            local ParaObj = {}
+            function ParaObj:Set(newTitle, newContent)
+                if newTitle then PTitle.Text = newTitle end
+                if newContent then PBody.Text = newContent end
+            end
+            return ParaObj
+        end
+
+        -- 5. TOGGLES
         function TabAPI:AddToggle(config)
             local Name = config.Name or "Toggle"
             local State = config.Default or false
             local Callback = config.Callback or function() end
 
             local ToggleBtn = Instance.new("TextButton")
-            ToggleBtn.Size = UDim2.new(1, 0, 0, 36)
+            ToggleBtn.LayoutOrder = NextOrder()
+            ToggleBtn.Size = UDim2.new(1, 0, 0, 32)
             ToggleBtn.BackgroundColor3 = Theme.Element
             ToggleBtn.Text = ""
             ToggleBtn.AutoButtonColor = false
             ToggleBtn.Parent = Page
-            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 10)
 
             local Title = Instance.new("TextLabel")
-            Title.Size = UDim2.new(1, -60, 1, 0)
-            Title.Position = UDim2.new(0, 12, 0, 0)
+            Title.Size = UDim2.new(1, -55, 1, 0)
+            Title.Position = UDim2.new(0, 10, 0, 0)
             Title.BackgroundTransparency = 1
             Title.Text = Name
             Title.TextColor3 = Theme.Text
             Title.Font = Enum.Font.GothamSemibold
-            Title.TextSize = 13
+            Title.TextSize = 12
             Title.TextXAlignment = Enum.TextXAlignment.Left
             Title.Parent = ToggleBtn
 
             local SwitchBg = Instance.new("Frame")
-            SwitchBg.Size = UDim2.new(0, 38, 0, 20)
-            SwitchBg.Position = UDim2.new(1, -50, 0.5, -10)
+            SwitchBg.Size = UDim2.new(0, 34, 0, 18)
+            SwitchBg.Position = UDim2.new(1, -44, 0.5, -9)
             SwitchBg.BackgroundColor3 = State and Theme.Accent or Theme.Background
             SwitchBg.Parent = ToggleBtn
             Instance.new("UICorner", SwitchBg).CornerRadius = UDim.new(1, 0)
 
             local Knob = Instance.new("Frame")
-            Knob.Size = UDim2.new(0, 14, 0, 14)
-            Knob.Position = State and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+            Knob.Size = UDim2.new(0, 12, 0, 12)
+            Knob.Position = State and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
             Knob.BackgroundColor3 = Theme.Text
             Knob.Parent = SwitchBg
             Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
@@ -616,7 +724,7 @@ function tryxzlib:CreateWindow(config)
             local function UpdateToggle(val)
                 State = val
                 Tween(SwitchBg, Tweens.Fast, {BackgroundColor3 = State and Theme.Accent or Theme.Background})
-                Tween(Knob, Tweens.Bounce, {Position = State and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)})
+                Tween(Knob, Tweens.Bounce, {Position = State and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
                 task.spawn(Callback, State)
             end
 
@@ -631,7 +739,7 @@ function tryxzlib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- 5. SLIDERS
+        -- 6. SLIDERS
         function TabAPI:AddSlider(config)
             local Name = config.Name or "Slider"
             local Min = config.Min or 0
@@ -640,36 +748,37 @@ function tryxzlib:CreateWindow(config)
             local Callback = config.Callback or function() end
 
             local SliderFrame = Instance.new("Frame")
-            SliderFrame.Size = UDim2.new(1, 0, 0, 48)
+            SliderFrame.LayoutOrder = NextOrder()
+            SliderFrame.Size = UDim2.new(1, 0, 0, 42)
             SliderFrame.BackgroundColor3 = Theme.Element
             SliderFrame.Parent = Page
-            Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 10)
 
             local Title = Instance.new("TextLabel")
-            Title.Size = UDim2.new(1, -70, 0, 22)
-            Title.Position = UDim2.new(0, 12, 0, 4)
+            Title.Size = UDim2.new(1, -60, 0, 20)
+            Title.Position = UDim2.new(0, 10, 0, 3)
             Title.BackgroundTransparency = 1
             Title.Text = Name
             Title.TextColor3 = Theme.Text
             Title.Font = Enum.Font.GothamSemibold
-            Title.TextSize = 13
+            Title.TextSize = 12
             Title.TextXAlignment = Enum.TextXAlignment.Left
             Title.Parent = SliderFrame
 
             local ValueLbl = Instance.new("TextLabel")
-            ValueLbl.Size = UDim2.new(0, 50, 0, 22)
-            ValueLbl.Position = UDim2.new(1, -62, 0, 4)
+            ValueLbl.Size = UDim2.new(0, 45, 0, 20)
+            ValueLbl.Position = UDim2.new(1, -55, 0, 3)
             ValueLbl.BackgroundTransparency = 1
             ValueLbl.Text = tostring(Default)
             ValueLbl.TextColor3 = Theme.Accent
             ValueLbl.Font = Enum.Font.GothamBold
-            ValueLbl.TextSize = 13
+            ValueLbl.TextSize = 12
             ValueLbl.TextXAlignment = Enum.TextXAlignment.Right
             ValueLbl.Parent = SliderFrame
 
             local Track = Instance.new("TextButton")
-            Track.Size = UDim2.new(1, -24, 0, 6)
-            Track.Position = UDim2.new(0, 12, 0, 32)
+            Track.Size = UDim2.new(1, -20, 0, 5)
+            Track.Position = UDim2.new(0, 10, 0, 28)
             Track.BackgroundColor3 = Theme.Background
             Track.Text = ""
             Track.AutoButtonColor = false
@@ -684,7 +793,7 @@ function tryxzlib:CreateWindow(config)
             Instance.new("UICorner", Fill).CornerRadius = UDim.new(1, 0)
 
             local Dot = Instance.new("Frame")
-            Dot.Size = UDim2.new(0, 12, 0, 12)
+            Dot.Size = UDim2.new(0, 11, 0, 11)
             Dot.Position = UDim2.new(1, 0, 0.5, 0)
             Dot.AnchorPoint = Vector2.new(0.5, 0.5)
             Dot.BackgroundColor3 = Theme.Text
@@ -708,7 +817,7 @@ function tryxzlib:CreateWindow(config)
             Track.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     Sliding = true
-                    Tween(Dot, Tweens.Fast, {Size = UDim2.new(0, 16, 0, 16)})
+                    Tween(Dot, Tweens.Fast, {Size = UDim2.new(0, 14, 0, 14)})
                     UpdateFromInput(input)
                 end
             end)
@@ -723,7 +832,7 @@ function tryxzlib:CreateWindow(config)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     if Sliding then
                         Sliding = false
-                        Tween(Dot, Tweens.Fast, {Size = UDim2.new(0, 12, 0, 12)})
+                        Tween(Dot, Tweens.Fast, {Size = UDim2.new(0, 11, 0, 11)})
                     end
                 end
             end)
@@ -735,89 +844,92 @@ function tryxzlib:CreateWindow(config)
             return SliderObj
         end
 
-        -- 6. DROPDOWN (Selección Única)
+        -- 7. DROPDOWN (Single Selection)
         function TabAPI:AddDropdown(config)
             local Name = config.Name or "Dropdown"
             local Options = config.Options or {}
-            local Default = config.Default or Options[1] or "Seleccionar"
+            local Default = config.Default or Options[1] or "Select"
             local Callback = config.Callback or function() end
             local Open = false
 
             local DropFrame = Instance.new("Frame")
-            DropFrame.Size = UDim2.new(1, 0, 0, 36)
+            DropFrame.LayoutOrder = NextOrder()
+            DropFrame.Size = UDim2.new(1, 0, 0, 32)
             DropFrame.BackgroundColor3 = Theme.Element
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = Page
-            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 10)
 
             local Header = Instance.new("TextButton")
-            Header.Size = UDim2.new(1, 0, 0, 36)
+            Header.Size = UDim2.new(1, 0, 0, 32)
             Header.BackgroundTransparency = 1
             Header.Text = ""
             Header.Parent = DropFrame
 
             local Title = Instance.new("TextLabel")
             Title.Size = UDim2.new(0.5, 0, 1, 0)
-            Title.Position = UDim2.new(0, 12, 0, 0)
+            Title.Position = UDim2.new(0, 10, 0, 0)
             Title.BackgroundTransparency = 1
             Title.Text = Name
             Title.TextColor3 = Theme.Text
             Title.Font = Enum.Font.GothamSemibold
-            Title.TextSize = 13
+            Title.TextSize = 12
             Title.TextXAlignment = Enum.TextXAlignment.Left
             Title.Parent = Header
 
             local SelectedLbl = Instance.new("TextLabel")
-            SelectedLbl.Size = UDim2.new(0.5, -36, 1, 0)
+            SelectedLbl.Size = UDim2.new(0.5, -30, 1, 0)
             SelectedLbl.Position = UDim2.new(0.5, 0, 0, 0)
             SelectedLbl.BackgroundTransparency = 1
             SelectedLbl.Text = tostring(Default)
             SelectedLbl.TextColor3 = Theme.Accent
             SelectedLbl.Font = Enum.Font.Gotham
-            SelectedLbl.TextSize = 12
+            SelectedLbl.TextSize = 11
             SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
             SelectedLbl.Parent = Header
 
             local Arrow = Instance.new("TextLabel")
-            Arrow.Size = UDim2.new(0, 20, 0, 20)
-            Arrow.Position = UDim2.new(1, -28, 0.5, -10)
+            Arrow.Size = UDim2.new(0, 18, 0, 18)
+            Arrow.Position = UDim2.new(1, -24, 0.5, -9)
             Arrow.BackgroundTransparency = 1
             Arrow.Text = "▼"
             Arrow.TextColor3 = Theme.SubText
             Arrow.Font = Enum.Font.GothamBold
-            Arrow.TextSize = 10
+            Arrow.TextSize = 9
             Arrow.Parent = Header
 
             local ListHolder = Instance.new("Frame")
-            ListHolder.Size = UDim2.new(1, -16, 0, 0)
-            ListHolder.Position = UDim2.new(0, 8, 0, 38)
+            ListHolder.Size = UDim2.new(1, -12, 0, 0)
+            ListHolder.Position = UDim2.new(0, 6, 0, 34)
             ListHolder.BackgroundTransparency = 1
             ListHolder.Parent = DropFrame
 
             local ListLayout = Instance.new("UIListLayout", ListHolder)
             ListLayout.Padding = UDim.new(0, 4)
+            ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
             local function ToggleDrop()
                 Open = not Open
-                local totalHeight = Open and (44 + (#Options * 28)) or 36
+                local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
                 Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
             end
 
             Header.MouseButton1Click:Connect(ToggleDrop)
 
-            for _, opt in ipairs(Options) do
+            for i, opt in ipairs(Options) do
                 local OptBtn = Instance.new("TextButton")
-                OptBtn.Size = UDim2.new(1, 0, 0, 24)
+                OptBtn.LayoutOrder = i
+                OptBtn.Size = UDim2.new(1, 0, 0, 22)
                 OptBtn.BackgroundColor3 = Theme.Background
                 OptBtn.Text = "  " .. tostring(opt)
                 OptBtn.TextColor3 = Theme.SubText
                 OptBtn.Font = Enum.Font.Gotham
-                OptBtn.TextSize = 12
+                OptBtn.TextSize = 11
                 OptBtn.TextXAlignment = Enum.TextXAlignment.Left
                 OptBtn.AutoButtonColor = false
                 OptBtn.Parent = ListHolder
-                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 4)
+                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 7)
 
                 OptBtn.MouseEnter:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover, TextColor3 = Theme.Text}) end)
                 OptBtn.MouseLeave:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background, TextColor3 = Theme.SubText}) end)
@@ -829,7 +941,7 @@ function tryxzlib:CreateWindow(config)
             end
         end
 
-        -- 7. MULTI-DROPDOWN (Selección Múltiple)
+        -- 8. MULTI-DROPDOWN (Multiple Selection)
         function TabAPI:AddMultiDropdown(config)
             local Name = config.Name or "MultiDropdown"
             local Options = config.Options or {}
@@ -844,88 +956,91 @@ function tryxzlib:CreateWindow(config)
             end
 
             local DropFrame = Instance.new("Frame")
-            DropFrame.Size = UDim2.new(1, 0, 0, 36)
+            DropFrame.LayoutOrder = NextOrder()
+            DropFrame.Size = UDim2.new(1, 0, 0, 32)
             DropFrame.BackgroundColor3 = Theme.Element
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = Page
-            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 10)
 
             local Header = Instance.new("TextButton")
-            Header.Size = UDim2.new(1, 0, 0, 36)
+            Header.Size = UDim2.new(1, 0, 0, 32)
             Header.BackgroundTransparency = 1
             Header.Text = ""
             Header.Parent = DropFrame
 
             local Title = Instance.new("TextLabel")
             Title.Size = UDim2.new(0.45, 0, 1, 0)
-            Title.Position = UDim2.new(0, 12, 0, 0)
+            Title.Position = UDim2.new(0, 10, 0, 0)
             Title.BackgroundTransparency = 1
             Title.Text = Name
             Title.TextColor3 = Theme.Text
             Title.Font = Enum.Font.GothamSemibold
-            Title.TextSize = 13
+            Title.TextSize = 12
             Title.TextXAlignment = Enum.TextXAlignment.Left
             Title.Parent = Header
 
             local SelectedLbl = Instance.new("TextLabel")
-            SelectedLbl.Size = UDim2.new(0.55, -36, 1, 0)
+            SelectedLbl.Size = UDim2.new(0.55, -30, 1, 0)
             SelectedLbl.Position = UDim2.new(0.45, 0, 0, 0)
             SelectedLbl.BackgroundTransparency = 1
-            SelectedLbl.Text = "Ninguno"
+            SelectedLbl.Text = "None"
             SelectedLbl.TextColor3 = Theme.Accent
             SelectedLbl.Font = Enum.Font.Gotham
-            SelectedLbl.TextSize = 12
+            SelectedLbl.TextSize = 11
             SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
             SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
             SelectedLbl.Parent = Header
 
             local Arrow = Instance.new("TextLabel")
-            Arrow.Size = UDim2.new(0, 20, 0, 20)
-            Arrow.Position = UDim2.new(1, -28, 0.5, -10)
+            Arrow.Size = UDim2.new(0, 18, 0, 18)
+            Arrow.Position = UDim2.new(1, -24, 0.5, -9)
             Arrow.BackgroundTransparency = 1
             Arrow.Text = "▼"
             Arrow.TextColor3 = Theme.SubText
             Arrow.Font = Enum.Font.GothamBold
-            Arrow.TextSize = 10
+            Arrow.TextSize = 9
             Arrow.Parent = Header
 
             local ListHolder = Instance.new("Frame")
-            ListHolder.Size = UDim2.new(1, -16, 0, 0)
-            ListHolder.Position = UDim2.new(0, 8, 0, 38)
+            ListHolder.Size = UDim2.new(1, -12, 0, 0)
+            ListHolder.Position = UDim2.new(0, 6, 0, 34)
             ListHolder.BackgroundTransparency = 1
             ListHolder.Parent = DropFrame
 
             local ListLayout = Instance.new("UIListLayout", ListHolder)
             ListLayout.Padding = UDim.new(0, 4)
+            ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
             local function UpdateSummary()
                 local activeList = {}
                 for k, v in pairs(Selected) do
                     if v then table.insert(activeList, tostring(k)) end
                 end
-                SelectedLbl.Text = #activeList > 0 and table.concat(activeList, ", ") or "Ninguno"
+                SelectedLbl.Text = #activeList > 0 and table.concat(activeList, ", ") or "None"
                 task.spawn(Callback, activeList)
             end
 
             Header.MouseButton1Click:Connect(function()
                 Open = not Open
-                local totalHeight = Open and (44 + (#Options * 28)) or 36
+                local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
                 Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
             end)
 
-            for _, opt in ipairs(Options) do
+            for i, opt in ipairs(Options) do
                 local OptBtn = Instance.new("TextButton")
-                OptBtn.Size = UDim2.new(1, 0, 0, 24)
+                OptBtn.LayoutOrder = i
+                OptBtn.Size = UDim2.new(1, 0, 0, 22)
                 OptBtn.BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background
                 OptBtn.Text = "  " .. tostring(opt)
                 OptBtn.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
                 OptBtn.Font = Enum.Font.Gotham
-                OptBtn.TextSize = 12
+                OptBtn.TextSize = 11
                 OptBtn.TextXAlignment = Enum.TextXAlignment.Left
                 OptBtn.AutoButtonColor = false
                 OptBtn.Parent = ListHolder
-                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 4)
+                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 7)
 
                 OptBtn.MouseButton1Click:Connect(function()
                     Selected[opt] = not Selected[opt]
