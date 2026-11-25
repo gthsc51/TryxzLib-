@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v3.1 by gthsc51
-    Complete, Modular, Fully Animated UI Library for Roblox Executors
+  TryxzLib developed by gthsc51
+   TryxzLib, I hope it is the most modern library available right now.
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -10,6 +10,7 @@ local StatsService = game:GetService("Stats")
 local HapticService = game:GetService("HapticService")
 local SoundService = game:GetService("SoundService")
 local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -75,6 +76,53 @@ function TryxzLib:SetAccent(newColor)
         else
             table.remove(AccentObjects, i)
         end
+    end
+end
+
+-- ==========================================
+-- CAMERA BLUR CONTROLLER
+-- ==========================================
+local BlurState = {
+    Enabled = true,
+    TargetSize = 14,
+    Instance = nil
+}
+
+local function GetOrCreateBlur()
+    if BlurState.Instance and BlurState.Instance.Parent then
+        return BlurState.Instance
+    end
+    local existing = Lighting:FindFirstChild("TryxzLib_Blur")
+    if existing then existing:Destroy() end
+
+    local blur = Instance.new("BlurEffect")
+    blur.Name = "TryxzLib_Blur"
+    blur.Size = 0
+    blur.Enabled = false
+    blur.Parent = Lighting
+    BlurState.Instance = blur
+    return blur
+end
+
+local function SetBlurActive(active)
+    local blur = GetOrCreateBlur()
+    if active and BlurState.Enabled then
+        blur.Enabled = true
+        Tween(blur, Tweens.Smooth, {Size = BlurState.TargetSize})
+    else
+        local t = Tween(blur, Tweens.Fast, {Size = 0})
+        t.Completed:Connect(function()
+            if blur and blur.Size <= 0.1 then
+                blur.Enabled = false
+            end
+        end)
+    end
+end
+
+local function DestroyBlur()
+    if BlurState.Instance then
+        BlurState.Instance:Destroy()
+        BlurState.Instance = nil
     end
 end
 
@@ -580,9 +628,11 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM WITH BRIGHT GLOWING RED "X" CLOSE BUTTON
+-- KEY SYSTEM WITH BRIGHT GLOWING RED "X" CLOSE BUTTON & BLUR
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
+    SetBlurActive(true)
+
     local KeyBox = Instance.new("Frame")
     KeyBox.Name = "KeySystemWindow"
     KeyBox.Size = UDim2.new(0, 340, 0, 0)
@@ -636,8 +686,10 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     CloseKeyBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.35)
         TryxzLib:PlaySound("Error")
+        SetBlurActive(false)
         local t = Tween(KScale, Tweens.Fast, {Scale = 0})
         t.Completed:Wait()
+        DestroyBlur()
         ScreenGui:Destroy()
     end)
 
@@ -2004,6 +2056,14 @@ function TryxzLib:CreateWindow(config)
         SettingsOpen = false
     }
 
+    -- Configure Camera Blur from Window Options
+    if type(config.Blur) == "boolean" then
+        BlurState.Enabled = config.Blur
+    elseif type(config.Blur) == "table" then
+        BlurState.Enabled = config.Blur.Enabled ~= false
+        if config.Blur.Size then BlurState.TargetSize = math.clamp(tonumber(config.Blur.Size) or 14, 2, 40) end
+    end
+
     if config.Accent then Theme.Accent = config.Accent end
 
     if type(config.SaveConfig) == "boolean" then
@@ -2034,6 +2094,7 @@ function TryxzLib:CreateWindow(config)
                 Cfg.SavedData["_Sounds"] = SoundState.Enabled
                 Cfg.SavedData["_SoundPreset"] = SoundState.Preset
                 Cfg.SavedData["_UIScale"] = Cfg.UIScale
+                Cfg.SavedData["_Blur"] = BlurState.Enabled
                 Cfg.SavedData["_Accent"] = {Theme.Accent.R, Theme.Accent.G, Theme.Accent.B}
                 writefile(Cfg.SaveFile, HttpService:JSONEncode(Cfg.SavedData))
                 if Cfg.SaveKey and Cfg.SavedKey then
@@ -2069,6 +2130,7 @@ function TryxzLib:CreateWindow(config)
             Cfg.HasExistingSave = true
             if initialData["_Haptics"] ~= nil then Cfg.Haptics = initialData["_Haptics"] end
             if initialData["_Sounds"] ~= nil then SoundState.Enabled = initialData["_Sounds"] end
+            if initialData["_Blur"] ~= nil then BlurState.Enabled = initialData["_Blur"] end
             if initialData["_UIScale"] ~= nil then Cfg.UIScale = math.clamp(tonumber(initialData["_UIScale"]) or 1, 0.75, 1.35) end
             if initialData["_SoundPreset"] and SoundPresets[initialData["_SoundPreset"]] then
                 TryxzLib:SetSoundPreset(initialData["_SoundPreset"])
@@ -2129,6 +2191,7 @@ function TryxzLib:CreateWindow(config)
 
     local function OpenMainWindow(autoKeyBypassed)
         Main.Visible = true
+        SetBlurActive(true)
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
         if autoKeyBypassed then
             task.delay(0.35, function()
@@ -2149,11 +2212,13 @@ function TryxzLib:CreateWindow(config)
         end
     end
 
+    -- Collapse to "UI" button -> Removes Blur
     local function CollapseToFloatingUI()
         if State.Collapsed then return end
         State.Collapsed = true
         TriggerHaptic(0.3)
         TryxzLib:PlaySound("Click")
+        SetBlurActive(false)
         local closeT = Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
         closeT.Completed:Wait()
         Main.Visible = false
@@ -2161,6 +2226,7 @@ function TryxzLib:CreateWindow(config)
         Tween(FloatingUIBtn, Tweens.Bounce, {Size = UDim2.new(0, 44, 0, 44)})
     end
 
+    -- Restore from "UI" button -> Restores Blur (unless minimized with "-")
     local function RestoreFromFloatingUI()
         if not State.Collapsed then return end
         State.Collapsed = false
@@ -2170,6 +2236,7 @@ function TryxzLib:CreateWindow(config)
         closeF.Completed:Wait()
         FloatingUIBtn.Visible = false
         Main.Visible = true
+        SetBlurActive(not State.Minimized)
         Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
     end
 
@@ -2347,6 +2414,7 @@ function TryxzLib:CreateWindow(config)
     BodyContainer.BackgroundTransparency = 1
     BodyContainer.Parent = Main
 
+    -- Minimize "-" button -> Removes Blur when minimized, restores Blur when expanded
     MinBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.25)
         TryxzLib:PlaySound("Click")
@@ -2355,11 +2423,13 @@ function TryxzLib:CreateWindow(config)
             MinBtn.Text = "+"
             BodyContainer.Visible = false
             TopDivider.Visible = false
+            SetBlurActive(false)
             Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.TopH)})
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
             TopDivider.Visible = true
+            SetBlurActive(true)
             Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
         end
     end)
@@ -2369,11 +2439,13 @@ function TryxzLib:CreateWindow(config)
             if State.Collapsed then RestoreFromFloatingUI() return end
             State.Hidden = not State.Hidden
             if State.Hidden then
+                SetBlurActive(false)
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
                 Main.Visible = false
             else
                 Main.Visible = true
+                SetBlurActive(not State.Minimized)
                 Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
             end
         end
@@ -2513,7 +2585,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE (WITH UNIQUE SEGMENTED DIAMOND UI SCALE SLIDER)
+    -- SETTINGS PAGE
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2553,7 +2625,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.1 by gthsc51"
+    CTitle.Text = "TryxzLib v3.2 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2575,7 +2647,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- 2. UNIQUE SEGMENTED STEPPER + DIAMOND KNOB UI SCALE SLIDER
+    -- 2. Segmented Diamond UI Scale Slider
     local ScaleCard = Instance.new("Frame")
     ScaleCard.LayoutOrder = 2
     ScaleCard.Size = UDim2.new(1, 0, 0, 56)
@@ -2603,7 +2675,6 @@ function TryxzLib:CreateWindow(config)
     ScaleTitle.ZIndex = 12
     ScaleTitle.Parent = ScaleCard
 
-    -- Glowing Pill Badge for Current Scale Value
     local ScaleBadge = Instance.new("Frame")
     ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
     ScaleBadge.Position = UDim2.new(1, -60, 0, 6)
@@ -2623,7 +2694,6 @@ function TryxzLib:CreateWindow(config)
     ScaleValLbl.ZIndex = 13
     ScaleValLbl.Parent = ScaleBadge
 
-    -- Minus (-) and Plus (+) Quick Stepper Buttons flanking the track
     local MinusScaleBtn = Instance.new("TextButton")
     MinusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
     MinusScaleBtn.Position = UDim2.new(0, 10, 0, 29)
@@ -2650,7 +2720,6 @@ function TryxzLib:CreateWindow(config)
     PlusScaleBtn.Parent = ScaleCard
     Instance.new("UICorner", PlusScaleBtn).CornerRadius = UDim.new(1, 0)
 
-    -- Thick Segmented Track with Notches
     local ScaleTrack = Instance.new("TextButton")
     ScaleTrack.Size = UDim2.new(1, -72, 0, 10)
     ScaleTrack.Position = UDim2.new(0, 36, 0, 34)
@@ -2661,7 +2730,6 @@ function TryxzLib:CreateWindow(config)
     ScaleTrack.Parent = ScaleCard
     Instance.new("UICorner", ScaleTrack).CornerRadius = UDim.new(1, 0)
 
-    -- 5 Snap Tick Marks along the track (0.75, 0.90, 1.05, 1.20, 1.35)
     for idx = 0, 4 do
         local tickDot = Instance.new("Frame")
         tickDot.Size = UDim2.new(0, 3, 0, 3)
@@ -2675,16 +2743,14 @@ function TryxzLib:CreateWindow(config)
         Instance.new("UICorner", tickDot).CornerRadius = UDim.new(1, 0)
     end
 
-    local initScalePct = (Cfg.UIScale - 0.75) / 0.60
     local ScaleFill = Instance.new("Frame")
-    ScaleFill.Size = UDim2.new(initScalePct, 0, 1, 0)
+    ScaleFill.Size = UDim2.new((Cfg.UIScale - 0.75) / 0.60, 0, 1, 0)
     ScaleFill.BackgroundColor3 = Theme.Accent
     ScaleFill.ZIndex = 13
     ScaleFill.Parent = ScaleTrack
     Instance.new("UICorner", ScaleFill).CornerRadius = UDim.new(1, 0)
     BindAccent(ScaleFill, "BackgroundColor3")
 
-    -- Rotating Diamond Thumb Knob (Completely distinct from normal sliders)
     local DiamondKnob = Instance.new("Frame")
     DiamondKnob.Size = UDim2.new(0, 14, 0, 14)
     DiamondKnob.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2711,17 +2777,12 @@ function TryxzLib:CreateWindow(config)
         Cfg.UIScale = clamped
         MainUIScale.Scale = clamped
         ScaleValLbl.Text = string.format("%.2fx", clamped)
-        local pct = (clamped - 0.75) / 0.60
-        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(pct, 0, 1, 0)})
+        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new((clamped - 0.75) / 0.60, 0, 1, 0)})
         if saveNow then WriteConfigFile() end
     end
 
-    MinusScaleBtn.MouseButton1Click:Connect(function()
-        ApplyNewUIScale(Cfg.UIScale - 0.05, true)
-    end)
-    PlusScaleBtn.MouseButton1Click:Connect(function()
-        ApplyNewUIScale(Cfg.UIScale + 0.05, true)
-    end)
+    MinusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale - 0.05, true) end)
+    PlusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale + 0.05, true) end)
 
     local draggingScale = false
     local function UpdateScaleFromInput(inp)
@@ -2805,7 +2866,7 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 4 & 5. Special Diamond Settings Toggles
+    -- 4, 5 & 6. Special Diamond Settings Toggles (Haptics, Sounds, Camera Blur)
     local function CreateSpecialSettingsToggle(order, titleText, subText, initialState, onToggle)
         local st = initialState
         local Btn = Instance.new("TextButton")
@@ -2877,21 +2938,28 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    CreateSpecialSettingsToggle(4, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
+    CreateSpecialSettingsToggle(4, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
+        BlurState.Enabled = val
+        SetBlurActive(val and not State.Minimized and not State.Collapsed)
+        TriggerHaptic(0.25)
+        TryxzLib:PlaySound("Toggle")
+    end)
+
+    CreateSpecialSettingsToggle(5, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
         Cfg.Haptics = val
         if val then TriggerHaptic(0.5) end
         TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(5, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
+    CreateSpecialSettingsToggle(6, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
         SoundState.Enabled = val
         TriggerHaptic(0.25)
         if val then TryxzLib:PlaySound("Toggle") end
     end)
 
-    -- 6. Sound Pack Selector
+    -- 7. Sound Pack Selector
     local SoundSelectBtn = Instance.new("TextButton")
-    SoundSelectBtn.LayoutOrder = 6
+    SoundSelectBtn.LayoutOrder = 7
     SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
     SoundSelectBtn.BackgroundColor3 = Theme.Element
     SoundSelectBtn.Text = ""
@@ -2935,10 +3003,10 @@ function TryxzLib:CreateWindow(config)
         WriteConfigFile()
     end)
 
-    -- 7. Multi-Profile Config Manager Card
+    -- 8. Multi-Profile Config Manager Card
     if Cfg.SaveEnabled then
         local ProfCard = Instance.new("Frame")
-        ProfCard.LayoutOrder = 7
+        ProfCard.LayoutOrder = 8
         ProfCard.Size = UDim2.new(1, 0, 0, 74)
         ProfCard.BackgroundColor3 = Theme.GrayTranslucent
         ProfCard.BackgroundTransparency = 0.5
@@ -3066,9 +3134,9 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 8. Unload / Destroy UI Button
+    -- 9. Unload / Destroy UI Button -> Removes Blur completely
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 8
+    DestroyBtn.LayoutOrder = 9
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Theme.Error
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -3090,9 +3158,11 @@ function TryxzLib:CreateWindow(config)
             CancelText = "Stay",
             OnConfirm = function()
                 TriggerHaptic(0.4)
+                SetBlurActive(false)
                 if StatsConnection then StatsConnection:Disconnect() end
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
+                DestroyBlur()
                 ScreenGui:Destroy()
             end
         })
@@ -3308,3 +3378,4 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
+ 
