@@ -1,9 +1,10 @@
 --[[
-    TryxzLib v2.0 by gthsc51
+    TryxzLib v2.1 by gthsc51
     Complete, Fully Animated UI Library for Roblox Executors
-    Features: KeySystem, SaveConfig, Floating UI, SearchBar, Live Accent Themes,
-              Sound Packs, Haptics, Dialogs, ColorPicker, Keybind, Input,
-              Slider, Toggle, Dropdown, MultiDropdown, Paragraph, Label, Section, Divider
+    Features: KeySystem + SaveKey inside SaveConfig, Custom Sound Packs + Built-in Presets,
+              Floating UI, SearchBar, Live Accent Themes, Haptics, Dialogs,
+              ColorPicker, Keybind, Input, Slider, Toggle, Dropdown, MultiDropdown,
+              Paragraph, Label, Section, Divider
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -53,7 +54,7 @@ local AccentPresets = {
     {Name = "Rose", Color = Color3.fromRGB(236, 95, 185)}
 }
 
-local AccentObjects = {} -- Tracks live UI objects bound to Theme.Accent
+local AccentObjects = {}
 
 local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -82,7 +83,10 @@ function TryxzLib:SetAccent(newColor)
     end
 end
 
--- Sound System
+-- ==========================================
+-- SOUND SYSTEM (Built-in + Custom Packs & Named Sounds)
+-- ==========================================
+local PresetOrder = {"Soft Pop", "Mechanical", "Bubble", "Cyber"}
 local SoundPresets = {
     ["Soft Pop"] = {
         Click = "rbxassetid://6895079853",
@@ -118,6 +122,8 @@ local SoundPresets = {
     }
 }
 
+local CustomNamedSounds = {}
+
 local SoundState = {
     Enabled = true,
     Volume = 0.45,
@@ -129,6 +135,91 @@ local SoundState = {
     Success = SoundPresets["Soft Pop"].Success,
     Error = SoundPresets["Soft Pop"].Error
 }
+
+local function FormatAssetId(val)
+    local s = tostring(val)
+    if tonumber(s) then
+        return "rbxassetid://" .. s
+    end
+    return s
+end
+
+function TryxzLib:RegisterSound(name, soundId)
+    if name and soundId then
+        CustomNamedSounds[tostring(name)] = FormatAssetId(soundId)
+    end
+end
+
+function TryxzLib:AddSoundPack(packName, packTable)
+    if not packName or type(packTable) ~= "table" then return end
+    local base = SoundPresets["Soft Pop"]
+    SoundPresets[packName] = {
+        Click = packTable.Click and FormatAssetId(packTable.Click) or base.Click,
+        Hover = packTable.Hover and FormatAssetId(packTable.Hover) or base.Hover,
+        Toggle = packTable.Toggle and FormatAssetId(packTable.Toggle) or base.Toggle,
+        Notify = packTable.Notify and FormatAssetId(packTable.Notify) or base.Notify,
+        Success = packTable.Success and FormatAssetId(packTable.Success) or base.Success,
+        Error = packTable.Error and FormatAssetId(packTable.Error) or base.Error
+    }
+    if not table.find(PresetOrder, packName) then
+        table.insert(PresetOrder, packName)
+    end
+end
+
+function TryxzLib:SetSoundPreset(presetName)
+    local preset = SoundPresets[presetName]
+    if preset then
+        SoundState.Preset = presetName
+        for k, v in pairs(preset) do SoundState[k] = v end
+    end
+end
+
+function TryxzLib:SetSounds(soundTable)
+    if type(soundTable) == "boolean" then SoundState.Enabled = soundTable return end
+    if type(soundTable) ~= "table" then return end
+    if soundTable.Enabled ~= nil then SoundState.Enabled = soundTable.Enabled end
+    if soundTable.Volume ~= nil then SoundState.Volume = soundTable.Volume end
+
+    if type(soundTable.Packs) == "table" then
+        for pName, pTbl in pairs(soundTable.Packs) do
+            TryxzLib:AddSoundPack(pName, pTbl)
+        end
+    end
+
+    if type(soundTable.Custom) == "table" then
+        for sName, sId in pairs(soundTable.Custom) do
+            TryxzLib:RegisterSound(sName, sId)
+        end
+    end
+
+    if soundTable.Preset and SoundPresets[soundTable.Preset] then
+        TryxzLib:SetSoundPreset(soundTable.Preset)
+    end
+
+    for _, key in ipairs({"Click", "Hover", "Toggle", "Notify", "Success", "Error"}) do
+        if soundTable[key] ~= nil then
+            SoundState[key] = FormatAssetId(soundTable[key])
+        end
+    end
+end
+
+function TryxzLib:PlaySound(soundOrType, customVolume)
+    if not SoundState.Enabled then return end
+    local id = CustomNamedSounds[soundOrType] or SoundState[soundOrType] or tostring(soundOrType)
+    if not id or id == "" or id == "none" then return end
+    id = FormatAssetId(id)
+    task.spawn(function()
+        pcall(function()
+            local snd = Instance.new("Sound")
+            snd.SoundId = id
+            snd.Volume = customVolume or SoundState.Volume
+            snd.Parent = SoundService
+            snd:Play()
+            snd.Ended:Connect(function() snd:Destroy() end)
+            task.delay(4, function() if snd and snd.Parent then snd:Destroy() end end)
+        end)
+    end)
+end
 
 local function CreateIcon(parent, iconValue, size, pos, zindex)
     if iconValue == nil or tostring(iconValue) == "" then return nil end
@@ -174,48 +265,6 @@ pcall(function()
 end)
 if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
-
-function TryxzLib:SetSoundPreset(presetName)
-    local preset = SoundPresets[presetName]
-    if preset then
-        SoundState.Preset = presetName
-        for k, v in pairs(preset) do SoundState[k] = v end
-    end
-end
-
-function TryxzLib:SetSounds(soundTable)
-    if type(soundTable) == "boolean" then SoundState.Enabled = soundTable return end
-    if type(soundTable) ~= "table" then return end
-    if soundTable.Enabled ~= nil then SoundState.Enabled = soundTable.Enabled end
-    if soundTable.Volume ~= nil then SoundState.Volume = soundTable.Volume end
-    if soundTable.Preset and SoundPresets[soundTable.Preset] then
-        TryxzLib:SetSoundPreset(soundTable.Preset)
-    end
-    for _, key in ipairs({"Click", "Hover", "Toggle", "Notify", "Success", "Error"}) do
-        if soundTable[key] ~= nil then
-            local val = tostring(soundTable[key])
-            SoundState[key] = tonumber(val) and ("rbxassetid://" .. val) or val
-        end
-    end
-end
-
-function TryxzLib:PlaySound(soundOrType, customVolume)
-    if not SoundState.Enabled then return end
-    local id = SoundState[soundOrType] or tostring(soundOrType)
-    if not id or id == "" or id == "none" then return end
-    if tonumber(id) then id = "rbxassetid://" .. id end
-    task.spawn(function()
-        pcall(function()
-            local snd = Instance.new("Sound")
-            snd.SoundId = id
-            snd.Volume = customVolume or SoundState.Volume
-            snd.Parent = SoundService
-            snd:Play()
-            snd.Ended:Connect(function() snd:Destroy() end)
-            task.delay(3, function() if snd and snd.Parent then snd:Destroy() end end)
-        end)
-    end)
 end
 
 -- Notification Container
@@ -483,8 +532,23 @@ local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCall
     end)
 end
 
--- Detached KeySystem Builder
-local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, OnSuccess)
+-- Key Validation Helper
+local function CheckKeyValid(KeyConfig, entered)
+    local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
+    if type(ValidKeys) == "function" then
+        return ValidKeys(entered) == true
+    elseif type(ValidKeys) == "table" then
+        for _, k in ipairs(ValidKeys) do
+            if tostring(entered) == tostring(k) then return true end
+        end
+    elseif type(ValidKeys) == "string" then
+        return tostring(entered) == ValidKeys
+    end
+    return false
+end
+
+-- Detached KeySystem Builder (With SaveKey support)
+local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     local KeyBox = Instance.new("Frame")
     KeyBox.Name = "KeySystemWindow"
     KeyBox.Size = UDim2.new(0, 340, 0, 0)
@@ -720,23 +784,15 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, OnSuccess)
 
     Tween(KScale, Tweens.Bounce, {Scale = 1})
 
-    local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
-    local function ValidateKey(entered)
-        if type(ValidKeys) == "function" then return ValidKeys(entered)
-        elseif type(ValidKeys) == "table" then
-            for _, k in ipairs(ValidKeys) do
-                if tostring(entered) == tostring(k) then return true end
-            end
-        elseif type(ValidKeys) == "string" then
-            return tostring(entered) == ValidKeys
-        end
-        return false
-    end
-
     AccessBtn.MouseButton1Click:Connect(function()
-        if ValidateKey(KeyInput.Text) then
+        local entered = KeyInput.Text
+        if CheckKeyValid(KeyConfig, entered) then
             TriggerHaptic(0.5)
             TryxzLib:PlaySound("Success")
+            if Cfg.SaveEnabled and Cfg.SaveKey then
+                Cfg.SavedData["_SavedKey"] = tostring(entered)
+                WriteConfigFile()
+            end
             AccLbl.Text = "Access Granted!"
             AccArrow.Text = "✓"
             Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
@@ -745,7 +801,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, OnSuccess)
             local closeK = Tween(KScale, Tweens.Smooth, {Scale = 0})
             closeK.Completed:Wait()
             KeyBox:Destroy()
-            OnSuccess()
+            OnSuccess(false)
         else
             TriggerHaptic(0.45)
             TryxzLib:PlaySound("Error")
@@ -781,6 +837,7 @@ function TryxzLib:CreateWindow(config)
         Keybind = config.ToggleKey or Enum.KeyCode.RightControl,
         Haptics = config.Haptics ~= false,
         SaveEnabled = false,
+        SaveKey = false,
         SaveFolder = "TryxzLibConfigs",
         SaveFile = "",
         SavedData = {},
@@ -802,11 +859,12 @@ function TryxzLib:CreateWindow(config)
         Theme.Accent = config.Accent
     end
 
-    -- Setup SaveConfig
+    -- Setup SaveConfig & SaveKey
     if type(config.SaveConfig) == "boolean" then
         Cfg.SaveEnabled = config.SaveConfig
     elseif type(config.SaveConfig) == "table" then
         Cfg.SaveEnabled = config.SaveConfig.Enabled ~= false
+        Cfg.SaveKey = config.SaveConfig.SaveKey == true
         if config.SaveConfig.Folder then Cfg.SaveFolder = config.SaveConfig.Folder end
     end
     local fName = (type(config.SaveConfig) == "table" and config.SaveConfig.FileName) or tostring(Cfg.Title):gsub("[^%w_-]", "_")
@@ -824,6 +882,10 @@ function TryxzLib:CreateWindow(config)
                 writefile(Cfg.SaveFile, HttpService:JSONEncode(Cfg.SavedData))
             end
         end)
+    end
+
+    if config.Sounds ~= nil then
+        TryxzLib:SetSounds(config.Sounds)
     end
 
     if Cfg.SaveEnabled then
@@ -844,13 +906,6 @@ function TryxzLib:CreateWindow(config)
                 end
             end
         end)
-    end
-
-    if config.Sounds ~= nil then
-        TryxzLib:SetSounds(config.Sounds)
-        if Cfg.HasExistingSave and Cfg.SavedData["_Sounds"] ~= nil then
-            SoundState.Enabled = Cfg.SavedData["_Sounds"]
-        end
     end
 
     local function TriggerHaptic(strength)
@@ -900,10 +955,18 @@ function TryxzLib:CreateWindow(config)
     FloatStroke.Thickness = 1.5
     BindAccent(FloatStroke, "Color")
 
-    local function OpenMainWindow()
+    local function OpenMainWindow(autoKeyBypassed)
         Main.Visible = true
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
-        if Cfg.SaveEnabled and Cfg.HasExistingSave then
+        if autoKeyBypassed then
+            task.delay(0.35, function()
+                TryxzLib:Notify({
+                    Title = "Key & Config Loaded",
+                    Text = "Saved key verified and settings restored automatically.",
+                    Duration = 4
+                })
+            end)
+        elseif Cfg.SaveEnabled and Cfg.HasExistingSave then
             task.delay(0.35, function()
                 TryxzLib:Notify({
                     Title = "Config Loaded",
@@ -950,10 +1013,17 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    if config.KeySystem and config.KeySystem.Enabled ~= false then
-        BuildKeySystem(config.KeySystem, Cfg, TriggerHaptic, OpenMainWindow)
+    -- Check KeySystem + SaveKey
+    local KeyConfig = config.KeySystem
+    if KeyConfig and KeyConfig.Enabled ~= false then
+        local savedKey = Cfg.SaveEnabled and Cfg.SaveKey and Cfg.SavedData["_SavedKey"]
+        if savedKey and CheckKeyValid(KeyConfig, savedKey) then
+            OpenMainWindow(true)
+        else
+            BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OpenMainWindow)
+        end
     else
-        OpenMainWindow()
+        OpenMainWindow(false)
     end
 
     -- Topbar
@@ -1212,8 +1282,8 @@ function TryxzLib:CreateWindow(config)
     PagesContainer.Parent = BodyContainer
     Instance.new("UICorner", PagesContainer).CornerRadius = UDim.new(0, 14)
 
-    -- Optional Live Search Bar at top of PagesContainer
-    local Window = {Tabs = {}, TabOrder = 0, Flags = {}, ActiveTab = nil}
+    -- Optional Live Search Bar
+    local Window = {Tabs = {}, TabOrder = 0, Flags = {}}
     local PageTopOffset = 0
 
     if Cfg.SearchBar then
@@ -1311,7 +1381,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v2.0 by gthsc51"
+    CTitle.Text = "TryxzLib v2.1 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -1333,7 +1403,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Accent Theme Picker Card in Settings
+    -- Accent Theme Picker Card
     local ThemeCard = Instance.new("Frame")
     ThemeCard.LayoutOrder = 2
     ThemeCard.Size = UDim2.new(1, 0, 0, 48)
@@ -1472,8 +1542,7 @@ function TryxzLib:CreateWindow(config)
         if val then TryxzLib:PlaySound("Toggle") end
     end)
 
-    -- Sound Pack Selector
-    local PresetList = {"Soft Pop", "Mechanical", "Bubble", "Cyber"}
+    -- Sound Pack Selector (Cycles Built-in + Custom Sound Packs)
     local SoundSelectBtn = Instance.new("TextButton")
     SoundSelectBtn.LayoutOrder = 5
     SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
@@ -1510,8 +1579,8 @@ function TryxzLib:CreateWindow(config)
     BindAccent(SndCurrent, "TextColor3")
 
     SoundSelectBtn.MouseButton1Click:Connect(function()
-        local idx = table.find(PresetList, SoundState.Preset) or 1
-        local nextPreset = PresetList[(idx % #PresetList) + 1]
+        local idx = table.find(PresetOrder, SoundState.Preset) or 1
+        local nextPreset = PresetOrder[(idx % #PresetOrder) + 1]
         TryxzLib:SetSoundPreset(nextPreset)
         SndCurrent.Text = nextPreset
         TriggerHaptic(0.25)
@@ -1524,7 +1593,7 @@ function TryxzLib:CreateWindow(config)
         ResetCfgBtn.LayoutOrder = 6
         ResetCfgBtn.Size = UDim2.new(1, 0, 0, 30)
         ResetCfgBtn.BackgroundColor3 = Theme.Element
-        ResetCfgBtn.Text = "Reset Saved Config"
+        ResetCfgBtn.Text = "Reset Saved Config & Key"
         ResetCfgBtn.TextColor3 = Theme.SubText
         ResetCfgBtn.Font = Enum.Font.GothamSemibold
         ResetCfgBtn.TextSize = 11
@@ -1536,7 +1605,7 @@ function TryxzLib:CreateWindow(config)
         ResetCfgBtn.MouseButton1Click:Connect(function()
             TryxzLib:Dialog({
                 Title = "Reset Configuration",
-                Content = "This will delete your saved settings file. Continue?",
+                Content = "This will delete your saved settings and saved key. Continue?",
                 ConfirmText = "Reset",
                 CancelText = "Cancel",
                 OnConfirm = function()
@@ -1545,7 +1614,7 @@ function TryxzLib:CreateWindow(config)
                     pcall(function()
                         if delfile and isfile and isfile(Cfg.SaveFile) then delfile(Cfg.SaveFile) end
                     end)
-                    TryxzLib:Notify({Title = "Config Reset", Text = "Saved configuration file cleared.", Duration = 3})
+                    TryxzLib:Notify({Title = "Config Reset", Text = "Saved configuration & key cleared.", Duration = 3})
                 end
             })
         end)
@@ -2226,7 +2295,7 @@ function TryxzLib:CreateWindow(config)
             return KeyObj
         end
 
-        -- 10. COLOR PICKER (Expandable HSV Picker)
+        -- 10. COLOR PICKER
         function TabAPI:AddColorPicker(cCfg)
             local Flag = cCfg.Flag
             local CurrentColor = cCfg.Default or Theme.Accent
@@ -2277,7 +2346,6 @@ function TryxzLib:CreateWindow(config)
             PStroke.Thickness = 1
             PStroke.Transparency = 0.6
 
-            -- Saturation / Value Box
             local SVBox = Instance.new("TextButton")
             SVBox.Size = UDim2.new(1, -20, 0, 68)
             SVBox.Position = UDim2.new(0, 10, 0, 36)
@@ -2315,7 +2383,6 @@ function TryxzLib:CreateWindow(config)
             SVCursor.Parent = SVBox
             Instance.new("UICorner", SVCursor).CornerRadius = UDim.new(1, 0)
 
-            -- Hue Bar
             local HueBar = Instance.new("TextButton")
             HueBar.Size = UDim2.new(1, -20, 0, 12)
             HueBar.Position = UDim2.new(0, 10, 0, 110)
