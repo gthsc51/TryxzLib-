@@ -8,6 +8,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local StatsService = game:GetService("Stats")
 local HapticService = game:GetService("HapticService")
+local SoundService = game:GetService("SoundService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -29,19 +30,22 @@ local function Tween(obj, info, props)
     return t
 end
 
--- Helper to apply icon (supports rbxassetid:// or text/emoji)
+-- Helper to apply icon (Fixed: properly handles rbxassetid://, numeric IDs, and emojis/text with ZIndex)
 local function CreateIcon(parent, iconValue, size, pos, zindex)
-    if not iconValue or iconValue == "" then return nil end
-    local isAsset = tostring(iconValue):find("rbxassetid://") or tonumber(iconValue)
+    if iconValue == nil or tostring(iconValue) == "" then return nil end
+    local strVal = tostring(iconValue)
+    local isAsset = string.find(strVal, "rbxassetid://", 1, true) ~= nil or tonumber(strVal) ~= nil
+
     if isAsset then
-        local assetId = tonumber(iconValue) and ("rbxassetid://" .. tostring(iconValue)) or tostring(iconValue)
+        local assetId = tonumber(strVal) and ("rbxassetid://" .. strVal) or strVal
         local img = Instance.new("ImageLabel")
         img.Size = UDim2.new(0, size, 0, size)
         img.Position = pos
         img.BackgroundTransparency = 1
         img.Image = assetId
+        img.ImageColor3 = Color3.fromRGB(245, 245, 250)
         img.ScaleType = Enum.ScaleType.Fit
-        img.ZIndex = zindex or 2
+        img.ZIndex = zindex or 5
         img.Parent = parent
         return img
     else
@@ -49,11 +53,11 @@ local function CreateIcon(parent, iconValue, size, pos, zindex)
         lbl.Size = UDim2.new(0, size, 0, size)
         lbl.Position = pos
         lbl.BackgroundTransparency = 1
-        lbl.Text = tostring(iconValue)
-        lbl.TextColor3 = Color3.fromRGB(240, 240, 245)
+        lbl.Text = strVal
+        lbl.TextColor3 = Color3.fromRGB(245, 245, 250)
         lbl.Font = Enum.Font.GothamBold
-        lbl.TextSize = size - 2
-        lbl.ZIndex = zindex or 2
+        lbl.TextSize = math.max(10, size - 2)
+        lbl.ZIndex = zindex or 5
         lbl.Parent = parent
         return lbl
     end
@@ -79,6 +83,7 @@ local Theme = {
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "tryxzlib_" .. tostring(math.random(1000, 9999))
 ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 pcall(function()
@@ -86,6 +91,42 @@ pcall(function()
 end)
 if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+-- Global Sound System
+local SoundConfig = {
+    Enabled = true,
+    Volume = 0.45,
+    Click = "rbxassetid://6895079853",
+    Hover = "rbxassetid://6895079733",
+    Toggle = "rbxassetid://6895079853",
+    Notify = "rbxassetid://4590657391",
+    Success = "rbxassetid://4590662766",
+    Error = "rbxassetid://4590656842"
+}
+
+function tryxzlib:PlaySound(soundOrType, customVolume)
+    if not SoundConfig.Enabled then return end
+    local id = SoundConfig[soundOrType] or tostring(soundOrType)
+    if not id or id == "" then return end
+    if tonumber(id) then
+        id = "rbxassetid://" .. id
+    end
+    task.spawn(function()
+        pcall(function()
+            local snd = Instance.new("Sound")
+            snd.SoundId = id
+            snd.Volume = customVolume or SoundConfig.Volume
+            snd.Parent = SoundService
+            snd:Play()
+            snd.Ended:Connect(function()
+                snd:Destroy()
+            end)
+            task.delay(3, function()
+                if snd and snd.Parent then snd:Destroy() end
+            end)
+        end)
+    end)
 end
 
 -- Notification System
@@ -106,6 +147,9 @@ function tryxzlib:Notify(config)
     local Title = config.Title or "Notification"
     local Text = config.Text or ""
     local Duration = config.Duration or 4
+    local SoundId = config.Sound or "Notify"
+
+    tryxzlib:PlaySound(SoundId)
 
     local NotifFrame = Instance.new("Frame")
     NotifFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -173,37 +217,59 @@ function tryxzlib:Notify(config)
     end)
 end
 
--- Draggable utility
-local function MakeDraggable(dragHandle, targetFrame)
+-- Draggable utility (with optional screen boundary clamping)
+local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback)
     local dragging, dragInput, dragStart, startPos
+    local moved = false
+
     dragHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            moved = false
             dragStart = input.Position
             startPos = targetFrame.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
+                    if not moved and onClickCallback then
+                        onClickCallback()
+                    end
                 end
             end)
         end
     end)
+
     dragHandle.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
+
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            Tween(targetFrame, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            if delta.Magnitude > 4 then
+                moved = true
+            end
+            local newX = startPos.X.Offset + delta.X
+            local newY = startPos.Y.Offset + delta.Y
+
+            if clampToScreen then
+                local screenSize = ScreenGui.AbsoluteSize
+                local objSize = targetFrame.AbsoluteSize
+                local margin = 8
+                newX = math.clamp(newX, margin, math.max(margin, screenSize.X - objSize.X - margin))
+                newY = math.clamp(newY, margin, math.max(margin, screenSize.Y - objSize.Y - margin))
+            end
+
+            Tween(targetFrame, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
             })
         end
     end)
 end
 
--- Create Main Window (With Optional KeySystem)
+-- Create Main Window
 function tryxzlib:CreateWindow(config)
     local Title = config.Title or "tryxzlib"
     local Subtitle = config.Subtitle or ""
@@ -213,6 +279,19 @@ function tryxzlib:CreateWindow(config)
     local Keybind = config.ToggleKey or Enum.KeyCode.RightControl
     local HapticsEnabled = config.Haptics ~= false
     local KeyConfig = config.KeySystem
+
+    -- Apply custom Sound settings if provided
+    if type(config.Sounds) == "boolean" then
+        SoundConfig.Enabled = config.Sounds
+    elseif type(config.Sounds) == "table" then
+        if config.Sounds.Enabled ~= nil then SoundConfig.Enabled = config.Sounds.Enabled end
+        if config.Sounds.Volume ~= nil then SoundConfig.Volume = config.Sounds.Volume end
+        for k, v in pairs(config.Sounds) do
+            if SoundConfig[k] ~= nil and k ~= "Enabled" and k ~= "Volume" then
+                SoundConfig[k] = v
+            end
+        end
+    end
 
     local function TriggerHaptic(strength)
         if not HapticsEnabled then return end
@@ -224,15 +303,15 @@ function tryxzlib:CreateWindow(config)
         end)
     end
 
-    local WinWidth, WinHeight = 460, 305
+    local WinWidth, WinHeight = 465, 305
     local TopbarHeight = 44
 
-    -- Main Window Frame (Smooth Rounded Corners)
+    -- Main Window Frame (Uses Theme.Sidebar so all 4 outer corners are seamlessly rounded)
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
     Main.Position = UDim2.new(0.5, -WinWidth/2, 0.5, -WinHeight/2)
-    Main.BackgroundColor3 = Theme.Background
+    Main.BackgroundColor3 = Theme.Sidebar
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
     Main.Visible = false
@@ -246,10 +325,73 @@ function tryxzlib:CreateWindow(config)
     MainStroke.Thickness = 1.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+    -- Floating Clamped & Draggable "UI" Pill Button (Shown when collapsed to "UI" mode)
+    local FloatingUIBtn = Instance.new("TextButton")
+    FloatingUIBtn.Name = "FloatingUIButton"
+    FloatingUIBtn.Size = UDim2.new(0, 0, 0, 0)
+    FloatingUIBtn.Position = UDim2.new(0, 18, 0, 70)
+    FloatingUIBtn.BackgroundColor3 = Theme.Sidebar
+    FloatingUIBtn.Text = "UI"
+    FloatingUIBtn.TextColor3 = Theme.Text
+    FloatingUIBtn.Font = Enum.Font.GothamBold
+    FloatingUIBtn.TextSize = 13
+    FloatingUIBtn.AutoButtonColor = false
+    FloatingUIBtn.Visible = false
+    FloatingUIBtn.ZIndex = 20
+    FloatingUIBtn.Parent = ScreenGui
+    Instance.new("UICorner", FloatingUIBtn).CornerRadius = UDim.new(1, 0)
+
+    local FloatStroke = Instance.new("UIStroke", FloatingUIBtn)
+    FloatStroke.Color = Theme.Accent
+    FloatStroke.Thickness = 1.5
+
+    local Minimized = false
+    local CollapsedToUI = false
+
     local function OpenMainWindow()
         Main.Visible = true
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
     end
+
+    local function CollapseToFloatingUI()
+        if CollapsedToUI then return end
+        CollapsedToUI = true
+        TriggerHaptic(0.3)
+        tryxzlib:PlaySound("Click")
+        local closeT = Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
+        closeT.Completed:Wait()
+        Main.Visible = false
+
+        FloatingUIBtn.Visible = true
+        Tween(FloatingUIBtn, Tweens.Bounce, {Size = UDim2.new(0, 44, 0, 44)})
+    end
+
+    local function RestoreFromFloatingUI()
+        if not CollapsedToUI then return end
+        CollapsedToUI = false
+        TriggerHaptic(0.3)
+        tryxzlib:PlaySound("Click")
+        local closeF = Tween(FloatingUIBtn, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
+        closeF.Completed:Wait()
+        FloatingUIBtn.Visible = false
+
+        Main.Visible = true
+        Tween(Main, Tweens.Bounce, {Size = Minimized and UDim2.new(0, WinWidth, 0, TopbarHeight) or UDim2.new(0, WinWidth, 0, WinHeight)})
+    end
+
+    -- Make Floating "UI" button draggable, clamped to screen bounds, and restore on tap/click
+    MakeDraggable(FloatingUIBtn, FloatingUIBtn, true, RestoreFromFloatingUI)
+
+    -- Keep FloatingUIBtn clamped if screen resizes
+    ScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        if FloatingUIBtn.Visible then
+            local screenSize = ScreenGui.AbsoluteSize
+            local margin = 8
+            local clampedX = math.clamp(FloatingUIBtn.Position.X.Offset, margin, math.max(margin, screenSize.X - 44 - margin))
+            local clampedY = math.clamp(FloatingUIBtn.Position.Y.Offset, margin, math.max(margin, screenSize.Y - 44 - margin))
+            FloatingUIBtn.Position = UDim2.new(0, clampedX, 0, clampedY)
+        end
+    end)
 
     -- ==========================================
     -- OPTIONAL KEY SYSTEM GATE
@@ -258,7 +400,7 @@ function tryxzlib:CreateWindow(config)
         local KTitle = KeyConfig.Title or Title
         local KNote = KeyConfig.Note or "Enter your access key below to continue."
         local KIcon = KeyConfig.Icon or WinIcon or "🔑"
-        local KInfo = KeyConfig.Info -- Optional { Title = "...", Content = "..." }
+        local KInfo = KeyConfig.Info
         local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
         local KButtonText = KeyConfig.ButtonText or "Unlock Access"
         local KGetLink = KeyConfig.GetKeyLink
@@ -272,7 +414,7 @@ function tryxzlib:CreateWindow(config)
         KeyBox.BorderSizePixel = 0
         KeyBox.ClipsDescendants = true
         KeyBox.Parent = ScreenGui
-        MakeDraggable(KeyBox, KeyBox)
+        MakeDraggable(KeyBox, KeyBox, true)
 
         Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 18)
         local KStroke = Instance.new("UIStroke", KeyBox)
@@ -297,18 +439,19 @@ function tryxzlib:CreateWindow(config)
         KLayout.Padding = UDim.new(0, 10)
         KLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-        -- Circular Icon Badge
+        -- Circular Icon Badge (Fixed ZIndex & Asset ID rendering)
         local IconBadge = Instance.new("Frame")
         IconBadge.LayoutOrder = 1
         IconBadge.Size = UDim2.new(0, 44, 0, 44)
         IconBadge.BackgroundColor3 = Theme.Element
+        IconBadge.ZIndex = 4
         IconBadge.Parent = KInner
         Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
         local IBStroke = Instance.new("UIStroke", IconBadge)
         IBStroke.Color = Theme.Accent
         IBStroke.Thickness = 1.2
 
-        CreateIcon(IconBadge, KIcon, 22, UDim2.new(0.5, -11, 0.5, -11), 3)
+        CreateIcon(IconBadge, KIcon, 22, UDim2.new(0.5, -11, 0.5, -11), 6)
 
         -- KeySystem Title
         local KTitleLbl = Instance.new("TextLabel")
@@ -321,7 +464,7 @@ function tryxzlib:CreateWindow(config)
         KTitleLbl.TextSize = 15
         KTitleLbl.Parent = KInner
 
-        -- Note Label (Translucent Gray Rounded Pill)
+        -- Note Label
         local NoteFrame = Instance.new("Frame")
         NoteFrame.LayoutOrder = 3
         NoteFrame.Size = UDim2.new(1, 0, 0, 28)
@@ -394,7 +537,7 @@ function tryxzlib:CreateWindow(config)
             IBody.Parent = InfoCard
         end
 
-        -- Key Input Box (Rounded)
+        -- Key Input Box
         local InputHolder = Instance.new("Frame")
         InputHolder.LayoutOrder = 5
         InputHolder.Size = UDim2.new(1, 0, 0, 36)
@@ -426,7 +569,7 @@ function tryxzlib:CreateWindow(config)
             Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
         end)
 
-        -- Distinct Pill-Shaped Glowing Access Button (Different from regular UI buttons)
+        -- Pill-Shaped Access Button
         local AccessBtn = Instance.new("TextButton")
         AccessBtn.LayoutOrder = 6
         AccessBtn.Size = UDim2.new(1, 0, 0, 38)
@@ -434,7 +577,7 @@ function tryxzlib:CreateWindow(config)
         AccessBtn.Text = ""
         AccessBtn.AutoButtonColor = false
         AccessBtn.Parent = KInner
-        Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0) -- Full capsule shape
+        Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
 
         local AccStroke = Instance.new("UIStroke", AccessBtn)
         AccStroke.Color = Color3.fromRGB(185, 165, 255)
@@ -469,6 +612,7 @@ function tryxzlib:CreateWindow(config)
         AccArrow.Parent = AccBadge
 
         AccessBtn.MouseEnter:Connect(function()
+            tryxzlib:PlaySound("Hover", 0.25)
             Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.AccentHover})
             Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -28, 0.5, -12)})
         end)
@@ -477,7 +621,6 @@ function tryxzlib:CreateWindow(config)
             Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
         end)
 
-        -- Optional Copy Key Link Button
         if KGetLink and KGetLink ~= "" then
             local LinkBtn = Instance.new("TextButton")
             LinkBtn.LayoutOrder = 7
@@ -527,6 +670,7 @@ function tryxzlib:CreateWindow(config)
             local entered = KeyInput.Text
             if ValidateKey(entered) then
                 TriggerHaptic(0.5)
+                tryxzlib:PlaySound("Success")
                 AccLbl.Text = "Access Granted!"
                 AccArrow.Text = "✓"
                 Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
@@ -539,10 +683,10 @@ function tryxzlib:CreateWindow(config)
                 OpenMainWindow()
             else
                 TriggerHaptic(0.45)
+                tryxzlib:PlaySound("Error")
                 Tween(InputStroke, Tweens.Fast, {Color = Theme.Error})
                 Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error})
                 AccLbl.Text = "Invalid Key"
-                -- Horizontal shake animation
                 local origPos = KeyBox.Position
                 for _, offset in ipairs({-8, 8, -5, 5, 0}) do
                     Tween(KeyBox, TweenInfo.new(0.05), {Position = UDim2.new(origPos.X.Scale, origPos.X.Offset + offset, origPos.Y.Scale, origPos.Y.Offset)})
@@ -566,21 +710,11 @@ function tryxzlib:CreateWindow(config)
     -- ==========================================
     local Topbar = Instance.new("Frame")
     Topbar.Size = UDim2.new(1, 0, 0, TopbarHeight)
-    Topbar.BackgroundColor3 = Theme.Sidebar
+    Topbar.BackgroundTransparency = 1
     Topbar.BorderSizePixel = 0
     Topbar.ZIndex = 5
     Topbar.Parent = Main
-    Instance.new("UICorner", Topbar).CornerRadius = UDim.new(0, 18)
-    MakeDraggable(Topbar, Main)
-
-    -- Square bottom fill for topbar so top corners stay 18px round and bottom seam is clean
-    local TopBottomCover = Instance.new("Frame")
-    TopBottomCover.Size = UDim2.new(1, 0, 0, 14)
-    TopBottomCover.Position = UDim2.new(0, 0, 1, -14)
-    TopBottomCover.BackgroundColor3 = Theme.Sidebar
-    TopBottomCover.BorderSizePixel = 0
-    TopBottomCover.ZIndex = 5
-    TopBottomCover.Parent = Topbar
+    MakeDraggable(Topbar, Main, false)
 
     local TopDivider = Instance.new("Frame")
     TopDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -591,13 +725,13 @@ function tryxzlib:CreateWindow(config)
     TopDivider.Parent = Topbar
 
     -- Window Icon + Title + Subtitle
-    local hasWinIcon = WinIcon ~= nil and WinIcon ~= ""
+    local hasWinIcon = WinIcon ~= nil and tostring(WinIcon) ~= ""
     if hasWinIcon then
         CreateIcon(Topbar, WinIcon, 20, UDim2.new(0, 14, 0.5, -10), 6)
     end
 
     local textStartX = hasWinIcon and 40 or 16
-    local rightReserved = ShowStats and 174 or 74
+    local rightReserved = ShowStats and 204 or 104
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, -(textStartX + rightReserved), 0, Subtitle ~= "" and 18 or 24)
@@ -627,12 +761,62 @@ function tryxzlib:CreateWindow(config)
         SubLabel.Parent = Topbar
     end
 
-    -- Optional FPS & Ping Pill next to Settings Gear
+    -- Topbar Right Controls: [FPS | Ping] [UI] [⚙] [-]
+    -- 1. Minimize Button (-)
+    local MinBtn = Instance.new("TextButton")
+    MinBtn.Size = UDim2.new(0, 24, 0, 24)
+    MinBtn.Position = UDim2.new(1, -34, 0.5, -12)
+    MinBtn.BackgroundColor3 = Theme.Element
+    MinBtn.Text = "-"
+    MinBtn.TextColor3 = Theme.Text
+    MinBtn.Font = Enum.Font.GothamBold
+    MinBtn.TextSize = 14
+    MinBtn.AutoButtonColor = false
+    MinBtn.ZIndex = 6
+    MinBtn.Parent = Topbar
+    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
+
+    -- 2. Settings Gear Button (⚙)
+    local SettingsBtn = Instance.new("TextButton")
+    SettingsBtn.Size = UDim2.new(0, 24, 0, 24)
+    SettingsBtn.Position = UDim2.new(1, -64, 0.5, -12)
+    SettingsBtn.BackgroundColor3 = Theme.Element
+    SettingsBtn.Text = "⚙"
+    SettingsBtn.TextColor3 = Theme.Text
+    SettingsBtn.Font = Enum.Font.GothamBold
+    SettingsBtn.TextSize = 12
+    SettingsBtn.AutoButtonColor = false
+    SettingsBtn.ZIndex = 6
+    SettingsBtn.Parent = Topbar
+    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(1, 0)
+
+    -- 3. Round "UI" Collapse Button (Next to Settings, Minimize & Ping/FPS)
+    local CollapseUIBtn = Instance.new("TextButton")
+    CollapseUIBtn.Size = UDim2.new(0, 26, 0, 24)
+    CollapseUIBtn.Position = UDim2.new(1, -96, 0.5, -12)
+    CollapseUIBtn.BackgroundColor3 = Theme.Element
+    CollapseUIBtn.Text = "UI"
+    CollapseUIBtn.TextColor3 = Theme.Accent
+    CollapseUIBtn.Font = Enum.Font.GothamBold
+    CollapseUIBtn.TextSize = 10
+    CollapseUIBtn.AutoButtonColor = false
+    CollapseUIBtn.ZIndex = 6
+    CollapseUIBtn.Parent = Topbar
+    Instance.new("UICorner", CollapseUIBtn).CornerRadius = UDim.new(1, 0)
+
+    local CollapseStroke = Instance.new("UIStroke", CollapseUIBtn)
+    CollapseStroke.Color = Theme.Accent
+    CollapseStroke.Thickness = 1
+    CollapseStroke.Transparency = 0.5
+
+    CollapseUIBtn.MouseButton1Click:Connect(CollapseToFloatingUI)
+
+    -- 4. Optional FPS & Ping Pill next to "UI" button
     local StatsConnection
     if ShowStats then
         local StatsPill = Instance.new("Frame")
-        StatsPill.Size = UDim2.new(0, 96, 0, 24)
-        StatsPill.Position = UDim2.new(1, -166, 0.5, -12)
+        StatsPill.Size = UDim2.new(0, 94, 0, 24)
+        StatsPill.Position = UDim2.new(1, -196, 0.5, -12)
         StatsPill.BackgroundColor3 = Theme.Element
         StatsPill.ZIndex = 6
         StatsPill.Parent = Topbar
@@ -667,62 +851,31 @@ function tryxzlib:CreateWindow(config)
         end)
     end
 
-    -- Minimize Button (Round)
-    local MinBtn = Instance.new("TextButton")
-    MinBtn.Size = UDim2.new(0, 24, 0, 24)
-    MinBtn.Position = UDim2.new(1, -34, 0.5, -12)
-    MinBtn.BackgroundColor3 = Theme.Element
-    MinBtn.Text = "-"
-    MinBtn.TextColor3 = Theme.Text
-    MinBtn.Font = Enum.Font.GothamBold
-    MinBtn.TextSize = 14
-    MinBtn.AutoButtonColor = false
-    MinBtn.ZIndex = 6
-    MinBtn.Parent = Topbar
-    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
-
-    -- Settings Button (Next to Minimize, Round)
-    local SettingsBtn = Instance.new("TextButton")
-    SettingsBtn.Size = UDim2.new(0, 24, 0, 24)
-    SettingsBtn.Position = UDim2.new(1, -64, 0.5, -12)
-    SettingsBtn.BackgroundColor3 = Theme.Element
-    SettingsBtn.Text = "⚙"
-    SettingsBtn.TextColor3 = Theme.Text
-    SettingsBtn.Font = Enum.Font.GothamBold
-    SettingsBtn.TextSize = 12
-    SettingsBtn.AutoButtonColor = false
-    SettingsBtn.ZIndex = 6
-    SettingsBtn.Parent = Topbar
-    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(1, 0)
-
-    for _, btn in ipairs({MinBtn, SettingsBtn}) do
+    for _, btn in ipairs({MinBtn, SettingsBtn, CollapseUIBtn}) do
         btn.MouseEnter:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover}) end)
         btn.MouseLeave:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.Element}) end)
     end
 
-    -- Body Container
+    -- Body Container (Transparent so outer 18px corners of Main remain untouched and perfectly round)
     local BodyContainer = Instance.new("Frame")
     BodyContainer.Size = UDim2.new(1, 0, 1, -TopbarHeight)
     BodyContainer.Position = UDim2.new(0, 0, 0, TopbarHeight)
     BodyContainer.BackgroundTransparency = 1
-    BodyContainer.ClipsDescendants = true
     BodyContainer.Parent = Main
 
     -- Minimize Logic
-    local Minimized = false
     MinBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.25)
+        tryxzlib:PlaySound("Click")
         Minimized = not Minimized
         if Minimized then
             MinBtn.Text = "+"
             BodyContainer.Visible = false
-            TopBottomCover.Visible = false
             TopDivider.Visible = false
             Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, WinWidth, 0, TopbarHeight)})
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
-            TopBottomCover.Visible = true
             TopDivider.Visible = true
             Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
         end
@@ -731,7 +884,11 @@ function tryxzlib:CreateWindow(config)
     -- Toggle Keybind
     local UIHidden = false
     UserInputService.InputBegan:Connect(function(input, gpe)
-        if not gpe and input.KeyCode == Keybind and Main.Visible ~= nil then
+        if not gpe and input.KeyCode == Keybind then
+            if CollapsedToUI then
+                RestoreFromFloatingUI()
+                return
+            end
             UIHidden = not UIHidden
             if UIHidden then
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
@@ -744,25 +901,16 @@ function tryxzlib:CreateWindow(config)
         end
     end)
 
-    -- Sidebar
+    -- Sidebar (Transparent background so it never creates a square corner behind the profile card)
     local SidebarWidth = 128
     local Sidebar = Instance.new("Frame")
     Sidebar.Size = UDim2.new(0, SidebarWidth, 1, 0)
     Sidebar.Position = UDim2.new(0, 0, 0, 0)
-    Sidebar.BackgroundColor3 = Theme.Sidebar
-    Sidebar.BorderSizePixel = 0
-    Sidebar.ClipsDescendants = true
+    Sidebar.BackgroundTransparency = 1
     Sidebar.Parent = BodyContainer
 
-    local SideDivider = Instance.new("Frame")
-    SideDivider.Size = UDim2.new(0, 1, 1, 0)
-    SideDivider.Position = UDim2.new(1, -1, 0, 0)
-    SideDivider.BackgroundColor3 = Theme.Divider
-    SideDivider.BorderSizePixel = 0
-    SideDivider.Parent = Sidebar
-
     local TabContainer = Instance.new("ScrollingFrame")
-    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -56 or -12)
+    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -58 or -12)
     TabContainer.Position = UDim2.new(0, 6, 0, 6)
     TabContainer.BackgroundTransparency = 1
     TabContainer.ScrollBarThickness = 0
@@ -772,15 +920,15 @@ function tryxzlib:CreateWindow(config)
     TabLayout.Padding = UDim.new(0, 4)
     TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- Profile Card (Rounded)
+    -- Profile Card (Rounded pill inside round corner)
     if ShowProfile then
         local ProfileFrame = Instance.new("Frame")
         ProfileFrame.Size = UDim2.new(1, -12, 0, 40)
-        ProfileFrame.Position = UDim2.new(0, 6, 1, -48)
+        ProfileFrame.Position = UDim2.new(0, 7, 1, -48)
         ProfileFrame.BackgroundColor3 = Theme.Element
         ProfileFrame.ClipsDescendants = true
         ProfileFrame.Parent = Sidebar
-        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 12)
+        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 14)
 
         local Avatar = Instance.new("ImageLabel")
         Avatar.Size = UDim2.new(0, 26, 0, 26)
@@ -817,27 +965,36 @@ function tryxzlib:CreateWindow(config)
         UserTag.Parent = ProfileFrame
     end
 
-    -- Pages Container
+    -- Pages Container (Rounded inset card so bottom-right corner is also seamlessly curved)
     local PagesContainer = Instance.new("Frame")
-    PagesContainer.Size = UDim2.new(1, -SidebarWidth, 1, 0)
+    PagesContainer.Size = UDim2.new(1, -(SidebarWidth + 6), 1, -6)
     PagesContainer.Position = UDim2.new(0, SidebarWidth, 0, 0)
-    PagesContainer.BackgroundTransparency = 1
+    PagesContainer.BackgroundColor3 = Theme.Background
+    PagesContainer.BorderSizePixel = 0
     PagesContainer.ClipsDescendants = true
     PagesContainer.Parent = BodyContainer
+    Instance.new("UICorner", PagesContainer).CornerRadius = UDim.new(0, 14)
 
     -- Settings & Credits Overlay
     local SettingsOpen = false
-    local SettingsPage = Instance.new("Frame")
+    local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
     SettingsPage.Position = UDim2.new(0, 0, 1, 0)
     SettingsPage.BackgroundColor3 = Theme.Background
+    SettingsPage.BorderSizePixel = 0
+    SettingsPage.ScrollBarThickness = 2
+    SettingsPage.ScrollBarImageColor3 = Theme.Accent
+    SettingsPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+    SettingsPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
     SettingsPage.ZIndex = 10
     SettingsPage.Parent = PagesContainer
+    Instance.new("UICorner", SettingsPage).CornerRadius = UDim.new(0, 14)
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
-    SettingsPadding.PaddingTop = UDim.new(0, 12)
-    SettingsPadding.PaddingLeft = UDim.new(0, 14)
-    SettingsPadding.PaddingRight = UDim.new(0, 14)
+    SettingsPadding.PaddingTop = UDim.new(0, 10)
+    SettingsPadding.PaddingBottom = UDim.new(0, 10)
+    SettingsPadding.PaddingLeft = UDim.new(0, 12)
+    SettingsPadding.PaddingRight = UDim.new(0, 12)
 
     local SettingsLayout = Instance.new("UIListLayout", SettingsPage)
     SettingsLayout.Padding = UDim.new(0, 8)
@@ -846,7 +1003,7 @@ function tryxzlib:CreateWindow(config)
     -- Credits Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
-    CreditsCard.Size = UDim2.new(1, 0, 0, 64)
+    CreditsCard.Size = UDim2.new(1, 0, 0, 62)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
@@ -869,9 +1026,9 @@ function tryxzlib:CreateWindow(config)
 
     local CDesc = Instance.new("TextLabel")
     CDesc.Size = UDim2.new(1, -20, 0, 28)
-    CDesc.Position = UDim2.new(0, 10, 0, 26)
+    CDesc.Position = UDim2.new(0, 10, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Smooth animated UI library built for executors.\nPress [" .. Keybind.Name .. "] to toggle window visibility."
+    CDesc.Text = "Smooth animated UI library built for executors.\nPress [" .. Keybind.Name .. "] or tap UI to toggle visibility."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -880,82 +1037,97 @@ function tryxzlib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Special Haptics Toggle
-    local HapticsBtn = Instance.new("TextButton")
-    HapticsBtn.LayoutOrder = 2
-    HapticsBtn.Size = UDim2.new(1, 0, 0, 36)
-    HapticsBtn.BackgroundColor3 = Theme.GrayTranslucent
-    HapticsBtn.BackgroundTransparency = 0.45
-    HapticsBtn.Text = ""
-    HapticsBtn.AutoButtonColor = false
-    HapticsBtn.ZIndex = 11
-    HapticsBtn.Parent = SettingsPage
-    Instance.new("UICorner", HapticsBtn).CornerRadius = UDim.new(0, 12)
+    -- Helper for Special Diamond Settings Toggles (Haptics & Sounds)
+    local function CreateSpecialSettingsToggle(order, titleText, subText, initialState, onToggle)
+        local Btn = Instance.new("TextButton")
+        Btn.LayoutOrder = order
+        Btn.Size = UDim2.new(1, 0, 0, 34)
+        Btn.BackgroundColor3 = Theme.GrayTranslucent
+        Btn.BackgroundTransparency = 0.45
+        Btn.Text = ""
+        Btn.AutoButtonColor = false
+        Btn.ZIndex = 11
+        Btn.Parent = SettingsPage
+        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
 
-    local HStroke = Instance.new("UIStroke", HapticsBtn)
-    HStroke.Color = HapticsEnabled and Theme.Accent or Theme.Divider
-    HStroke.Thickness = 1
+        local Stroke = Instance.new("UIStroke", Btn)
+        Stroke.Color = initialState and Theme.Accent or Theme.Divider
+        Stroke.Thickness = 1
 
-    local HTitle = Instance.new("TextLabel")
-    HTitle.Size = UDim2.new(1, -55, 0, 16)
-    HTitle.Position = UDim2.new(0, 12, 0, 4)
-    HTitle.BackgroundTransparency = 1
-    HTitle.Text = "Haptic Feedback"
-    HTitle.TextColor3 = Theme.Text
-    HTitle.Font = Enum.Font.GothamBold
-    HTitle.TextSize = 11
-    HTitle.TextXAlignment = Enum.TextXAlignment.Left
-    HTitle.ZIndex = 12
-    HTitle.Parent = HapticsBtn
+        local Tbl = Instance.new("TextLabel")
+        Tbl.Size = UDim2.new(1, -55, 0, 15)
+        Tbl.Position = UDim2.new(0, 12, 0, 4)
+        Tbl.BackgroundTransparency = 1
+        Tbl.Text = titleText
+        Tbl.TextColor3 = Theme.Text
+        Tbl.Font = Enum.Font.GothamBold
+        Tbl.TextSize = 11
+        Tbl.TextXAlignment = Enum.TextXAlignment.Left
+        Tbl.ZIndex = 12
+        Tbl.Parent = Btn
 
-    local HSub = Instance.new("TextLabel")
-    HSub.Size = UDim2.new(1, -55, 0, 12)
-    HSub.Position = UDim2.new(0, 12, 0, 19)
-    HSub.BackgroundTransparency = 1
-    HSub.Text = "Tactile vibration pulse on UI interactions"
-    HSub.TextColor3 = Theme.SubText
-    HSub.Font = Enum.Font.Gotham
-    HSub.TextSize = 9
-    HSub.TextXAlignment = Enum.TextXAlignment.Left
-    HSub.ZIndex = 12
-    HSub.Parent = HapticsBtn
+        local Sub = Instance.new("TextLabel")
+        Sub.Size = UDim2.new(1, -55, 0, 12)
+        Sub.Position = UDim2.new(0, 12, 0, 18)
+        Sub.BackgroundTransparency = 1
+        Sub.Text = subText
+        Sub.TextColor3 = Theme.SubText
+        Sub.Font = Enum.Font.Gotham
+        Sub.TextSize = 9
+        Sub.TextXAlignment = Enum.TextXAlignment.Left
+        Sub.ZIndex = 12
+        Sub.Parent = Btn
 
-    local HBox = Instance.new("Frame")
-    HBox.Size = UDim2.new(0, 20, 0, 20)
-    HBox.Position = UDim2.new(1, -30, 0.5, -10)
-    HBox.BackgroundColor3 = HapticsEnabled and Theme.Accent or Theme.Background
-    HBox.Rotation = HapticsEnabled and 45 or 0
-    HBox.ZIndex = 12
-    HBox.Parent = HapticsBtn
-    Instance.new("UICorner", HBox).CornerRadius = UDim.new(0, 6)
+        local Box = Instance.new("Frame")
+        Box.Size = UDim2.new(0, 18, 0, 18)
+        Box.Position = UDim2.new(1, -28, 0.5, -9)
+        Box.BackgroundColor3 = initialState and Theme.Accent or Theme.Background
+        Box.Rotation = initialState and 45 or 0
+        Box.ZIndex = 12
+        Box.Parent = Btn
+        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 5)
 
-    local HCore = Instance.new("Frame")
-    HCore.Size = HapticsEnabled and UDim2.new(0, 8, 0, 8) or UDim2.new(0, 0, 0, 0)
-    HCore.Position = UDim2.new(0.5, 0, 0.5, 0)
-    HCore.AnchorPoint = Vector2.new(0.5, 0.5)
-    HCore.BackgroundColor3 = Theme.Text
-    HCore.ZIndex = 13
-    HCore.Parent = HBox
-    Instance.new("UICorner", HCore).CornerRadius = UDim.new(1, 0)
+        local Core = Instance.new("Frame")
+        Core.Size = initialState and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)
+        Core.Position = UDim2.new(0.5, 0, 0.5, 0)
+        Core.AnchorPoint = Vector2.new(0.5, 0.5)
+        Core.BackgroundColor3 = Theme.Text
+        Core.ZIndex = 13
+        Core.Parent = Box
+        Instance.new("UICorner", Core).CornerRadius = UDim.new(1, 0)
 
-    HapticsBtn.MouseButton1Click:Connect(function()
-        HapticsEnabled = not HapticsEnabled
-        if HapticsEnabled then TriggerHaptic(0.5) end
-        Tween(HBox, Tweens.Bounce, {
-            BackgroundColor3 = HapticsEnabled and Theme.Accent or Theme.Background,
-            Rotation = HapticsEnabled and 45 or 0
-        })
-        Tween(HCore, Tweens.Bounce, {
-            Size = HapticsEnabled and UDim2.new(0, 8, 0, 8) or UDim2.new(0, 0, 0, 0)
-        })
-        Tween(HStroke, Tweens.Fast, {
-            Color = HapticsEnabled and Theme.Accent or Theme.Divider
-        })
+        local state = initialState
+        Btn.MouseButton1Click:Connect(function()
+            state = not state
+            onToggle(state)
+            Tween(Box, Tweens.Bounce, {
+                BackgroundColor3 = state and Theme.Accent or Theme.Background,
+                Rotation = state and 45 or 0
+            })
+            Tween(Core, Tweens.Bounce, {
+                Size = state and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)
+            })
+            Tween(Stroke, Tweens.Fast, {
+                Color = state and Theme.Accent or Theme.Divider
+            })
+        end)
+    end
+
+    CreateSpecialSettingsToggle(2, "Haptic Feedback", "Tactile vibration pulse on UI interactions", HapticsEnabled, function(val)
+        HapticsEnabled = val
+        if val then TriggerHaptic(0.5) end
+        tryxzlib:PlaySound("Toggle")
+    end)
+
+    CreateSpecialSettingsToggle(3, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundConfig.Enabled, function(val)
+        SoundConfig.Enabled = val
+        TriggerHaptic(0.25)
+        if val then tryxzlib:PlaySound("Toggle") end
     end)
 
     -- Destroy Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 3
+    DestroyBtn.LayoutOrder = 4
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 60)
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -971,6 +1143,7 @@ function tryxzlib:CreateWindow(config)
     DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(180, 50, 60)}) end)
     DestroyBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.4)
+        tryxzlib:PlaySound("Click")
         if StatsConnection then StatsConnection:Disconnect() end
         local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
         t.Completed:Wait()
@@ -980,6 +1153,7 @@ function tryxzlib:CreateWindow(config)
     SettingsBtn.MouseButton1Click:Connect(function()
         if Minimized then return end
         TriggerHaptic(0.25)
+        tryxzlib:PlaySound("Click")
         SettingsOpen = not SettingsOpen
         Tween(SettingsBtn, Tweens.Smooth, {Rotation = SettingsOpen and 90 or 0, BackgroundColor3 = SettingsOpen and Theme.Accent or Theme.Element})
         Tween(SettingsPage, Tweens.Smooth, {Position = SettingsOpen and UDim2.new(0, 0, 0, 0) or UDim2.new(0, 0, 1, 0)})
@@ -994,7 +1168,7 @@ function tryxzlib:CreateWindow(config)
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
 
-        local hasIcon = icon ~= nil and icon ~= ""
+        local hasIcon = icon ~= nil and tostring(icon) ~= ""
         local TabBtn = Instance.new("TextButton")
         TabBtn.LayoutOrder = Window.TabOrder
         TabBtn.Size = UDim2.new(1, 0, 0, 28)
@@ -1074,6 +1248,7 @@ function tryxzlib:CreateWindow(config)
 
         TabBtn.MouseEnter:Connect(function()
             if not Page.Visible then
+                tryxzlib:PlaySound("Hover", 0.2)
                 Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
             end
         end)
@@ -1084,6 +1259,7 @@ function tryxzlib:CreateWindow(config)
         end)
         TabBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.2)
+            tryxzlib:PlaySound("Click")
             SelectTab()
         end)
 
@@ -1099,7 +1275,7 @@ function tryxzlib:CreateWindow(config)
             return ElementOrder
         end
 
-        -- 1. SECTIONS (Translucent Gray & Rounded)
+        -- 1. SECTIONS
         function TabAPI:AddSection(text)
             local SecFrame = Instance.new("Frame")
             SecFrame.LayoutOrder = NextOrder()
@@ -1143,7 +1319,7 @@ function tryxzlib:CreateWindow(config)
             Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
         end
 
-        -- 3. LABELS (Translucent Gray & Rounded)
+        -- 3. LABELS
         function TabAPI:AddLabel(text)
             local LblFrame = Instance.new("Frame")
             LblFrame.LayoutOrder = NextOrder()
@@ -1171,7 +1347,7 @@ function tryxzlib:CreateWindow(config)
             return LabelObj
         end
 
-        -- 4. PARAGRAPHS (Translucent Gray & Rounded)
+        -- 4. PARAGRAPHS
         function TabAPI:AddParagraph(config)
             local TitleText = config.Title or "Title"
             local ContentText = config.Content or config.Text or ""
@@ -1227,12 +1403,13 @@ function tryxzlib:CreateWindow(config)
             return ParaObj
         end
 
-        -- 5. BUTTONS (Supports Optional Icon & Rounded)
+        -- 5. BUTTONS (Supports Optional Icon & Custom Sound)
         function TabAPI:AddButton(config)
             local Name = config.Name or "Button"
             local Icon = config.Icon or nil
+            local CustomSound = config.Sound or "Click"
             local Callback = config.Callback or function() end
-            local hasIcon = Icon ~= nil and Icon ~= ""
+            local hasIcon = Icon ~= nil and tostring(Icon) ~= ""
 
             local Btn = Instance.new("TextButton")
             Btn.LayoutOrder = NextOrder()
@@ -1269,6 +1446,7 @@ function tryxzlib:CreateWindow(config)
             ArrowHint.Parent = Btn
 
             Btn.MouseEnter:Connect(function()
+                tryxzlib:PlaySound("Hover", 0.2)
                 Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
                 Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -21, 0.5, -9), TextColor3 = Theme.Accent})
             end)
@@ -1278,6 +1456,7 @@ function tryxzlib:CreateWindow(config)
             end)
             Btn.MouseButton1Click:Connect(function()
                 TriggerHaptic(0.3)
+                tryxzlib:PlaySound(CustomSound)
                 Tween(Btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {BackgroundColor3 = Theme.Accent})
                 task.delay(0.1, function()
                     Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
@@ -1286,13 +1465,14 @@ function tryxzlib:CreateWindow(config)
             end)
         end
 
-        -- 6. TOGGLES (Supports Optional Icon & Rounded)
+        -- 6. TOGGLES (Supports Optional Icon & Custom Sound)
         function TabAPI:AddToggle(config)
             local Name = config.Name or "Toggle"
             local Icon = config.Icon or nil
+            local CustomSound = config.Sound or "Toggle"
             local State = config.Default or false
             local Callback = config.Callback or function() end
-            local hasIcon = Icon ~= nil and Icon ~= ""
+            local hasIcon = Icon ~= nil and tostring(Icon) ~= ""
 
             local ToggleBtn = Instance.new("TextButton")
             ToggleBtn.LayoutOrder = NextOrder()
@@ -1335,6 +1515,7 @@ function tryxzlib:CreateWindow(config)
             local function UpdateToggle(val)
                 State = val
                 TriggerHaptic(0.28)
+                tryxzlib:PlaySound(CustomSound)
                 Tween(SwitchBg, Tweens.Fast, {BackgroundColor3 = State and Theme.Accent or Theme.Background})
                 Tween(Knob, Tweens.Bounce, {Position = State and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
                 task.spawn(Callback, State)
@@ -1351,7 +1532,7 @@ function tryxzlib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- 7. SLIDERS (Rounded)
+        -- 7. SLIDERS
         function TabAPI:AddSlider(config)
             local Name = config.Name or "Slider"
             local Min = config.Min or 0
@@ -1419,6 +1600,7 @@ function tryxzlib:CreateWindow(config)
                 if val ~= lastVal then
                     lastVal = val
                     TriggerHaptic(0.12)
+                    tryxzlib:PlaySound("Hover", 0.15)
                 end
                 local percent = (val - Min) / (Max - Min)
                 ValueLbl.Text = tostring(val)
@@ -1461,7 +1643,7 @@ function tryxzlib:CreateWindow(config)
             return SliderObj
         end
 
-        -- 8. DROPDOWN (Rounded)
+        -- 8. DROPDOWN
         function TabAPI:AddDropdown(config)
             local Name = config.Name or "Dropdown"
             local Options = config.Options or {}
@@ -1527,6 +1709,7 @@ function tryxzlib:CreateWindow(config)
 
             local function ToggleDrop()
                 TriggerHaptic(0.2)
+                tryxzlib:PlaySound("Click")
                 Open = not Open
                 local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
@@ -1559,7 +1742,7 @@ function tryxzlib:CreateWindow(config)
             end
         end
 
-        -- 9. MULTI-DROPDOWN (Rounded)
+        -- 9. MULTI-DROPDOWN
         function TabAPI:AddMultiDropdown(config)
             local Name = config.Name or "MultiDropdown"
             local Options = config.Options or {}
@@ -1641,6 +1824,7 @@ function tryxzlib:CreateWindow(config)
 
             Header.MouseButton1Click:Connect(function()
                 TriggerHaptic(0.2)
+                tryxzlib:PlaySound("Click")
                 Open = not Open
                 local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
@@ -1663,6 +1847,7 @@ function tryxzlib:CreateWindow(config)
 
                 OptBtn.MouseButton1Click:Connect(function()
                     TriggerHaptic(0.25)
+                    tryxzlib:PlaySound("Toggle")
                     Selected[opt] = not Selected[opt]
                     Tween(OptBtn, Tweens.Fast, {
                         BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background,
@@ -1682,4 +1867,3 @@ function tryxzlib:CreateWindow(config)
 end
 
 return tryxzlib
- 
