@@ -924,7 +924,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
         Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
     end)
 
-    -- Always show "Copy Key Link" button when GetKeyLink is present
     if KeyConfig.GetKeyLink and tostring(KeyConfig.GetKeyLink) ~= "" then
         local LinkBtn = Instance.new("TextButton")
         LinkBtn.Name = "CopyKeyLinkBtn"
@@ -2169,7 +2168,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (REAL-TIME SYNCED WHITE BOTTOM DRAG LINE)
+-- CREATE MAIN WINDOW (UNIFIED WINDOWHOLDER + LOCKED WHITE BOTTOM DRAG LINE)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2298,94 +2297,56 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
+    -- Unified Wrapper Container (Holds MainWindow & BottomDragLine together so they never separate or deform)
+    local WindowHolder = Instance.new("Frame")
+    WindowHolder.Name = "TryxzWindowHolder"
+    WindowHolder.Size = UDim2.new(0, 0, 0, 0)
+    WindowHolder.Position = UDim2.new(0.5, -Cfg.WinW/2, 0.5, -(Cfg.WinH + 14)/2)
+    WindowHolder.BackgroundTransparency = 1
+    WindowHolder.BorderSizePixel = 0
+    WindowHolder.Visible = false
+    WindowHolder.Parent = ScreenGui
+
+    local MainUIScale = Instance.new("UIScale", WindowHolder)
+    MainUIScale.Scale = Cfg.UIScale
+
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
-    Main.Size = UDim2.new(0, 0, 0, 0)
-    Main.Position = UDim2.new(0.5, -Cfg.WinW/2, 0.5, -Cfg.WinH/2 - 8)
+    Main.Size = UDim2.new(1, 0, 1, -14)
+    Main.Position = UDim2.new(0, 0, 0, 0)
     Main.BackgroundColor3 = Theme.Sidebar
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
-    Main.Visible = false
-    Main.Parent = ScreenGui
+    Main.Parent = WindowHolder
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
-
-    local MainUIScale = Instance.new("UIScale", Main)
-    MainUIScale.Scale = Cfg.UIScale
 
     local MainStroke = Instance.new("UIStroke", Main)
     MainStroke.Color = Theme.Divider
     MainStroke.Thickness = 1.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    -- Translucent White Animated Drag Line Below the GUI
+    -- Translucent White Animated Drag Line locked strictly below Main inside WindowHolder
     local BottomDragBar = Instance.new("TextButton")
     BottomDragBar.Name = "BottomDragLine"
-    BottomDragBar.Size = UDim2.new(0, 136, 0, 5)
-    BottomDragBar.Position = UDim2.new(0.5, 0, 0.5, 170)
+    BottomDragBar.Size = UDim2.new(0, 140, 0, 5)
+    BottomDragBar.Position = UDim2.new(0.5, 0, 1, -6)
     BottomDragBar.AnchorPoint = Vector2.new(0.5, 0)
     BottomDragBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     BottomDragBar.BackgroundTransparency = 0.38
     BottomDragBar.Text = ""
     BottomDragBar.AutoButtonColor = false
-    BottomDragBar.Visible = false
     BottomDragBar.ZIndex = 15
-    BottomDragBar.Parent = ScreenGui
+    BottomDragBar.Parent = WindowHolder
     Instance.new("UICorner", BottomDragBar).CornerRadius = UDim.new(1, 0)
 
-    local bDragging, bDragInput, bDragStart, bStartMainPos = false, nil, nil, nil
-
-    -- Real-time position sync so the white line always sits cleanly under Main
-    local DragSyncConn = RunService.RenderStepped:Connect(function()
-        if Main.Visible and not State.Collapsed and not bDragging then
-            local absPos = Main.AbsolutePosition
-            local absSize = Main.AbsoluteSize
-            if absSize.Y > 4 then
-                local centerX = absPos.X + (absSize.X / 2)
-                local bottomY = absPos.Y + absSize.Y + 8
-                BottomDragBar.Position = UDim2.new(0, centerX, 0, bottomY)
-            end
-        end
-    end)
-
     BottomDragBar.MouseEnter:Connect(function()
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 172, 0, 6), BackgroundTransparency = 0.12})
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 175, 0, 6), BackgroundTransparency = 0.12})
     end)
     BottomDragBar.MouseLeave:Connect(function()
-        if not bDragging then
-            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
-        end
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 140, 0, 5), BackgroundTransparency = 0.38})
     end)
 
-    BottomDragBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            bDragging = true
-            bDragStart = input.Position
-            bStartMainPos = Main.Position
-            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 185, 0, 6), BackgroundTransparency = 0.08})
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    bDragging = false
-                    Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
-                end
-            end)
-        end
-    end)
-    BottomDragBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            bDragInput = input
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if input == bDragInput and bDragging then
-            local delta = input.Position - bDragStart
-            local nextMainPos = UDim2.new(bStartMainPos.X.Scale, bStartMainPos.X.Offset + delta.X, bStartMainPos.Y.Scale, bStartMainPos.Y.Offset + delta.Y)
-            Tween(Main, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = nextMainPos})
-            BottomDragBar.Position = UDim2.new(
-                0, nextMainPos.X.Offset + (Main.AbsoluteSize.X / 2),
-                0, nextMainPos.Y.Offset + Main.AbsoluteSize.Y + 8
-            )
-        end
-    end)
+    MakeDraggable(BottomDragBar, WindowHolder, false)
 
     local FloatingUIBtn = Instance.new("TextButton")
     FloatingUIBtn.Name = "FloatingUIButton"
@@ -2407,15 +2368,12 @@ function TryxzLib:CreateWindow(config)
     BindAccent(FloatStroke, "Color")
 
     local function OpenMainWindow(autoKeyBypassed)
-        Main.Visible = true
-        BottomDragBar.Visible = true
+        WindowHolder.Visible = true
         BottomDragBar.Size = UDim2.new(0, 0, 0, 5)
         SetBlurActive(true)
-        Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
-        task.delay(0.15, function()
-            if BottomDragBar and BottomDragBar.Visible then
-                Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 136, 0, 5)})
-            end
+        Tween(WindowHolder, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH + 14)})
+        task.delay(0.14, function()
+            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 140, 0, 5)})
         end)
         if autoKeyBypassed then
             task.delay(0.35, function()
@@ -2442,11 +2400,10 @@ function TryxzLib:CreateWindow(config)
         TriggerHaptic(0.3)
         TryxzLib:PlaySound("Click")
         SetBlurActive(false)
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 5), BackgroundTransparency = 1})
-        local closeT = Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 5)})
+        local closeT = Tween(WindowHolder, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0)})
         closeT.Completed:Wait()
-        Main.Visible = false
-        BottomDragBar.Visible = false
+        WindowHolder.Visible = false
         FloatingUIBtn.Visible = true
         Tween(FloatingUIBtn, Tweens.Bounce, {Size = UDim2.new(0, 44, 0, 44)})
     end
@@ -2459,15 +2416,12 @@ function TryxzLib:CreateWindow(config)
         local closeF = Tween(FloatingUIBtn, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
         closeF.Completed:Wait()
         FloatingUIBtn.Visible = false
-        Main.Visible = true
-        BottomDragBar.Visible = true
+        WindowHolder.Visible = true
         BottomDragBar.Size = UDim2.new(0, 0, 0, 5)
         SetBlurActive(not State.Minimized)
-        Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
-        task.delay(0.15, function()
-            if BottomDragBar and BottomDragBar.Visible then
-                Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
-            end
+        Tween(WindowHolder, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH + 14) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH + 14)})
+        task.delay(0.14, function()
+            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 140, 0, 5)})
         end)
     end
 
@@ -2500,7 +2454,7 @@ function TryxzLib:CreateWindow(config)
     Topbar.BackgroundTransparency = 1
     Topbar.ZIndex = 5
     Topbar.Parent = Main
-    MakeDraggable(Topbar, Main, false)
+    MakeDraggable(Topbar, WindowHolder, false)
 
     local TopDivider = Instance.new("Frame")
     TopDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -2654,13 +2608,13 @@ function TryxzLib:CreateWindow(config)
             BodyContainer.Visible = false
             TopDivider.Visible = false
             SetBlurActive(false)
-            Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.TopH)})
+            Tween(WindowHolder, Tweens.Smooth, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.TopH + 14)})
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
             TopDivider.Visible = true
             SetBlurActive(true)
-            Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+            Tween(WindowHolder, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH + 14)})
         end
     end)
 
@@ -2670,15 +2624,13 @@ function TryxzLib:CreateWindow(config)
             State.Hidden = not State.Hidden
             if State.Hidden then
                 SetBlurActive(false)
-                BottomDragBar.Visible = false
-                local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
+                local t = Tween(WindowHolder, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
-                Main.Visible = false
+                WindowHolder.Visible = false
             else
-                Main.Visible = true
-                BottomDragBar.Visible = true
+                WindowHolder.Visible = true
                 SetBlurActive(not State.Minimized)
-                Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+                Tween(WindowHolder, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH + 14) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH + 14)})
             end
         end
     end)
@@ -2858,7 +2810,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.6 by gthsc51"
+    CTitle.Text = "TryxzLib v3.7 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -3651,13 +3603,10 @@ function TryxzLib:CreateWindow(config)
             OnConfirm = function()
                 TriggerHaptic(0.4)
                 SetBlurActive(false)
-                BottomDragBar.Visible = false
-                if DragSyncConn then DragSyncConn:Disconnect() end
                 if StatsConnection then StatsConnection:Disconnect() end
-                local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
+                local t = Tween(WindowHolder, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
                 DestroyBlur()
-                BottomDragBar:Destroy()
                 ScreenGui:Destroy()
             end
         })
@@ -3886,4 +3835,3 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
- 
