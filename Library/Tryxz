@@ -5,6 +5,9 @@
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local StatsService = game:GetService("Stats")
+local HapticService = game:GetService("HapticService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -24,6 +27,36 @@ local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
     t:Play()
     return t
+end
+
+-- Helper to apply icon (supports rbxassetid:// or text/emoji)
+local function CreateIcon(parent, iconValue, size, pos, zindex)
+    if not iconValue or iconValue == "" then return nil end
+    local isAsset = tostring(iconValue):find("rbxassetid://") or tonumber(iconValue)
+    if isAsset then
+        local assetId = tonumber(iconValue) and ("rbxassetid://" .. tostring(iconValue)) or tostring(iconValue)
+        local img = Instance.new("ImageLabel")
+        img.Size = UDim2.new(0, size, 0, size)
+        img.Position = pos
+        img.BackgroundTransparency = 1
+        img.Image = assetId
+        img.ScaleType = Enum.ScaleType.Fit
+        img.ZIndex = zindex or 2
+        img.Parent = parent
+        return img
+    else
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(0, size, 0, size)
+        lbl.Position = pos
+        lbl.BackgroundTransparency = 1
+        lbl.Text = tostring(iconValue)
+        lbl.TextColor3 = Color3.fromRGB(240, 240, 245)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = size - 2
+        lbl.ZIndex = zindex or 2
+        lbl.Parent = parent
+        return lbl
+    end
 end
 
 -- Color Palette
@@ -166,14 +199,28 @@ local function MakeDraggable(topbar, main)
     end)
 end
 
--- Create Main Window (Compact Size: 460x300)
+-- Create Main Window
 function tryxzlib:CreateWindow(config)
     local Title = config.Title or "tryxzlib"
+    local Subtitle = config.Subtitle or ""
+    local WinIcon = config.Icon or nil
     local ShowProfile = config.Profile ~= false
+    local ShowStats = config.Stats ~= false
     local Keybind = config.ToggleKey or Enum.KeyCode.RightControl
+    local HapticsEnabled = config.Haptics ~= false
 
-    local WinWidth, WinHeight = 460, 300
-    local TopbarHeight = 38
+    local function TriggerHaptic(strength)
+        if not HapticsEnabled then return end
+        pcall(function()
+            HapticService:SetMotor(Enum.UserInputType.Gamepad1, Enum.VibrationMotor.Small, strength or 0.35)
+            task.delay(0.06, function()
+                HapticService:SetMotor(Enum.UserInputType.Gamepad1, Enum.VibrationMotor.Small, 0)
+            end)
+        end)
+    end
+
+    local WinWidth, WinHeight = 460, 305
+    local TopbarHeight = 42
 
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
@@ -210,9 +257,18 @@ function tryxzlib:CreateWindow(config)
     TopDivider.ZIndex = 6
     TopDivider.Parent = Topbar
 
+    -- Window Icon + Title + Subtitle
+    local hasWinIcon = WinIcon ~= nil and WinIcon ~= ""
+    if hasWinIcon then
+        CreateIcon(Topbar, WinIcon, 20, UDim2.new(0, 12, 0.5, -10), 6)
+    end
+
+    local textStartX = hasWinIcon and 38 or 14
+    local rightReserved = ShowStats and 172 or 72
+
     local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -90, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 14, 0, 0)
+    TitleLabel.Size = UDim2.new(1, -(textStartX + rightReserved), 0, Subtitle ~= "" and 18 or 24)
+    TitleLabel.Position = UDim2.new(0, textStartX, 0, Subtitle ~= "" and 5 or 9)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = Title
     TitleLabel.TextColor3 = Theme.Text
@@ -222,6 +278,61 @@ function tryxzlib:CreateWindow(config)
     TitleLabel.TextTruncate = Enum.TextTruncate.AtEnd
     TitleLabel.ZIndex = 6
     TitleLabel.Parent = Topbar
+
+    if Subtitle ~= "" then
+        local SubLabel = Instance.new("TextLabel")
+        SubLabel.Size = UDim2.new(1, -(textStartX + rightReserved), 0, 14)
+        SubLabel.Position = UDim2.new(0, textStartX, 0, 22)
+        SubLabel.BackgroundTransparency = 1
+        SubLabel.Text = Subtitle
+        SubLabel.TextColor3 = Theme.SubText
+        SubLabel.Font = Enum.Font.Gotham
+        SubLabel.TextSize = 10
+        SubLabel.TextXAlignment = Enum.TextXAlignment.Left
+        SubLabel.TextTruncate = Enum.TextTruncate.AtEnd
+        SubLabel.ZIndex = 6
+        SubLabel.Parent = Topbar
+    end
+
+    -- Optional FPS & Ping Pill next to Settings Gear
+    local StatsConnection
+    if ShowStats then
+        local StatsPill = Instance.new("Frame")
+        StatsPill.Size = UDim2.new(0, 96, 0, 24)
+        StatsPill.Position = UDim2.new(1, -164, 0.5, -12)
+        StatsPill.BackgroundColor3 = Theme.Element
+        StatsPill.ZIndex = 6
+        StatsPill.Parent = Topbar
+        Instance.new("UICorner", StatsPill).CornerRadius = UDim.new(0, 8)
+
+        local StatsLbl = Instance.new("TextLabel")
+        StatsLbl.Size = UDim2.new(1, -8, 1, 0)
+        StatsLbl.Position = UDim2.new(0, 4, 0, 0)
+        StatsLbl.BackgroundTransparency = 1
+        StatsLbl.Text = "60 FPS | 0 ms"
+        StatsLbl.TextColor3 = Theme.SubText
+        StatsLbl.Font = Enum.Font.GothamSemibold
+        StatsLbl.TextSize = 9
+        StatsLbl.ZIndex = 7
+        StatsLbl.Parent = StatsPill
+
+        local frames = 0
+        local lastUpdate = tick()
+        StatsConnection = RunService.RenderStepped:Connect(function()
+            frames += 1
+            local now = tick()
+            if now - lastUpdate >= 0.5 then
+                local fps = math.floor(frames / (now - lastUpdate))
+                local ping = 0
+                pcall(function()
+                    ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
+                end)
+                StatsLbl.Text = string.format("%d FPS | %d ms", fps, ping)
+                frames = 0
+                lastUpdate = now
+            end
+        end)
+    end
 
     -- Minimize Button
     local MinBtn = Instance.new("TextButton")
@@ -256,7 +367,7 @@ function tryxzlib:CreateWindow(config)
         btn.MouseLeave:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.Element}) end)
     end
 
-    -- Body Container (Holds Sidebar + Pages cleanly so minimizing never glitches Profile)
+    -- Body Container
     local BodyContainer = Instance.new("Frame")
     BodyContainer.Size = UDim2.new(1, 0, 1, -TopbarHeight)
     BodyContainer.Position = UDim2.new(0, 0, 0, TopbarHeight)
@@ -267,6 +378,7 @@ function tryxzlib:CreateWindow(config)
     -- Minimize Logic
     local Minimized = false
     MinBtn.MouseButton1Click:Connect(function()
+        TriggerHaptic(0.25)
         Minimized = not Minimized
         if Minimized then
             MinBtn.Text = "+"
@@ -323,7 +435,7 @@ function tryxzlib:CreateWindow(config)
     TabLayout.Padding = UDim.new(0, 4)
     TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- Fixed Profile Card (Clamped proportions so it never distorts)
+    -- Profile Card
     if ShowProfile then
         local ProfileFrame = Instance.new("Frame")
         ProfileFrame.Size = UDim2.new(1, -12, 0, 40)
@@ -394,9 +506,10 @@ function tryxzlib:CreateWindow(config)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+    -- Credits Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
-    CreditsCard.Size = UDim2.new(1, 0, 0, 68)
+    CreditsCard.Size = UDim2.new(1, 0, 0, 64)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
@@ -406,32 +519,107 @@ function tryxzlib:CreateWindow(config)
     CStroke.Thickness = 1
 
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -20, 0, 20)
-    CTitle.Position = UDim2.new(0, 10, 0, 8)
+    CTitle.Size = UDim2.new(1, -20, 0, 18)
+    CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
     CTitle.Text = "tryxzlib by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
-    CTitle.TextSize = 14
+    CTitle.TextSize = 13
     CTitle.TextXAlignment = Enum.TextXAlignment.Left
     CTitle.ZIndex = 12
     CTitle.Parent = CreditsCard
 
     local CDesc = Instance.new("TextLabel")
-    CDesc.Size = UDim2.new(1, -20, 0, 30)
-    CDesc.Position = UDim2.new(0, 10, 0, 29)
+    CDesc.Size = UDim2.new(1, -20, 0, 28)
+    CDesc.Position = UDim2.new(0, 10, 0, 26)
     CDesc.BackgroundTransparency = 1
     CDesc.Text = "Smooth animated UI library built for executors.\nPress [" .. Keybind.Name .. "] to toggle window visibility."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
-    CDesc.TextSize = 11
+    CDesc.TextSize = 10
     CDesc.TextWrapped = true
     CDesc.TextXAlignment = Enum.TextXAlignment.Left
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
+    -- Special Haptics Toggle (Distinct Diamond / Rotating Check Style inside Settings Gear)
+    local HapticsBtn = Instance.new("TextButton")
+    HapticsBtn.LayoutOrder = 2
+    HapticsBtn.Size = UDim2.new(1, 0, 0, 36)
+    HapticsBtn.BackgroundColor3 = Theme.GrayTranslucent
+    HapticsBtn.BackgroundTransparency = 0.45
+    HapticsBtn.Text = ""
+    HapticsBtn.AutoButtonColor = false
+    HapticsBtn.ZIndex = 11
+    HapticsBtn.Parent = SettingsPage
+    Instance.new("UICorner", HapticsBtn).CornerRadius = UDim.new(0, 10)
+
+    local HStroke = Instance.new("UIStroke", HapticsBtn)
+    HStroke.Color = HapticsEnabled and Theme.Accent or Theme.Divider
+    HStroke.Thickness = 1
+
+    local HTitle = Instance.new("TextLabel")
+    HTitle.Size = UDim2.new(1, -55, 0, 16)
+    HTitle.Position = UDim2.new(0, 12, 0, 4)
+    HTitle.BackgroundTransparency = 1
+    HTitle.Text = "Haptic Feedback"
+    HTitle.TextColor3 = Theme.Text
+    HTitle.Font = Enum.Font.GothamBold
+    HTitle.TextSize = 11
+    HTitle.TextXAlignment = Enum.TextXAlignment.Left
+    HTitle.ZIndex = 12
+    HTitle.Parent = HapticsBtn
+
+    local HSub = Instance.new("TextLabel")
+    HSub.Size = UDim2.new(1, -55, 0, 12)
+    HSub.Position = UDim2.new(0, 12, 0, 19)
+    HSub.BackgroundTransparency = 1
+    HSub.Text = "Tactile vibration pulse on UI interactions"
+    HSub.TextColor3 = Theme.SubText
+    HSub.Font = Enum.Font.Gotham
+    HSub.TextSize = 9
+    HSub.TextXAlignment = Enum.TextXAlignment.Left
+    HSub.ZIndex = 12
+    HSub.Parent = HapticsBtn
+
+    -- Distinct Diamond / Morphing Square Indicator
+    local HBox = Instance.new("Frame")
+    HBox.Size = UDim2.new(0, 20, 0, 20)
+    HBox.Position = UDim2.new(1, -30, 0.5, -10)
+    HBox.BackgroundColor3 = HapticsEnabled and Theme.Accent or Theme.Background
+    HBox.Rotation = HapticsEnabled and 45 or 0
+    HBox.ZIndex = 12
+    HBox.Parent = HapticsBtn
+    Instance.new("UICorner", HBox).CornerRadius = UDim.new(0, 6)
+
+    local HCore = Instance.new("Frame")
+    HCore.Size = HapticsEnabled and UDim2.new(0, 8, 0, 8) or UDim2.new(0, 0, 0, 0)
+    HCore.Position = UDim2.new(0.5, 0, 0.5, 0)
+    HCore.AnchorPoint = Vector2.new(0.5, 0.5)
+    HCore.BackgroundColor3 = Theme.Text
+    HCore.ZIndex = 13
+    HCore.Parent = HBox
+    Instance.new("UICorner", HCore).CornerRadius = UDim.new(1, 0)
+
+    HapticsBtn.MouseButton1Click:Connect(function()
+        HapticsEnabled = not HapticsEnabled
+        if HapticsEnabled then TriggerHaptic(0.5) end
+        Tween(HBox, Tweens.Bounce, {
+            BackgroundColor3 = HapticsEnabled and Theme.Accent or Theme.Background,
+            Rotation = HapticsEnabled and 45 or 0
+        })
+        Tween(HCore, Tweens.Bounce, {
+            Size = HapticsEnabled and UDim2.new(0, 8, 0, 8) or UDim2.new(0, 0, 0, 0)
+        })
+        Tween(HStroke, Tweens.Fast, {
+            Color = HapticsEnabled and Theme.Accent or Theme.Divider
+        })
+    end)
+
+    -- Destroy Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 2
+    DestroyBtn.LayoutOrder = 3
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 60)
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -446,6 +634,8 @@ function tryxzlib:CreateWindow(config)
     DestroyBtn.MouseEnter:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(210, 60, 70)}) end)
     DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(180, 50, 60)}) end)
     DestroyBtn.MouseButton1Click:Connect(function()
+        TriggerHaptic(0.4)
+        if StatsConnection then StatsConnection:Disconnect() end
         local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
         t.Completed:Wait()
         ScreenGui:Destroy()
@@ -453,6 +643,7 @@ function tryxzlib:CreateWindow(config)
 
     SettingsBtn.MouseButton1Click:Connect(function()
         if Minimized then return end
+        TriggerHaptic(0.25)
         SettingsOpen = not SettingsOpen
         Tween(SettingsBtn, Tweens.Smooth, {Rotation = SettingsOpen and 90 or 0, BackgroundColor3 = SettingsOpen and Theme.Accent or Theme.Element})
         Tween(SettingsPage, Tweens.Smooth, {Position = SettingsOpen and UDim2.new(0, 0, 0, 0) or UDim2.new(0, 0, 1, 0)})
@@ -463,18 +654,16 @@ function tryxzlib:CreateWindow(config)
         TabOrder = 0
     }
 
-    function Window:CreateTab(name)
+    -- Create Tab (Supports optional Icon)
+    function Window:CreateTab(name, icon)
         Window.TabOrder += 1
 
+        local hasIcon = icon ~= nil and icon ~= ""
         local TabBtn = Instance.new("TextButton")
         TabBtn.LayoutOrder = Window.TabOrder
         TabBtn.Size = UDim2.new(1, 0, 0, 28)
         TabBtn.BackgroundColor3 = Theme.Sidebar
-        TabBtn.Text = "   " .. name
-        TabBtn.TextColor3 = Theme.SubText
-        TabBtn.Font = Enum.Font.GothamSemibold
-        TabBtn.TextSize = 11
-        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.Text = ""
         TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabContainer
         Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 8)
@@ -487,6 +676,22 @@ function tryxzlib:CreateWindow(config)
         Indicator.BorderSizePixel = 0
         Indicator.Parent = TabBtn
         Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
+
+        if hasIcon then
+            CreateIcon(TabBtn, icon, 14, UDim2.new(0, 10, 0.5, -7), 2)
+        end
+
+        local TabLbl = Instance.new("TextLabel")
+        TabLbl.Size = UDim2.new(1, hasIcon and -32 or -14, 1, 0)
+        TabLbl.Position = UDim2.new(0, hasIcon and 28 or 10, 0, 0)
+        TabLbl.BackgroundTransparency = 1
+        TabLbl.Text = name
+        TabLbl.TextColor3 = Theme.SubText
+        TabLbl.Font = Enum.Font.GothamSemibold
+        TabLbl.TextSize = 11
+        TabLbl.TextXAlignment = Enum.TextXAlignment.Left
+        TabLbl.TextTruncate = Enum.TextTruncate.AtEnd
+        TabLbl.Parent = TabBtn
 
         local Page = Instance.new("ScrollingFrame")
         Page.Size = UDim2.new(1, 0, 1, 0)
@@ -518,14 +723,16 @@ function tryxzlib:CreateWindow(config)
 
             for _, t in ipairs(Window.Tabs) do
                 t.Page.Visible = false
-                Tween(t.Btn, Tweens.Fast, {BackgroundColor3 = Theme.Sidebar, TextColor3 = Theme.SubText})
+                Tween(t.Btn, Tweens.Fast, {BackgroundColor3 = Theme.Sidebar})
+                Tween(t.Lbl, Tweens.Fast, {TextColor3 = Theme.SubText})
                 Tween(t.Indicator, Tweens.Fast, {Size = UDim2.new(0, 3, 0, 0)})
             end
 
             Page.Visible = true
             Page.Position = UDim2.new(0, 12, 0, 0)
             Tween(Page, Tweens.Smooth, {Position = UDim2.new(0, 0, 0, 0)})
-            Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Element, TextColor3 = Theme.Text})
+            Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
+            Tween(TabLbl, Tweens.Fast, {TextColor3 = Theme.Text})
             Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, 14)})
         end
 
@@ -539,9 +746,12 @@ function tryxzlib:CreateWindow(config)
                 Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Sidebar})
             end
         end)
-        TabBtn.MouseButton1Click:Connect(SelectTab)
+        TabBtn.MouseButton1Click:Connect(function()
+            TriggerHaptic(0.2)
+            SelectTab()
+        end)
 
-        table.insert(Window.Tabs, {Btn = TabBtn, Page = Page, Indicator = Indicator})
+        table.insert(Window.Tabs, {Btn = TabBtn, Lbl = TabLbl, Page = Page, Indicator = Indicator})
         if #Window.Tabs == 1 then
             SelectTab()
         end
@@ -553,7 +763,7 @@ function tryxzlib:CreateWindow(config)
             return ElementOrder
         end
 
-        -- 1. SECTIONS (Translucent Gray Badge Style & Fixed LayoutOrder)
+        -- 1. SECTIONS (Translucent Gray)
         function TabAPI:AddSection(text)
             local SecFrame = Instance.new("Frame")
             SecFrame.LayoutOrder = NextOrder()
@@ -576,7 +786,7 @@ function tryxzlib:CreateWindow(config)
             return SecLbl
         end
 
-        -- 2. DIVIDERS (Fixed LayoutOrder & Centered Smooth Line)
+        -- 2. DIVIDERS
         function TabAPI:AddDivider()
             local DivHolder = Instance.new("Frame")
             DivHolder.LayoutOrder = NextOrder()
@@ -597,7 +807,7 @@ function tryxzlib:CreateWindow(config)
             Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
         end
 
-        -- 3. LABELS (Translucent Gray & Rounded)
+        -- 3. LABELS (Translucent Gray)
         function TabAPI:AddLabel(text)
             local LblFrame = Instance.new("Frame")
             LblFrame.LayoutOrder = NextOrder()
@@ -625,7 +835,7 @@ function tryxzlib:CreateWindow(config)
             return LabelObj
         end
 
-        -- 4. PARAGRAPHS (Translucent Gray, Rounded & Auto-Height)
+        -- 4. PARAGRAPHS (Translucent Gray)
         function TabAPI:AddParagraph(config)
             local TitleText = config.Title or "Title"
             local ContentText = config.Content or config.Text or ""
@@ -681,11 +891,72 @@ function tryxzlib:CreateWindow(config)
             return ParaObj
         end
 
-        -- 5. TOGGLES
+        -- 5. BUTTONS (Supports Optional Icon)
+        function TabAPI:AddButton(config)
+            local Name = config.Name or "Button"
+            local Icon = config.Icon or nil
+            local Callback = config.Callback or function() end
+            local hasIcon = Icon ~= nil and Icon ~= ""
+
+            local Btn = Instance.new("TextButton")
+            Btn.LayoutOrder = NextOrder()
+            Btn.Size = UDim2.new(1, 0, 0, 32)
+            Btn.BackgroundColor3 = Theme.Element
+            Btn.Text = ""
+            Btn.AutoButtonColor = false
+            Btn.Parent = Page
+            Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 10)
+
+            if hasIcon then
+                CreateIcon(Btn, Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+            end
+
+            local Title = Instance.new("TextLabel")
+            Title.Size = UDim2.new(1, hasIcon and -48 or -34, 1, 0)
+            Title.Position = UDim2.new(0, hasIcon and 30 or 10, 0, 0)
+            Title.BackgroundTransparency = 1
+            Title.Text = Name
+            Title.TextColor3 = Theme.Text
+            Title.Font = Enum.Font.GothamSemibold
+            Title.TextSize = 12
+            Title.TextXAlignment = Enum.TextXAlignment.Left
+            Title.Parent = Btn
+
+            local ArrowHint = Instance.new("TextLabel")
+            ArrowHint.Size = UDim2.new(0, 18, 0, 18)
+            ArrowHint.Position = UDim2.new(1, -24, 0.5, -9)
+            ArrowHint.BackgroundTransparency = 1
+            ArrowHint.Text = "›"
+            ArrowHint.TextColor3 = Theme.SubText
+            ArrowHint.Font = Enum.Font.GothamBold
+            ArrowHint.TextSize = 15
+            ArrowHint.Parent = Btn
+
+            Btn.MouseEnter:Connect(function()
+                Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
+                Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -21, 0.5, -9), TextColor3 = Theme.Accent})
+            end)
+            Btn.MouseLeave:Connect(function()
+                Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
+                Tween(ArrowHint, Tweens.Fast, {Position = UDim2.new(1, -24, 0.5, -9), TextColor3 = Theme.SubText})
+            end)
+            Btn.MouseButton1Click:Connect(function()
+                TriggerHaptic(0.3)
+                Tween(Btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {BackgroundColor3 = Theme.Accent})
+                task.delay(0.1, function()
+                    Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
+                end)
+                task.spawn(Callback)
+            end)
+        end
+
+        -- 6. TOGGLES (Supports Optional Icon)
         function TabAPI:AddToggle(config)
             local Name = config.Name or "Toggle"
+            local Icon = config.Icon or nil
             local State = config.Default or false
             local Callback = config.Callback or function() end
+            local hasIcon = Icon ~= nil and Icon ~= ""
 
             local ToggleBtn = Instance.new("TextButton")
             ToggleBtn.LayoutOrder = NextOrder()
@@ -696,9 +967,13 @@ function tryxzlib:CreateWindow(config)
             ToggleBtn.Parent = Page
             Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 10)
 
+            if hasIcon then
+                CreateIcon(ToggleBtn, Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+            end
+
             local Title = Instance.new("TextLabel")
-            Title.Size = UDim2.new(1, -55, 1, 0)
-            Title.Position = UDim2.new(0, 10, 0, 0)
+            Title.Size = UDim2.new(1, hasIcon and -75 or -55, 1, 0)
+            Title.Position = UDim2.new(0, hasIcon and 30 or 10, 0, 0)
             Title.BackgroundTransparency = 1
             Title.Text = Name
             Title.TextColor3 = Theme.Text
@@ -723,6 +998,7 @@ function tryxzlib:CreateWindow(config)
 
             local function UpdateToggle(val)
                 State = val
+                TriggerHaptic(0.28)
                 Tween(SwitchBg, Tweens.Fast, {BackgroundColor3 = State and Theme.Accent or Theme.Background})
                 Tween(Knob, Tweens.Bounce, {Position = State and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
                 task.spawn(Callback, State)
@@ -739,7 +1015,7 @@ function tryxzlib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- 6. SLIDERS
+        -- 7. SLIDERS
         function TabAPI:AddSlider(config)
             local Name = config.Name or "Slider"
             local Min = config.Min or 0
@@ -801,8 +1077,13 @@ function tryxzlib:CreateWindow(config)
             Instance.new("UICorner", Dot).CornerRadius = UDim.new(1, 0)
 
             local Sliding = false
+            local lastVal = Default
             local function SetSlider(val)
                 val = math.clamp(math.floor(val + 0.5), Min, Max)
+                if val ~= lastVal then
+                    lastVal = val
+                    TriggerHaptic(0.12)
+                end
                 local percent = (val - Min) / (Max - Min)
                 ValueLbl.Text = tostring(val)
                 Tween(Fill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(percent, 0, 1, 0)})
@@ -844,7 +1125,7 @@ function tryxzlib:CreateWindow(config)
             return SliderObj
         end
 
-        -- 7. DROPDOWN (Single Selection)
+        -- 8. DROPDOWN (Single Selection)
         function TabAPI:AddDropdown(config)
             local Name = config.Name or "Dropdown"
             local Options = config.Options or {}
@@ -909,6 +1190,7 @@ function tryxzlib:CreateWindow(config)
             ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
             local function ToggleDrop()
+                TriggerHaptic(0.2)
                 Open = not Open
                 local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
@@ -941,7 +1223,7 @@ function tryxzlib:CreateWindow(config)
             end
         end
 
-        -- 8. MULTI-DROPDOWN (Multiple Selection)
+        -- 9. MULTI-DROPDOWN (Multiple Selection)
         function TabAPI:AddMultiDropdown(config)
             local Name = config.Name or "MultiDropdown"
             local Options = config.Options or {}
@@ -1022,6 +1304,7 @@ function tryxzlib:CreateWindow(config)
             end
 
             Header.MouseButton1Click:Connect(function()
+                TriggerHaptic(0.2)
                 Open = not Open
                 local totalHeight = Open and (38 + (#Options * 26)) or 32
                 Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, totalHeight)})
@@ -1043,6 +1326,7 @@ function tryxzlib:CreateWindow(config)
                 Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 7)
 
                 OptBtn.MouseButton1Click:Connect(function()
+                    TriggerHaptic(0.25)
                     Selected[opt] = not Selected[opt]
                     Tween(OptBtn, Tweens.Fast, {
                         BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background,
