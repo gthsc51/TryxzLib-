@@ -570,7 +570,6 @@ function TryxzLib:Dialog(config)
     ConfirmBtn.MouseButton1Click:Connect(function() CloseDialog(OnConfirm) end)
 end
 
--- Smooth Draggable Utility (Supports optional live position sync callback for attached bottom bar)
 local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback, onDragMove)
     local dragging, dragInput, dragStart, startPos, moved = false, nil, nil, nil, false
 
@@ -633,14 +632,14 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM WITH BRIGHT GLOWING RED "X" CLOSE BUTTON & BLUR
+-- KEY SYSTEM WITH "Note:" & "Info:" HEADERS + FALLBACK MESSAGES
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
 
     local KeyBox = Instance.new("Frame")
     KeyBox.Name = "KeySystemWindow"
-    KeyBox.Size = UDim2.new(0, 340, 0, 0)
+    KeyBox.Size = UDim2.new(0, 345, 0, 0)
     KeyBox.AutomaticSize = Enum.AutomaticSize.Y
     KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
     KeyBox.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -738,9 +737,10 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KTitleLbl.ZIndex = 12
     KTitleLbl.Parent = KInner
 
+    -- "Note:" Section (Always displays "Note:" header and fallback text if empty)
     local NoteFrame = Instance.new("Frame")
     NoteFrame.LayoutOrder = 3
-    NoteFrame.Size = UDim2.new(1, 0, 0, 28)
+    NoteFrame.Size = UDim2.new(1, 0, 0, 0)
     NoteFrame.AutomaticSize = Enum.AutomaticSize.Y
     NoteFrame.BackgroundColor3 = Theme.GrayTranslucent
     NoteFrame.BackgroundTransparency = 0.6
@@ -749,66 +749,101 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
 
     local NPad = Instance.new("UIPadding", NoteFrame)
-    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
-    NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 7), UDim.new(0, 7)
+    NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
 
+    local NList = Instance.new("UIListLayout", NoteFrame)
+    NList.Padding = UDim.new(0, 2)
+    NList.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local NoteHeaderLbl = Instance.new("TextLabel")
+    NoteHeaderLbl.LayoutOrder = 1
+    NoteHeaderLbl.Size = UDim2.new(1, 0, 0, 14)
+    NoteHeaderLbl.BackgroundTransparency = 1
+    NoteHeaderLbl.Text = "Note:"
+    NoteHeaderLbl.TextColor3 = Theme.Accent
+    NoteHeaderLbl.Font = Enum.Font.GothamBold
+    NoteHeaderLbl.TextSize = 11
+    NoteHeaderLbl.TextXAlignment = Enum.TextXAlignment.Left
+    NoteHeaderLbl.ZIndex = 13
+    NoteHeaderLbl.Parent = NoteFrame
+    BindAccent(NoteHeaderLbl, "TextColor3")
+
+    local hasNote = KeyConfig.Note ~= nil and tostring(KeyConfig.Note):gsub("%s+", "") ~= ""
     local NoteLbl = Instance.new("TextLabel")
+    NoteLbl.LayoutOrder = 2
     NoteLbl.Size = UDim2.new(1, 0, 0, 0)
     NoteLbl.AutomaticSize = Enum.AutomaticSize.Y
     NoteLbl.BackgroundTransparency = 1
-    NoteLbl.Text = KeyConfig.Note or "Enter your access key below to continue."
+    NoteLbl.Text = hasNote and tostring(KeyConfig.Note) or "There is no note at this time."
     NoteLbl.TextColor3 = Theme.SubText
     NoteLbl.Font = Enum.Font.Gotham
     NoteLbl.TextSize = 11
     NoteLbl.TextWrapped = true
+    NoteLbl.TextXAlignment = Enum.TextXAlignment.Left
     NoteLbl.ZIndex = 13
     NoteLbl.Parent = NoteFrame
 
-    if KeyConfig.Info then
-        local InfoCard = Instance.new("Frame")
-        InfoCard.LayoutOrder = 4
-        InfoCard.Size = UDim2.new(1, 0, 0, 40)
-        InfoCard.AutomaticSize = Enum.AutomaticSize.Y
-        InfoCard.BackgroundColor3 = Theme.GrayTranslucent
-        InfoCard.BackgroundTransparency = 0.65
-        InfoCard.ZIndex = 12
-        InfoCard.Parent = KInner
-        Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
+    -- "Info:" Paragraph Card (Always displays "Info:" above paragraph and fallback text if missing)
+    local InfoCard = Instance.new("Frame")
+    InfoCard.LayoutOrder = 4
+    InfoCard.Size = UDim2.new(1, 0, 0, 0)
+    InfoCard.AutomaticSize = Enum.AutomaticSize.Y
+    InfoCard.BackgroundColor3 = Theme.GrayTranslucent
+    InfoCard.BackgroundTransparency = 0.65
+    InfoCard.ZIndex = 12
+    InfoCard.Parent = KInner
+    Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
 
-        local IPad = Instance.new("UIPadding", InfoCard)
-        IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
-        IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
+    local IPad = Instance.new("UIPadding", InfoCard)
+    IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
+    IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
 
-        local IList = Instance.new("UIListLayout", InfoCard)
-        IList.Padding = UDim.new(0, 2)
-        IList.SortOrder = Enum.SortOrder.LayoutOrder
+    local IList = Instance.new("UIListLayout", InfoCard)
+    IList.Padding = UDim.new(0, 3)
+    IList.SortOrder = Enum.SortOrder.LayoutOrder
 
-        local ITitle = Instance.new("TextLabel")
-        ITitle.LayoutOrder = 1
-        ITitle.Size = UDim2.new(1, 0, 0, 14)
-        ITitle.BackgroundTransparency = 1
-        ITitle.Text = KeyConfig.Info.Title or "Information"
-        ITitle.TextColor3 = Theme.Text
-        ITitle.Font = Enum.Font.GothamBold
-        ITitle.TextSize = 11
-        ITitle.TextXAlignment = Enum.TextXAlignment.Left
-        ITitle.ZIndex = 13
-        ITitle.Parent = InfoCard
+    local InfoTopHeader = Instance.new("TextLabel")
+    InfoTopHeader.LayoutOrder = 1
+    InfoTopHeader.Size = UDim2.new(1, 0, 0, 14)
+    InfoTopHeader.BackgroundTransparency = 1
+    InfoTopHeader.Text = "Info:"
+    InfoTopHeader.TextColor3 = Theme.Accent
+    InfoTopHeader.Font = Enum.Font.GothamBold
+    InfoTopHeader.TextSize = 11
+    InfoTopHeader.TextXAlignment = Enum.TextXAlignment.Left
+    InfoTopHeader.ZIndex = 13
+    InfoTopHeader.Parent = InfoCard
+    BindAccent(InfoTopHeader, "TextColor3")
 
-        local IBody = Instance.new("TextLabel")
-        IBody.LayoutOrder = 2
-        IBody.Size = UDim2.new(1, 0, 0, 0)
-        IBody.AutomaticSize = Enum.AutomaticSize.Y
-        IBody.BackgroundTransparency = 1
-        IBody.Text = KeyConfig.Info.Content or KeyConfig.Info.Text or ""
-        IBody.TextColor3 = Theme.SubText
-        IBody.Font = Enum.Font.Gotham
-        IBody.TextSize = 10
-        IBody.TextWrapped = true
-        IBody.TextXAlignment = Enum.TextXAlignment.Left
-        IBody.ZIndex = 13
-        IBody.Parent = InfoCard
+    local hasInfo = type(KeyConfig.Info) == "table" and ((KeyConfig.Info.Content and tostring(KeyConfig.Info.Content):gsub("%s+", "") ~= "") or (KeyConfig.Info.Text and tostring(KeyConfig.Info.Text):gsub("%s+", "") ~= ""))
+    if hasInfo and KeyConfig.Info.Title and tostring(KeyConfig.Info.Title) ~= "" then
+        local ISubTitle = Instance.new("TextLabel")
+        ISubTitle.LayoutOrder = 2
+        ISubTitle.Size = UDim2.new(1, 0, 0, 14)
+        ISubTitle.BackgroundTransparency = 1
+        ISubTitle.Text = tostring(KeyConfig.Info.Title)
+        ISubTitle.TextColor3 = Theme.Text
+        ISubTitle.Font = Enum.Font.GothamBold
+        ISubTitle.TextSize = 11
+        ISubTitle.TextXAlignment = Enum.TextXAlignment.Left
+        ISubTitle.ZIndex = 13
+        ISubTitle.Parent = InfoCard
     end
+
+    local IBody = Instance.new("TextLabel")
+    IBody.LayoutOrder = 3
+    IBody.Size = UDim2.new(1, 0, 0, 0)
+    IBody.AutomaticSize = Enum.AutomaticSize.Y
+    IBody.BackgroundTransparency = 1
+    IBody.Text = hasInfo and tostring(KeyConfig.Info.Content or KeyConfig.Info.Text) or "There is no information at this time."
+    IBody.TextColor3 = Theme.SubText
+    IBody.Font = Enum.Font.Gotham
+    IBody.TextSize = 10
+    IBody.TextWrapped = true
+    IBody.TextXAlignment = Enum.TextXAlignment.Left
+    IBody.ZIndex = 13
+    IBody.Parent = InfoCard
 
     local InputHolder = Instance.new("Frame")
     InputHolder.LayoutOrder = 5
@@ -960,7 +995,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- DETACHED ELEMENT FACTORY (WITH ICONS ON DROPDOWNS & MULTIDROPDOWNS)
+-- DETACHED ELEMENT FACTORY
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -1812,7 +1847,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 12. DROPDOWN (Supports Icon on header & OptionIcons per option)
+    -- 12. DROPDOWN (Fixed Icon Rendering on Header & Options)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -1841,7 +1876,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Parent = DropFrame
 
         if hasIcon then
-            CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+            CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3)
         end
 
         local titleX = hasIcon and 30 or 10
@@ -1855,6 +1890,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.TextTruncate = Enum.TextTruncate.AtEnd
+        Title.ZIndex = 2
         Title.Parent = Header
 
         local SelectedLbl = Instance.new("TextLabel")
@@ -1867,6 +1903,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         SelectedLbl.TextSize = 11
         SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
         SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
+        SelectedLbl.ZIndex = 2
         SelectedLbl.Parent = Header
         BindAccent(SelectedLbl, "TextColor3")
 
@@ -1878,6 +1915,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Arrow.TextColor3 = Theme.SubText
         Arrow.Font = Enum.Font.GothamBold
         Arrow.TextSize = 9
+        Arrow.ZIndex = 2
         Arrow.Parent = Header
 
         local ListHolder = Instance.new("Frame")
@@ -1916,18 +1954,19 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
 
             if hasOptIcon then
-                CreateIcon(OptBtn, optIcon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+                CreateIcon(OptBtn, optIcon, 14, UDim2.new(0, 8, 0.5, -7), 4)
             end
 
             local OptTxt = Instance.new("TextLabel")
             OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
-            OptTxt.Position = UDim2.new(0, hasOptIcon and 25 or 8, 0, 0)
+            OptTxt.Position = UDim2.new(0, hasOptIcon and 26 or 8, 0, 0)
             OptTxt.BackgroundTransparency = 1
             OptTxt.Text = optLabel
             OptTxt.TextColor3 = Theme.SubText
             OptTxt.Font = Enum.Font.Gotham
             OptTxt.TextSize = 11
             OptTxt.TextXAlignment = Enum.TextXAlignment.Left
+            OptTxt.ZIndex = 3
             OptTxt.Parent = OptBtn
 
             OptBtn.MouseEnter:Connect(function()
@@ -1958,7 +1997,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
-    -- 13. MULTI-DROPDOWN (Supports Icon on header & OptionIcons per option)
+    -- 13. MULTI-DROPDOWN (Fixed Icon Rendering on Header & Options)
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -1991,7 +2030,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Parent = DropFrame
 
         if hasIcon then
-            CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
+            CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3)
         end
 
         local titleX = hasIcon and 30 or 10
@@ -2005,6 +2044,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.TextTruncate = Enum.TextTruncate.AtEnd
+        Title.ZIndex = 2
         Title.Parent = Header
 
         local SelectedLbl = Instance.new("TextLabel")
@@ -2017,6 +2057,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         SelectedLbl.TextSize = 11
         SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
         SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
+        SelectedLbl.ZIndex = 2
         SelectedLbl.Parent = Header
         BindAccent(SelectedLbl, "TextColor3")
 
@@ -2028,6 +2069,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Arrow.TextColor3 = Theme.SubText
         Arrow.Font = Enum.Font.GothamBold
         Arrow.TextSize = 9
+        Arrow.ZIndex = 2
         Arrow.Parent = Header
 
         local ListHolder = Instance.new("Frame")
@@ -2075,18 +2117,19 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             OptButtons[opt] = OptBtn
 
             if hasOptIcon then
-                CreateIcon(OptBtn, optIcon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+                CreateIcon(OptBtn, optIcon, 14, UDim2.new(0, 8, 0.5, -7), 4)
             end
 
             local OptTxt = Instance.new("TextLabel")
             OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
-            OptTxt.Position = UDim2.new(0, hasOptIcon and 25 or 8, 0, 0)
+            OptTxt.Position = UDim2.new(0, hasOptIcon and 26 or 8, 0, 0)
             OptTxt.BackgroundTransparency = 1
             OptTxt.Text = tostring(opt)
             OptTxt.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
             OptTxt.Font = Enum.Font.Gotham
             OptTxt.TextSize = 11
             OptTxt.TextXAlignment = Enum.TextXAlignment.Left
+            OptTxt.ZIndex = 3
             OptTxt.Parent = OptBtn
 
             OptBtn.MouseButton1Click:Connect(function()
@@ -2124,7 +2167,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (WITH TRANSLUCENT WHITE BOTTOM DRAG BAR)
+-- CREATE MAIN WINDOW (LONG TAB NAMES + BOTTOM WHITE DRAG LINE + GEAR KEYBINDS DROPDOWN)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2146,10 +2189,10 @@ function TryxzLib:CreateWindow(config)
         SaveFile = "",
         SavedData = {},
         HasExistingSave = false,
-        WinW = 475,
+        WinW = 505,
         WinH = 315,
         TopH = 44,
-        SideW = 130
+        SideW = 152
     }
 
     local State = {
@@ -2301,7 +2344,6 @@ function TryxzLib:CreateWindow(config)
         Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
     end)
 
-    -- Smooth drag from the bottom white line moves Main and keeps the line synced
     local bDragging, bDragInput, bDragStart, bStartMainPos = false, nil, nil, nil
     BottomDragBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -2645,6 +2687,8 @@ function TryxzLib:CreateWindow(config)
     TabContainer.Position = UDim2.new(0, 6, 0, 6)
     TabContainer.BackgroundTransparency = 1
     TabContainer.ScrollBarThickness = 0
+    TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
     TabContainer.Parent = Sidebar
 
     local TabLayout = Instance.new("UIListLayout", TabContainer)
@@ -2769,7 +2813,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE + FIXED KEYBINDS DROPDOWN
+    -- SETTINGS PAGE + KEYBINDS DROPDOWN
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2808,7 +2852,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.4 by gthsc51"
+    CTitle.Text = "TryxzLib v3.5 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2830,7 +2874,6 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Function Keybinds Dropdown (Clean non-overlapping header layout)
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
@@ -3629,13 +3672,23 @@ function TryxzLib:CreateWindow(config)
         RegisterBindable(bindInfo)
     end
 
+    -- CreateTab supporting long tab names cleanly
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
+        local tabText = tostring(name or "Tab")
         local hasIcon = icon ~= nil and tostring(icon) ~= ""
+        local isLongName = #tabText > 16
+
+        if isLongName and Cfg.SideW < 185 then
+            Cfg.SideW = 185
+            Sidebar.Size = UDim2.new(0, Cfg.SideW, 1, 0)
+            PagesContainer.Size = UDim2.new(1, -(Cfg.SideW + 6), 1, -6)
+            PagesContainer.Position = UDim2.new(0, Cfg.SideW, 0, 0)
+        end
 
         local TabBtn = Instance.new("TextButton")
         TabBtn.LayoutOrder = Window.TabOrder
-        TabBtn.Size = UDim2.new(1, 0, 0, 28)
+        TabBtn.Size = UDim2.new(1, 0, 0, isLongName and 38 or 28)
         TabBtn.BackgroundColor3 = Theme.Sidebar
         TabBtn.Text = ""
         TabBtn.AutoButtonColor = false
@@ -3658,12 +3711,12 @@ function TryxzLib:CreateWindow(config)
         TabLbl.Size = UDim2.new(1, hasIcon and -32 or -14, 1, 0)
         TabLbl.Position = UDim2.new(0, hasIcon and 28 or 10, 0, 0)
         TabLbl.BackgroundTransparency = 1
-        TabLbl.Text = name
+        TabLbl.Text = tabText
         TabLbl.TextColor3 = Theme.SubText
         TabLbl.Font = Enum.Font.GothamSemibold
-        TabLbl.TextSize = 11
+        TabLbl.TextSize = 10
+        TabLbl.TextWrapped = true
         TabLbl.TextXAlignment = Enum.TextXAlignment.Left
-        TabLbl.TextTruncate = Enum.TextTruncate.AtEnd
         TabLbl.Parent = TabBtn
 
         local TabWrapper = Instance.new("Frame")
@@ -3710,7 +3763,7 @@ function TryxzLib:CreateWindow(config)
             Tween(TabWrapper, Tweens.Smooth, {Position = UDim2.new(0, 0, 0, PageTopOffset)})
             Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
             Tween(TabLbl, Tweens.Fast, {TextColor3 = Theme.Text})
-            Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, 14)})
+            Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, isLongName and 22 or 14)})
         end
 
         TabBtn.MouseEnter:Connect(function()
@@ -3828,4 +3881,3 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
- 
