@@ -19,7 +19,7 @@ tryxzlib.__index = tryxzlib
 local Tweens = {
     Fast = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
     Smooth = TweenInfo.new(0.26, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-    Bounce = TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+    Bounce = TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
     Elastic = TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 }
 
@@ -67,6 +67,9 @@ local Theme = {
     ElementHover = Color3.fromRGB(38, 38, 48),
     GrayTranslucent = Color3.fromRGB(48, 48, 58),
     Accent = Color3.fromRGB(115, 85, 255),
+    AccentHover = Color3.fromRGB(132, 105, 255),
+    Success = Color3.fromRGB(65, 195, 120),
+    Error = Color3.fromRGB(220, 70, 80),
     Text = Color3.fromRGB(240, 240, 245),
     SubText = Color3.fromRGB(165, 165, 180),
     Divider = Color3.fromRGB(55, 55, 68)
@@ -112,7 +115,7 @@ function tryxzlib:Notify(config)
     NotifFrame.Parent = NotifHolder
 
     local Corner = Instance.new("UICorner", NotifFrame)
-    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.CornerRadius = UDim.new(0, 14)
 
     local Stroke = Instance.new("UIStroke", NotifFrame)
     Stroke.Color = Theme.Accent
@@ -120,16 +123,16 @@ function tryxzlib:Notify(config)
     Stroke.Transparency = 0.45
 
     local AccentBar = Instance.new("Frame")
-    AccentBar.Size = UDim2.new(0, 4, 1, -12)
-    AccentBar.Position = UDim2.new(0, 4, 0, 6)
+    AccentBar.Size = UDim2.new(0, 4, 1, -14)
+    AccentBar.Position = UDim2.new(0, 5, 0, 7)
     AccentBar.BackgroundColor3 = Theme.Accent
     AccentBar.BorderSizePixel = 0
     AccentBar.Parent = NotifFrame
     Instance.new("UICorner", AccentBar).CornerRadius = UDim.new(1, 0)
 
     local TitleLbl = Instance.new("TextLabel")
-    TitleLbl.Size = UDim2.new(1, -22, 0, 18)
-    TitleLbl.Position = UDim2.new(0, 14, 0, 7)
+    TitleLbl.Size = UDim2.new(1, -24, 0, 18)
+    TitleLbl.Position = UDim2.new(0, 15, 0, 7)
     TitleLbl.BackgroundTransparency = 1
     TitleLbl.Text = Title
     TitleLbl.TextColor3 = Theme.Text
@@ -139,8 +142,8 @@ function tryxzlib:Notify(config)
     TitleLbl.Parent = NotifFrame
 
     local BodyLbl = Instance.new("TextLabel")
-    BodyLbl.Size = UDim2.new(1, -22, 0, 30)
-    BodyLbl.Position = UDim2.new(0, 14, 0, 25)
+    BodyLbl.Size = UDim2.new(1, -24, 0, 30)
+    BodyLbl.Position = UDim2.new(0, 15, 0, 25)
     BodyLbl.BackgroundTransparency = 1
     BodyLbl.Text = Text
     BodyLbl.TextColor3 = Theme.SubText
@@ -152,11 +155,12 @@ function tryxzlib:Notify(config)
     BodyLbl.Parent = NotifFrame
 
     local TimerBar = Instance.new("Frame")
-    TimerBar.Size = UDim2.new(1, 0, 0, 2)
-    TimerBar.Position = UDim2.new(0, 0, 1, -2)
+    TimerBar.Size = UDim2.new(1, -16, 0, 2)
+    TimerBar.Position = UDim2.new(0, 8, 1, -3)
     TimerBar.BackgroundColor3 = Theme.Accent
     TimerBar.BorderSizePixel = 0
     TimerBar.Parent = NotifFrame
+    Instance.new("UICorner", TimerBar).CornerRadius = UDim.new(1, 0)
 
     Tween(NotifFrame, Tweens.Bounce, {Size = UDim2.new(1, 0, 0, 62)})
     Tween(TimerBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 2)})
@@ -170,13 +174,13 @@ function tryxzlib:Notify(config)
 end
 
 -- Draggable utility
-local function MakeDraggable(topbar, main)
+local function MakeDraggable(dragHandle, targetFrame)
     local dragging, dragInput, dragStart, startPos
-    topbar.InputBegan:Connect(function(input)
+    dragHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = main.Position
+            startPos = targetFrame.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -184,7 +188,7 @@ local function MakeDraggable(topbar, main)
             end)
         end
     end)
-    topbar.InputChanged:Connect(function(input)
+    dragHandle.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
@@ -192,14 +196,14 @@ local function MakeDraggable(topbar, main)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            Tween(main, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Tween(targetFrame, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                 Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
             })
         end
     end)
 end
 
--- Create Main Window
+-- Create Main Window (With Optional KeySystem)
 function tryxzlib:CreateWindow(config)
     local Title = config.Title or "tryxzlib"
     local Subtitle = config.Subtitle or ""
@@ -208,6 +212,7 @@ function tryxzlib:CreateWindow(config)
     local ShowStats = config.Stats ~= false
     local Keybind = config.ToggleKey or Enum.KeyCode.RightControl
     local HapticsEnabled = config.Haptics ~= false
+    local KeyConfig = config.KeySystem
 
     local function TriggerHaptic(strength)
         if not HapticsEnabled then return end
@@ -220,8 +225,9 @@ function tryxzlib:CreateWindow(config)
     end
 
     local WinWidth, WinHeight = 460, 305
-    local TopbarHeight = 42
+    local TopbarHeight = 44
 
+    -- Main Window Frame (Smooth Rounded Corners)
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
@@ -229,25 +235,352 @@ function tryxzlib:CreateWindow(config)
     Main.BackgroundColor3 = Theme.Background
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
+    Main.Visible = false
     Main.Parent = ScreenGui
 
     local MainCorner = Instance.new("UICorner", Main)
-    MainCorner.CornerRadius = UDim.new(0, 14)
+    MainCorner.CornerRadius = UDim.new(0, 18)
 
     local MainStroke = Instance.new("UIStroke", Main)
     MainStroke.Color = Theme.Divider
-    MainStroke.Thickness = 1
+    MainStroke.Thickness = 1.2
+    MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
+    local function OpenMainWindow()
+        Main.Visible = true
+        Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
+    end
 
-    -- Topbar
+    -- ==========================================
+    -- OPTIONAL KEY SYSTEM GATE
+    -- ==========================================
+    if KeyConfig and KeyConfig.Enabled ~= false then
+        local KTitle = KeyConfig.Title or Title
+        local KNote = KeyConfig.Note or "Enter your access key below to continue."
+        local KIcon = KeyConfig.Icon or WinIcon or "🔑"
+        local KInfo = KeyConfig.Info -- Optional { Title = "...", Content = "..." }
+        local ValidKeys = KeyConfig.Keys or (KeyConfig.Key and {KeyConfig.Key}) or {"tryxz"}
+        local KButtonText = KeyConfig.ButtonText or "Unlock Access"
+        local KGetLink = KeyConfig.GetKeyLink
+
+        local KeyWidth = 340
+        local KeyBox = Instance.new("Frame")
+        KeyBox.Name = "KeySystemWindow"
+        KeyBox.Size = UDim2.new(0, 0, 0, 0)
+        KeyBox.Position = UDim2.new(0.5, -KeyWidth/2, 0.5, -135)
+        KeyBox.BackgroundColor3 = Theme.Background
+        KeyBox.BorderSizePixel = 0
+        KeyBox.ClipsDescendants = true
+        KeyBox.Parent = ScreenGui
+        MakeDraggable(KeyBox, KeyBox)
+
+        Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 18)
+        local KStroke = Instance.new("UIStroke", KeyBox)
+        KStroke.Color = Theme.Accent
+        KStroke.Thickness = 1.2
+        KStroke.Transparency = 0.35
+
+        local KInner = Instance.new("Frame")
+        KInner.Size = UDim2.new(1, 0, 0, 0)
+        KInner.AutomaticSize = Enum.AutomaticSize.Y
+        KInner.BackgroundTransparency = 1
+        KInner.Parent = KeyBox
+
+        local KPad = Instance.new("UIPadding", KInner)
+        KPad.PaddingTop = UDim.new(0, 18)
+        KPad.PaddingBottom = UDim.new(0, 18)
+        KPad.PaddingLeft = UDim.new(0, 20)
+        KPad.PaddingRight = UDim.new(0, 20)
+
+        local KLayout = Instance.new("UIListLayout", KInner)
+        KLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        KLayout.Padding = UDim.new(0, 10)
+        KLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+        -- Circular Icon Badge
+        local IconBadge = Instance.new("Frame")
+        IconBadge.LayoutOrder = 1
+        IconBadge.Size = UDim2.new(0, 44, 0, 44)
+        IconBadge.BackgroundColor3 = Theme.Element
+        IconBadge.Parent = KInner
+        Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
+        local IBStroke = Instance.new("UIStroke", IconBadge)
+        IBStroke.Color = Theme.Accent
+        IBStroke.Thickness = 1.2
+
+        CreateIcon(IconBadge, KIcon, 22, UDim2.new(0.5, -11, 0.5, -11), 3)
+
+        -- KeySystem Title
+        local KTitleLbl = Instance.new("TextLabel")
+        KTitleLbl.LayoutOrder = 2
+        KTitleLbl.Size = UDim2.new(1, 0, 0, 20)
+        KTitleLbl.BackgroundTransparency = 1
+        KTitleLbl.Text = KTitle
+        KTitleLbl.TextColor3 = Theme.Text
+        KTitleLbl.Font = Enum.Font.GothamBold
+        KTitleLbl.TextSize = 15
+        KTitleLbl.Parent = KInner
+
+        -- Note Label (Translucent Gray Rounded Pill)
+        local NoteFrame = Instance.new("Frame")
+        NoteFrame.LayoutOrder = 3
+        NoteFrame.Size = UDim2.new(1, 0, 0, 28)
+        NoteFrame.AutomaticSize = Enum.AutomaticSize.Y
+        NoteFrame.BackgroundColor3 = Theme.GrayTranslucent
+        NoteFrame.BackgroundTransparency = 0.6
+        NoteFrame.Parent = KInner
+        Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
+
+        local NPad = Instance.new("UIPadding", NoteFrame)
+        NPad.PaddingTop = UDim.new(0, 6)
+        NPad.PaddingBottom = UDim.new(0, 6)
+        NPad.PaddingLeft = UDim.new(0, 10)
+        NPad.PaddingRight = UDim.new(0, 10)
+
+        local NoteLbl = Instance.new("TextLabel")
+        NoteLbl.Size = UDim2.new(1, 0, 0, 0)
+        NoteLbl.AutomaticSize = Enum.AutomaticSize.Y
+        NoteLbl.BackgroundTransparency = 1
+        NoteLbl.Text = KNote
+        NoteLbl.TextColor3 = Theme.SubText
+        NoteLbl.Font = Enum.Font.Gotham
+        NoteLbl.TextSize = 11
+        NoteLbl.TextWrapped = true
+        NoteLbl.Parent = NoteFrame
+
+        -- Optional Info Paragraph
+        if KInfo then
+            local InfoCard = Instance.new("Frame")
+            InfoCard.LayoutOrder = 4
+            InfoCard.Size = UDim2.new(1, 0, 0, 40)
+            InfoCard.AutomaticSize = Enum.AutomaticSize.Y
+            InfoCard.BackgroundColor3 = Theme.GrayTranslucent
+            InfoCard.BackgroundTransparency = 0.65
+            InfoCard.Parent = KInner
+            Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
+
+            local IPad = Instance.new("UIPadding", InfoCard)
+            IPad.PaddingTop = UDim.new(0, 8)
+            IPad.PaddingBottom = UDim.new(0, 8)
+            IPad.PaddingLeft = UDim.new(0, 12)
+            IPad.PaddingRight = UDim.new(0, 12)
+
+            local IList = Instance.new("UIListLayout", InfoCard)
+            IList.Padding = UDim.new(0, 2)
+            IList.SortOrder = Enum.SortOrder.LayoutOrder
+
+            local ITitle = Instance.new("TextLabel")
+            ITitle.LayoutOrder = 1
+            ITitle.Size = UDim2.new(1, 0, 0, 14)
+            ITitle.BackgroundTransparency = 1
+            ITitle.Text = KInfo.Title or "Information"
+            ITitle.TextColor3 = Theme.Text
+            ITitle.Font = Enum.Font.GothamBold
+            ITitle.TextSize = 11
+            ITitle.TextXAlignment = Enum.TextXAlignment.Left
+            ITitle.Parent = InfoCard
+
+            local IBody = Instance.new("TextLabel")
+            IBody.LayoutOrder = 2
+            IBody.Size = UDim2.new(1, 0, 0, 0)
+            IBody.AutomaticSize = Enum.AutomaticSize.Y
+            IBody.BackgroundTransparency = 1
+            IBody.Text = KInfo.Content or KInfo.Text or ""
+            IBody.TextColor3 = Theme.SubText
+            IBody.Font = Enum.Font.Gotham
+            IBody.TextSize = 10
+            IBody.TextWrapped = true
+            IBody.TextXAlignment = Enum.TextXAlignment.Left
+            IBody.Parent = InfoCard
+        end
+
+        -- Key Input Box (Rounded)
+        local InputHolder = Instance.new("Frame")
+        InputHolder.LayoutOrder = 5
+        InputHolder.Size = UDim2.new(1, 0, 0, 36)
+        InputHolder.BackgroundColor3 = Theme.Element
+        InputHolder.Parent = KInner
+        Instance.new("UICorner", InputHolder).CornerRadius = UDim.new(0, 12)
+
+        local InputStroke = Instance.new("UIStroke", InputHolder)
+        InputStroke.Color = Theme.Divider
+        InputStroke.Thickness = 1
+
+        local KeyInput = Instance.new("TextBox")
+        KeyInput.Size = UDim2.new(1, -24, 1, 0)
+        KeyInput.Position = UDim2.new(0, 12, 0, 0)
+        KeyInput.BackgroundTransparency = 1
+        KeyInput.PlaceholderText = "Paste your key here..."
+        KeyInput.PlaceholderColor3 = Theme.SubText
+        KeyInput.Text = ""
+        KeyInput.TextColor3 = Theme.Text
+        KeyInput.Font = Enum.Font.GothamSemibold
+        KeyInput.TextSize = 12
+        KeyInput.ClearTextOnFocus = false
+        KeyInput.Parent = InputHolder
+
+        KeyInput.Focused:Connect(function()
+            Tween(InputStroke, Tweens.Fast, {Color = Theme.Accent})
+        end)
+        KeyInput.FocusLost:Connect(function()
+            Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
+        end)
+
+        -- Distinct Pill-Shaped Glowing Access Button (Different from regular UI buttons)
+        local AccessBtn = Instance.new("TextButton")
+        AccessBtn.LayoutOrder = 6
+        AccessBtn.Size = UDim2.new(1, 0, 0, 38)
+        AccessBtn.BackgroundColor3 = Theme.Accent
+        AccessBtn.Text = ""
+        AccessBtn.AutoButtonColor = false
+        AccessBtn.Parent = KInner
+        Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0) -- Full capsule shape
+
+        local AccStroke = Instance.new("UIStroke", AccessBtn)
+        AccStroke.Color = Color3.fromRGB(185, 165, 255)
+        AccStroke.Thickness = 1.2
+        AccStroke.Transparency = 0.3
+
+        local AccLbl = Instance.new("TextLabel")
+        AccLbl.Size = UDim2.new(1, -40, 1, 0)
+        AccLbl.Position = UDim2.new(0, 14, 0, 0)
+        AccLbl.BackgroundTransparency = 1
+        AccLbl.Text = KButtonText
+        AccLbl.TextColor3 = Theme.Text
+        AccLbl.Font = Enum.Font.GothamBold
+        AccLbl.TextSize = 12
+        AccLbl.Parent = AccessBtn
+
+        local AccBadge = Instance.new("Frame")
+        AccBadge.Size = UDim2.new(0, 24, 0, 24)
+        AccBadge.Position = UDim2.new(1, -31, 0.5, -12)
+        AccBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        AccBadge.BackgroundTransparency = 0.85
+        AccBadge.Parent = AccessBtn
+        Instance.new("UICorner", AccBadge).CornerRadius = UDim.new(1, 0)
+
+        local AccArrow = Instance.new("TextLabel")
+        AccArrow.Size = UDim2.new(1, 0, 1, 0)
+        AccArrow.BackgroundTransparency = 1
+        AccArrow.Text = "→"
+        AccArrow.TextColor3 = Theme.Text
+        AccArrow.Font = Enum.Font.GothamBold
+        AccArrow.TextSize = 14
+        AccArrow.Parent = AccBadge
+
+        AccessBtn.MouseEnter:Connect(function()
+            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.AccentHover})
+            Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -28, 0.5, -12)})
+        end)
+        AccessBtn.MouseLeave:Connect(function()
+            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
+            Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
+        end)
+
+        -- Optional Copy Key Link Button
+        if KGetLink and KGetLink ~= "" then
+            local LinkBtn = Instance.new("TextButton")
+            LinkBtn.LayoutOrder = 7
+            LinkBtn.Size = UDim2.new(1, 0, 0, 26)
+            LinkBtn.BackgroundColor3 = Theme.GrayTranslucent
+            LinkBtn.BackgroundTransparency = 0.65
+            LinkBtn.Text = "Copy Key Link"
+            LinkBtn.TextColor3 = Theme.SubText
+            LinkBtn.Font = Enum.Font.GothamSemibold
+            LinkBtn.TextSize = 11
+            LinkBtn.AutoButtonColor = false
+            LinkBtn.Parent = KInner
+            Instance.new("UICorner", LinkBtn).CornerRadius = UDim.new(1, 0)
+
+            LinkBtn.MouseButton1Click:Connect(function()
+                TriggerHaptic(0.2)
+                if setclipboard then
+                    setclipboard(KGetLink)
+                end
+                tryxzlib:Notify({
+                    Title = "Link Copied",
+                    Text = "Key link copied to your clipboard.",
+                    Duration = 3
+                })
+            end)
+        end
+
+        task.wait()
+        local targetH = KInner.AbsoluteSize.Y
+        KeyBox.Position = UDim2.new(0.5, -KeyWidth/2, 0.5, -targetH/2)
+        Tween(KeyBox, Tweens.Bounce, {Size = UDim2.new(0, KeyWidth, 0, targetH)})
+
+        local function ValidateKey(entered)
+            if type(ValidKeys) == "function" then
+                return ValidKeys(entered)
+            elseif type(ValidKeys) == "table" then
+                for _, k in ipairs(ValidKeys) do
+                    if tostring(entered) == tostring(k) then return true end
+                end
+            elseif type(ValidKeys) == "string" then
+                return tostring(entered) == ValidKeys
+            end
+            return false
+        end
+
+        AccessBtn.MouseButton1Click:Connect(function()
+            local entered = KeyInput.Text
+            if ValidateKey(entered) then
+                TriggerHaptic(0.5)
+                AccLbl.Text = "Access Granted!"
+                AccArrow.Text = "✓"
+                Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
+                Tween(InputStroke, Tweens.Fast, {Color = Theme.Success})
+                task.wait(0.35)
+                local closeK = Tween(KeyBox, Tweens.Smooth, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+                Tween(KStroke, Tweens.Fast, {Transparency = 1})
+                closeK.Completed:Wait()
+                KeyBox:Destroy()
+                OpenMainWindow()
+            else
+                TriggerHaptic(0.45)
+                Tween(InputStroke, Tweens.Fast, {Color = Theme.Error})
+                Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error})
+                AccLbl.Text = "Invalid Key"
+                -- Horizontal shake animation
+                local origPos = KeyBox.Position
+                for _, offset in ipairs({-8, 8, -5, 5, 0}) do
+                    Tween(KeyBox, TweenInfo.new(0.05), {Position = UDim2.new(origPos.X.Scale, origPos.X.Offset + offset, origPos.Y.Scale, origPos.Y.Offset)})
+                    task.wait(0.05)
+                end
+                task.delay(0.6, function()
+                    if AccessBtn and AccessBtn.Parent then
+                        Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
+                        Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
+                        AccLbl.Text = KButtonText
+                    end
+                end)
+            end
+        end)
+    else
+        OpenMainWindow()
+    end
+
+    -- ==========================================
+    -- MAIN WINDOW TOPBAR & BODY
+    -- ==========================================
     local Topbar = Instance.new("Frame")
     Topbar.Size = UDim2.new(1, 0, 0, TopbarHeight)
     Topbar.BackgroundColor3 = Theme.Sidebar
     Topbar.BorderSizePixel = 0
     Topbar.ZIndex = 5
     Topbar.Parent = Main
+    Instance.new("UICorner", Topbar).CornerRadius = UDim.new(0, 18)
     MakeDraggable(Topbar, Main)
+
+    -- Square bottom fill for topbar so top corners stay 18px round and bottom seam is clean
+    local TopBottomCover = Instance.new("Frame")
+    TopBottomCover.Size = UDim2.new(1, 0, 0, 14)
+    TopBottomCover.Position = UDim2.new(0, 0, 1, -14)
+    TopBottomCover.BackgroundColor3 = Theme.Sidebar
+    TopBottomCover.BorderSizePixel = 0
+    TopBottomCover.ZIndex = 5
+    TopBottomCover.Parent = Topbar
 
     local TopDivider = Instance.new("Frame")
     TopDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -260,15 +593,15 @@ function tryxzlib:CreateWindow(config)
     -- Window Icon + Title + Subtitle
     local hasWinIcon = WinIcon ~= nil and WinIcon ~= ""
     if hasWinIcon then
-        CreateIcon(Topbar, WinIcon, 20, UDim2.new(0, 12, 0.5, -10), 6)
+        CreateIcon(Topbar, WinIcon, 20, UDim2.new(0, 14, 0.5, -10), 6)
     end
 
-    local textStartX = hasWinIcon and 38 or 14
-    local rightReserved = ShowStats and 172 or 72
+    local textStartX = hasWinIcon and 40 or 16
+    local rightReserved = ShowStats and 174 or 74
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, -(textStartX + rightReserved), 0, Subtitle ~= "" and 18 or 24)
-    TitleLabel.Position = UDim2.new(0, textStartX, 0, Subtitle ~= "" and 5 or 9)
+    TitleLabel.Position = UDim2.new(0, textStartX, 0, Subtitle ~= "" and 6 or 10)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = Title
     TitleLabel.TextColor3 = Theme.Text
@@ -282,7 +615,7 @@ function tryxzlib:CreateWindow(config)
     if Subtitle ~= "" then
         local SubLabel = Instance.new("TextLabel")
         SubLabel.Size = UDim2.new(1, -(textStartX + rightReserved), 0, 14)
-        SubLabel.Position = UDim2.new(0, textStartX, 0, 22)
+        SubLabel.Position = UDim2.new(0, textStartX, 0, 23)
         SubLabel.BackgroundTransparency = 1
         SubLabel.Text = Subtitle
         SubLabel.TextColor3 = Theme.SubText
@@ -299,11 +632,11 @@ function tryxzlib:CreateWindow(config)
     if ShowStats then
         local StatsPill = Instance.new("Frame")
         StatsPill.Size = UDim2.new(0, 96, 0, 24)
-        StatsPill.Position = UDim2.new(1, -164, 0.5, -12)
+        StatsPill.Position = UDim2.new(1, -166, 0.5, -12)
         StatsPill.BackgroundColor3 = Theme.Element
         StatsPill.ZIndex = 6
         StatsPill.Parent = Topbar
-        Instance.new("UICorner", StatsPill).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", StatsPill).CornerRadius = UDim.new(1, 0)
 
         local StatsLbl = Instance.new("TextLabel")
         StatsLbl.Size = UDim2.new(1, -8, 1, 0)
@@ -334,10 +667,10 @@ function tryxzlib:CreateWindow(config)
         end)
     end
 
-    -- Minimize Button
+    -- Minimize Button (Round)
     local MinBtn = Instance.new("TextButton")
     MinBtn.Size = UDim2.new(0, 24, 0, 24)
-    MinBtn.Position = UDim2.new(1, -32, 0.5, -12)
+    MinBtn.Position = UDim2.new(1, -34, 0.5, -12)
     MinBtn.BackgroundColor3 = Theme.Element
     MinBtn.Text = "-"
     MinBtn.TextColor3 = Theme.Text
@@ -346,12 +679,12 @@ function tryxzlib:CreateWindow(config)
     MinBtn.AutoButtonColor = false
     MinBtn.ZIndex = 6
     MinBtn.Parent = Topbar
-    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
 
-    -- Settings Button (Next to Minimize)
+    -- Settings Button (Next to Minimize, Round)
     local SettingsBtn = Instance.new("TextButton")
     SettingsBtn.Size = UDim2.new(0, 24, 0, 24)
-    SettingsBtn.Position = UDim2.new(1, -62, 0.5, -12)
+    SettingsBtn.Position = UDim2.new(1, -64, 0.5, -12)
     SettingsBtn.BackgroundColor3 = Theme.Element
     SettingsBtn.Text = "⚙"
     SettingsBtn.TextColor3 = Theme.Text
@@ -360,7 +693,7 @@ function tryxzlib:CreateWindow(config)
     SettingsBtn.AutoButtonColor = false
     SettingsBtn.ZIndex = 6
     SettingsBtn.Parent = Topbar
-    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(1, 0)
 
     for _, btn in ipairs({MinBtn, SettingsBtn}) do
         btn.MouseEnter:Connect(function() Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover}) end)
@@ -383,10 +716,14 @@ function tryxzlib:CreateWindow(config)
         if Minimized then
             MinBtn.Text = "+"
             BodyContainer.Visible = false
+            TopBottomCover.Visible = false
+            TopDivider.Visible = false
             Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, WinWidth, 0, TopbarHeight)})
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
+            TopBottomCover.Visible = true
+            TopDivider.Visible = true
             Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, WinWidth, 0, WinHeight)})
         end
     end)
@@ -394,7 +731,7 @@ function tryxzlib:CreateWindow(config)
     -- Toggle Keybind
     local UIHidden = false
     UserInputService.InputBegan:Connect(function(input, gpe)
-        if not gpe and input.KeyCode == Keybind then
+        if not gpe and input.KeyCode == Keybind and Main.Visible ~= nil then
             UIHidden = not UIHidden
             if UIHidden then
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
@@ -425,7 +762,7 @@ function tryxzlib:CreateWindow(config)
     SideDivider.Parent = Sidebar
 
     local TabContainer = Instance.new("ScrollingFrame")
-    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -54 or -12)
+    TabContainer.Size = UDim2.new(1, -12, 1, ShowProfile and -56 or -12)
     TabContainer.Position = UDim2.new(0, 6, 0, 6)
     TabContainer.BackgroundTransparency = 1
     TabContainer.ScrollBarThickness = 0
@@ -435,15 +772,15 @@ function tryxzlib:CreateWindow(config)
     TabLayout.Padding = UDim.new(0, 4)
     TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- Profile Card
+    -- Profile Card (Rounded)
     if ShowProfile then
         local ProfileFrame = Instance.new("Frame")
         ProfileFrame.Size = UDim2.new(1, -12, 0, 40)
-        ProfileFrame.Position = UDim2.new(0, 6, 1, -46)
+        ProfileFrame.Position = UDim2.new(0, 6, 1, -48)
         ProfileFrame.BackgroundColor3 = Theme.Element
         ProfileFrame.ClipsDescendants = true
         ProfileFrame.Parent = Sidebar
-        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 10)
+        Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 12)
 
         local Avatar = Instance.new("ImageLabel")
         Avatar.Size = UDim2.new(0, 26, 0, 26)
@@ -513,7 +850,7 @@ function tryxzlib:CreateWindow(config)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
-    Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 10)
+    Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 12)
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Theme.Accent
     CStroke.Thickness = 1
@@ -543,7 +880,7 @@ function tryxzlib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Special Haptics Toggle (Distinct Diamond / Rotating Check Style inside Settings Gear)
+    -- Special Haptics Toggle
     local HapticsBtn = Instance.new("TextButton")
     HapticsBtn.LayoutOrder = 2
     HapticsBtn.Size = UDim2.new(1, 0, 0, 36)
@@ -553,7 +890,7 @@ function tryxzlib:CreateWindow(config)
     HapticsBtn.AutoButtonColor = false
     HapticsBtn.ZIndex = 11
     HapticsBtn.Parent = SettingsPage
-    Instance.new("UICorner", HapticsBtn).CornerRadius = UDim.new(0, 10)
+    Instance.new("UICorner", HapticsBtn).CornerRadius = UDim.new(0, 12)
 
     local HStroke = Instance.new("UIStroke", HapticsBtn)
     HStroke.Color = HapticsEnabled and Theme.Accent or Theme.Divider
@@ -583,7 +920,6 @@ function tryxzlib:CreateWindow(config)
     HSub.ZIndex = 12
     HSub.Parent = HapticsBtn
 
-    -- Distinct Diamond / Morphing Square Indicator
     local HBox = Instance.new("Frame")
     HBox.Size = UDim2.new(0, 20, 0, 20)
     HBox.Position = UDim2.new(1, -30, 0.5, -10)
@@ -629,7 +965,7 @@ function tryxzlib:CreateWindow(config)
     DestroyBtn.AutoButtonColor = false
     DestroyBtn.ZIndex = 11
     DestroyBtn.Parent = SettingsPage
-    Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(0, 10)
+    Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(0, 12)
 
     DestroyBtn.MouseEnter:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(210, 60, 70)}) end)
     DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Color3.fromRGB(180, 50, 60)}) end)
@@ -666,7 +1002,7 @@ function tryxzlib:CreateWindow(config)
         TabBtn.Text = ""
         TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabContainer
-        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 10)
 
         local Indicator = Instance.new("Frame")
         Indicator.Size = UDim2.new(0, 3, 0, 0)
@@ -763,7 +1099,7 @@ function tryxzlib:CreateWindow(config)
             return ElementOrder
         end
 
-        -- 1. SECTIONS (Translucent Gray)
+        -- 1. SECTIONS (Translucent Gray & Rounded)
         function TabAPI:AddSection(text)
             local SecFrame = Instance.new("Frame")
             SecFrame.LayoutOrder = NextOrder()
@@ -771,7 +1107,7 @@ function tryxzlib:CreateWindow(config)
             SecFrame.BackgroundColor3 = Theme.GrayTranslucent
             SecFrame.BackgroundTransparency = 0.65
             SecFrame.Parent = Page
-            Instance.new("UICorner", SecFrame).CornerRadius = UDim.new(0, 8)
+            Instance.new("UICorner", SecFrame).CornerRadius = UDim.new(0, 10)
 
             local SecLbl = Instance.new("TextLabel")
             SecLbl.Size = UDim2.new(1, -16, 1, 0)
@@ -807,7 +1143,7 @@ function tryxzlib:CreateWindow(config)
             Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
         end
 
-        -- 3. LABELS (Translucent Gray)
+        -- 3. LABELS (Translucent Gray & Rounded)
         function TabAPI:AddLabel(text)
             local LblFrame = Instance.new("Frame")
             LblFrame.LayoutOrder = NextOrder()
@@ -815,7 +1151,7 @@ function tryxzlib:CreateWindow(config)
             LblFrame.BackgroundColor3 = Theme.GrayTranslucent
             LblFrame.BackgroundTransparency = 0.6
             LblFrame.Parent = Page
-            Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 12)
 
             local Lbl = Instance.new("TextLabel")
             Lbl.Size = UDim2.new(1, -18, 1, 0)
@@ -835,7 +1171,7 @@ function tryxzlib:CreateWindow(config)
             return LabelObj
         end
 
-        -- 4. PARAGRAPHS (Translucent Gray)
+        -- 4. PARAGRAPHS (Translucent Gray & Rounded)
         function TabAPI:AddParagraph(config)
             local TitleText = config.Title or "Title"
             local ContentText = config.Content or config.Text or ""
@@ -847,7 +1183,7 @@ function tryxzlib:CreateWindow(config)
             ParaFrame.BackgroundColor3 = Theme.GrayTranslucent
             ParaFrame.BackgroundTransparency = 0.6
             ParaFrame.Parent = Page
-            Instance.new("UICorner", ParaFrame).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", ParaFrame).CornerRadius = UDim.new(0, 12)
 
             local Pad = Instance.new("UIPadding", ParaFrame)
             Pad.PaddingTop = UDim.new(0, 8)
@@ -891,7 +1227,7 @@ function tryxzlib:CreateWindow(config)
             return ParaObj
         end
 
-        -- 5. BUTTONS (Supports Optional Icon)
+        -- 5. BUTTONS (Supports Optional Icon & Rounded)
         function TabAPI:AddButton(config)
             local Name = config.Name or "Button"
             local Icon = config.Icon or nil
@@ -905,7 +1241,7 @@ function tryxzlib:CreateWindow(config)
             Btn.Text = ""
             Btn.AutoButtonColor = false
             Btn.Parent = Page
-            Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
 
             if hasIcon then
                 CreateIcon(Btn, Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
@@ -950,7 +1286,7 @@ function tryxzlib:CreateWindow(config)
             end)
         end
 
-        -- 6. TOGGLES (Supports Optional Icon)
+        -- 6. TOGGLES (Supports Optional Icon & Rounded)
         function TabAPI:AddToggle(config)
             local Name = config.Name or "Toggle"
             local Icon = config.Icon or nil
@@ -965,7 +1301,7 @@ function tryxzlib:CreateWindow(config)
             ToggleBtn.Text = ""
             ToggleBtn.AutoButtonColor = false
             ToggleBtn.Parent = Page
-            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 12)
 
             if hasIcon then
                 CreateIcon(ToggleBtn, Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2)
@@ -1015,7 +1351,7 @@ function tryxzlib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- 7. SLIDERS
+        -- 7. SLIDERS (Rounded)
         function TabAPI:AddSlider(config)
             local Name = config.Name or "Slider"
             local Min = config.Min or 0
@@ -1028,7 +1364,7 @@ function tryxzlib:CreateWindow(config)
             SliderFrame.Size = UDim2.new(1, 0, 0, 42)
             SliderFrame.BackgroundColor3 = Theme.Element
             SliderFrame.Parent = Page
-            Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 12)
 
             local Title = Instance.new("TextLabel")
             Title.Size = UDim2.new(1, -60, 0, 20)
@@ -1125,7 +1461,7 @@ function tryxzlib:CreateWindow(config)
             return SliderObj
         end
 
-        -- 8. DROPDOWN (Single Selection)
+        -- 8. DROPDOWN (Rounded)
         function TabAPI:AddDropdown(config)
             local Name = config.Name or "Dropdown"
             local Options = config.Options or {}
@@ -1139,7 +1475,7 @@ function tryxzlib:CreateWindow(config)
             DropFrame.BackgroundColor3 = Theme.Element
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = Page
-            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 12)
 
             local Header = Instance.new("TextButton")
             Header.Size = UDim2.new(1, 0, 0, 32)
@@ -1211,7 +1547,7 @@ function tryxzlib:CreateWindow(config)
                 OptBtn.TextXAlignment = Enum.TextXAlignment.Left
                 OptBtn.AutoButtonColor = false
                 OptBtn.Parent = ListHolder
-                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 7)
+                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
 
                 OptBtn.MouseEnter:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover, TextColor3 = Theme.Text}) end)
                 OptBtn.MouseLeave:Connect(function() Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background, TextColor3 = Theme.SubText}) end)
@@ -1223,7 +1559,7 @@ function tryxzlib:CreateWindow(config)
             end
         end
 
-        -- 9. MULTI-DROPDOWN (Multiple Selection)
+        -- 9. MULTI-DROPDOWN (Rounded)
         function TabAPI:AddMultiDropdown(config)
             local Name = config.Name or "MultiDropdown"
             local Options = config.Options or {}
@@ -1243,7 +1579,7 @@ function tryxzlib:CreateWindow(config)
             DropFrame.BackgroundColor3 = Theme.Element
             DropFrame.ClipsDescendants = true
             DropFrame.Parent = Page
-            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 12)
 
             local Header = Instance.new("TextButton")
             Header.Size = UDim2.new(1, 0, 0, 32)
@@ -1323,7 +1659,7 @@ function tryxzlib:CreateWindow(config)
                 OptBtn.TextXAlignment = Enum.TextXAlignment.Left
                 OptBtn.AutoButtonColor = false
                 OptBtn.Parent = ListHolder
-                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 7)
+                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
 
                 OptBtn.MouseButton1Click:Connect(function()
                     TriggerHaptic(0.25)
