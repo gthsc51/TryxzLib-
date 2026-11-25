@@ -1,7 +1,7 @@
 --[[
-    TryxzLib by gthsc51
-    TryxzLib = Library that I think should be famous.
-]]
+   TryxzLib by gthsc51
+    Modern library, to use exploits in Roblox
+]] 
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -570,7 +570,7 @@ function TryxzLib:Dialog(config)
     ConfirmBtn.MouseButton1Click:Connect(function() CloseDialog(OnConfirm) end)
 end
 
-local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback, onDragMove)
+local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback)
     local dragging, dragInput, dragStart, startPos, moved = false, nil, nil, nil, false
 
     dragHandle.InputBegan:Connect(function(input)
@@ -606,13 +606,9 @@ local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCall
                 newX = math.clamp(newX, 8, math.max(8, screenSize.X - objSize.X - 8))
                 newY = math.clamp(newY, 8, math.max(8, screenSize.Y - objSize.Y - 8))
             end
-            local nextPos = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
             Tween(targetFrame, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = nextPos
+                Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
             })
-            if onDragMove then
-                onDragMove(nextPos)
-            end
         end
     end)
 end
@@ -632,7 +628,7 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM WITH "Note:" & "Info:" HEADERS + FALLBACK MESSAGES
+-- KEY SYSTEM WITH "Note:", "Info:", & "Copy Key Link"
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
@@ -642,7 +638,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KeyBox.Size = UDim2.new(0, 345, 0, 0)
     KeyBox.AutomaticSize = Enum.AutomaticSize.Y
     KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
-    KeyBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+    KeyBox.Position = UDim2.new(0.5, 0, 0.48, 0)
     KeyBox.BackgroundColor3 = Theme.Background
     KeyBox.BorderSizePixel = 0
     KeyBox.ZIndex = 10
@@ -705,17 +701,17 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KInner.Parent = KeyBox
 
     local KPad = Instance.new("UIPadding", KInner)
-    KPad.PaddingTop, KPad.PaddingBottom = UDim.new(0, 18), UDim.new(0, 18)
+    KPad.PaddingTop, KPad.PaddingBottom = UDim.new(0, 16), UDim.new(0, 16)
     KPad.PaddingLeft, KPad.PaddingRight = UDim.new(0, 20), UDim.new(0, 20)
 
     local KLayout = Instance.new("UIListLayout", KInner)
     KLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    KLayout.Padding = UDim.new(0, 10)
+    KLayout.Padding = UDim.new(0, 8)
     KLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
     local IconBadge = Instance.new("Frame")
     IconBadge.LayoutOrder = 1
-    IconBadge.Size = UDim2.new(0, 44, 0, 44)
+    IconBadge.Size = UDim2.new(0, 40, 0, 40)
     IconBadge.BackgroundColor3 = Theme.Element
     IconBadge.ZIndex = 12
     IconBadge.Parent = KInner
@@ -724,20 +720,20 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     IBStroke.Color = Theme.Accent
     IBStroke.Thickness = 1.2
 
-    CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 22, UDim2.new(0.5, -11, 0.5, -11), 15)
+    CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 20, UDim2.new(0.5, -10, 0.5, -10), 15)
 
     local KTitleLbl = Instance.new("TextLabel")
     KTitleLbl.LayoutOrder = 2
-    KTitleLbl.Size = UDim2.new(1, 0, 0, 20)
+    KTitleLbl.Size = UDim2.new(1, 0, 0, 18)
     KTitleLbl.BackgroundTransparency = 1
     KTitleLbl.Text = KeyConfig.Title or Cfg.Title
     KTitleLbl.TextColor3 = Theme.Text
     KTitleLbl.Font = Enum.Font.GothamBold
-    KTitleLbl.TextSize = 15
+    KTitleLbl.TextSize = 14
     KTitleLbl.ZIndex = 12
     KTitleLbl.Parent = KInner
 
-    -- "Note:" Section (Always displays "Note:" header and fallback text if empty)
+    -- "Note:" Section
     local NoteFrame = Instance.new("Frame")
     NoteFrame.LayoutOrder = 3
     NoteFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -749,7 +745,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
 
     local NPad = Instance.new("UIPadding", NoteFrame)
-    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 7), UDim.new(0, 7)
+    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
     NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
 
     local NList = Instance.new("UIListLayout", NoteFrame)
@@ -767,7 +763,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     NoteHeaderLbl.TextXAlignment = Enum.TextXAlignment.Left
     NoteHeaderLbl.ZIndex = 13
     NoteHeaderLbl.Parent = NoteFrame
-    BindAccent(NoteHeaderLbl, "TextColor3")
 
     local hasNote = KeyConfig.Note ~= nil and tostring(KeyConfig.Note):gsub("%s+", "") ~= ""
     local NoteLbl = Instance.new("TextLabel")
@@ -778,13 +773,13 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     NoteLbl.Text = hasNote and tostring(KeyConfig.Note) or "There is no note at this time."
     NoteLbl.TextColor3 = Theme.SubText
     NoteLbl.Font = Enum.Font.Gotham
-    NoteLbl.TextSize = 11
+    NoteLbl.TextSize = 10
     NoteLbl.TextWrapped = true
     NoteLbl.TextXAlignment = Enum.TextXAlignment.Left
     NoteLbl.ZIndex = 13
     NoteLbl.Parent = NoteFrame
 
-    -- "Info:" Paragraph Card (Always displays "Info:" above paragraph and fallback text if missing)
+    -- "Info:" Paragraph Card
     local InfoCard = Instance.new("Frame")
     InfoCard.LayoutOrder = 4
     InfoCard.Size = UDim2.new(1, 0, 0, 0)
@@ -796,11 +791,11 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
 
     local IPad = Instance.new("UIPadding", InfoCard)
-    IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
-    IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
+    IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
+    IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
 
     local IList = Instance.new("UIListLayout", InfoCard)
-    IList.Padding = UDim.new(0, 3)
+    IList.Padding = UDim.new(0, 2)
     IList.SortOrder = Enum.SortOrder.LayoutOrder
 
     local InfoTopHeader = Instance.new("TextLabel")
@@ -814,7 +809,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     InfoTopHeader.TextXAlignment = Enum.TextXAlignment.Left
     InfoTopHeader.ZIndex = 13
     InfoTopHeader.Parent = InfoCard
-    BindAccent(InfoTopHeader, "TextColor3")
 
     local hasInfo = type(KeyConfig.Info) == "table" and ((KeyConfig.Info.Content and tostring(KeyConfig.Info.Content):gsub("%s+", "") ~= "") or (KeyConfig.Info.Text and tostring(KeyConfig.Info.Text):gsub("%s+", "") ~= ""))
     if hasInfo and KeyConfig.Info.Title and tostring(KeyConfig.Info.Title) ~= "" then
@@ -825,7 +819,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
         ISubTitle.Text = tostring(KeyConfig.Info.Title)
         ISubTitle.TextColor3 = Theme.Text
         ISubTitle.Font = Enum.Font.GothamBold
-        ISubTitle.TextSize = 11
+        ISubTitle.TextSize = 10
         ISubTitle.TextXAlignment = Enum.TextXAlignment.Left
         ISubTitle.ZIndex = 13
         ISubTitle.Parent = InfoCard
@@ -847,7 +841,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local InputHolder = Instance.new("Frame")
     InputHolder.LayoutOrder = 5
-    InputHolder.Size = UDim2.new(1, 0, 0, 36)
+    InputHolder.Size = UDim2.new(1, 0, 0, 34)
     InputHolder.BackgroundColor3 = Theme.Element
     InputHolder.ZIndex = 12
     InputHolder.Parent = KInner
@@ -876,7 +870,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local AccessBtn = Instance.new("TextButton")
     AccessBtn.LayoutOrder = 6
-    AccessBtn.Size = UDim2.new(1, 0, 0, 38)
+    AccessBtn.Size = UDim2.new(1, 0, 0, 36)
     AccessBtn.BackgroundColor3 = Theme.Accent
     AccessBtn.Text = ""
     AccessBtn.AutoButtonColor = false
@@ -930,25 +924,35 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
         Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
     end)
 
-    if KeyConfig.GetKeyLink and KeyConfig.GetKeyLink ~= "" then
+    -- Always show "Copy Key Link" button when GetKeyLink is present
+    if KeyConfig.GetKeyLink and tostring(KeyConfig.GetKeyLink) ~= "" then
         local LinkBtn = Instance.new("TextButton")
+        LinkBtn.Name = "CopyKeyLinkBtn"
         LinkBtn.LayoutOrder = 7
-        LinkBtn.Size = UDim2.new(1, 0, 0, 26)
-        LinkBtn.BackgroundColor3 = Theme.GrayTranslucent
-        LinkBtn.BackgroundTransparency = 0.65
+        LinkBtn.Size = UDim2.new(1, 0, 0, 28)
+        LinkBtn.BackgroundColor3 = Theme.Element
+        LinkBtn.BackgroundTransparency = 0.2
         LinkBtn.Text = "Copy Key Link"
-        LinkBtn.TextColor3 = Theme.SubText
-        LinkBtn.Font = Enum.Font.GothamSemibold
+        LinkBtn.TextColor3 = Theme.Text
+        LinkBtn.Font = Enum.Font.GothamBold
         LinkBtn.TextSize = 11
         LinkBtn.AutoButtonColor = false
-        LinkBtn.ZIndex = 12
+        LinkBtn.ZIndex = 14
         LinkBtn.Parent = KInner
         Instance.new("UICorner", LinkBtn).CornerRadius = UDim.new(1, 0)
 
+        local LStroke = Instance.new("UIStroke", LinkBtn)
+        LStroke.Color = Theme.Accent
+        LStroke.Thickness = 1
+        LStroke.Transparency = 0.45
+
         LinkBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.2)
-            if setclipboard then setclipboard(KeyConfig.GetKeyLink) end
-            TryxzLib:Notify({Title = "Link Copied", Text = "Key link copied to your clipboard.", Duration = 3})
+            TryxzLib:PlaySound("Click")
+            if setclipboard then
+                pcall(function() setclipboard(tostring(KeyConfig.GetKeyLink)) end)
+            end
+            TryxzLib:Notify({Title = "Link Copied", Text = "Key link copied to clipboard.", Duration = 3})
         end)
     end
 
@@ -1847,7 +1851,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 12. DROPDOWN (Fixed Icon Rendering on Header & Options)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -1997,7 +2000,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
-    -- 13. MULTI-DROPDOWN (Fixed Icon Rendering on Header & Options)
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -2167,7 +2169,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (LONG TAB NAMES + BOTTOM WHITE DRAG LINE + GEAR KEYBINDS DROPDOWN)
+-- CREATE MAIN WINDOW (REAL-TIME SYNCED WHITE BOTTOM DRAG LINE)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2299,7 +2301,7 @@ function TryxzLib:CreateWindow(config)
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(0, 0, 0, 0)
-    Main.Position = UDim2.new(0.5, -Cfg.WinW/2, 0.5, -Cfg.WinH/2)
+    Main.Position = UDim2.new(0.5, -Cfg.WinW/2, 0.5, -Cfg.WinH/2 - 8)
     Main.BackgroundColor3 = Theme.Sidebar
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
@@ -2318,43 +2320,52 @@ function TryxzLib:CreateWindow(config)
     -- Translucent White Animated Drag Line Below the GUI
     local BottomDragBar = Instance.new("TextButton")
     BottomDragBar.Name = "BottomDragLine"
-    BottomDragBar.Size = UDim2.new(0, 130, 0, 5)
-    BottomDragBar.Position = UDim2.new(0.5, 0, 0.5, (Cfg.WinH * Cfg.UIScale) / 2 + 10)
+    BottomDragBar.Size = UDim2.new(0, 136, 0, 5)
+    BottomDragBar.Position = UDim2.new(0.5, 0, 0.5, 170)
     BottomDragBar.AnchorPoint = Vector2.new(0.5, 0)
     BottomDragBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    BottomDragBar.BackgroundTransparency = 0.42
+    BottomDragBar.BackgroundTransparency = 0.38
     BottomDragBar.Text = ""
     BottomDragBar.AutoButtonColor = false
     BottomDragBar.Visible = false
-    BottomDragBar.ZIndex = 12
+    BottomDragBar.ZIndex = 15
     BottomDragBar.Parent = ScreenGui
     Instance.new("UICorner", BottomDragBar).CornerRadius = UDim.new(1, 0)
 
-    local function SyncBottomDragBar(curH)
-        local heightPx = (curH or (State.Minimized and Cfg.TopH or Cfg.WinH)) * MainUIScale.Scale
-        local centerX = Main.Position.X.Offset + (Main.AbsoluteSize.X / 2)
-        local centerY = Main.Position.Y.Offset + (Main.AbsoluteSize.Y / 2)
-        BottomDragBar.Position = UDim2.new(0, centerX, 0, centerY + (heightPx / 2) + 10)
-    end
+    local bDragging, bDragInput, bDragStart, bStartMainPos = false, nil, nil, nil
+
+    -- Real-time position sync so the white line always sits cleanly under Main
+    local DragSyncConn = RunService.RenderStepped:Connect(function()
+        if Main.Visible and not State.Collapsed and not bDragging then
+            local absPos = Main.AbsolutePosition
+            local absSize = Main.AbsoluteSize
+            if absSize.Y > 4 then
+                local centerX = absPos.X + (absSize.X / 2)
+                local bottomY = absPos.Y + absSize.Y + 8
+                BottomDragBar.Position = UDim2.new(0, centerX, 0, bottomY)
+            end
+        end
+    end)
 
     BottomDragBar.MouseEnter:Connect(function()
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 165, 0, 6), BackgroundTransparency = 0.15})
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 172, 0, 6), BackgroundTransparency = 0.12})
     end)
     BottomDragBar.MouseLeave:Connect(function()
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+        if not bDragging then
+            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
+        end
     end)
 
-    local bDragging, bDragInput, bDragStart, bStartMainPos = false, nil, nil, nil
     BottomDragBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             bDragging = true
             bDragStart = input.Position
             bStartMainPos = Main.Position
-            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 180, 0, 6), BackgroundTransparency = 0.1})
+            Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 185, 0, 6), BackgroundTransparency = 0.08})
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     bDragging = false
-                    Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+                    Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
                 end
             end)
         end
@@ -2369,9 +2380,10 @@ function TryxzLib:CreateWindow(config)
             local delta = input.Position - bDragStart
             local nextMainPos = UDim2.new(bStartMainPos.X.Scale, bStartMainPos.X.Offset + delta.X, bStartMainPos.Y.Scale, bStartMainPos.Y.Offset + delta.Y)
             Tween(Main, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = nextMainPos})
-            Tween(BottomDragBar, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, nextMainPos.X.Offset + (Main.AbsoluteSize.X / 2), 0, nextMainPos.Y.Offset + Main.AbsoluteSize.Y + 10)
-            })
+            BottomDragBar.Position = UDim2.new(
+                0, nextMainPos.X.Offset + (Main.AbsoluteSize.X / 2),
+                0, nextMainPos.Y.Offset + Main.AbsoluteSize.Y + 8
+            )
         end
     end)
 
@@ -2400,9 +2412,10 @@ function TryxzLib:CreateWindow(config)
         BottomDragBar.Size = UDim2.new(0, 0, 0, 5)
         SetBlurActive(true)
         Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
-        task.delay(0.12, function()
-            SyncBottomDragBar(Cfg.WinH)
-            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 130, 0, 5)})
+        task.delay(0.15, function()
+            if BottomDragBar and BottomDragBar.Visible then
+                Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 136, 0, 5)})
+            end
         end)
         if autoKeyBypassed then
             task.delay(0.35, function()
@@ -2448,12 +2461,13 @@ function TryxzLib:CreateWindow(config)
         FloatingUIBtn.Visible = false
         Main.Visible = true
         BottomDragBar.Visible = true
+        BottomDragBar.Size = UDim2.new(0, 0, 0, 5)
         SetBlurActive(not State.Minimized)
-        local targetH = State.Minimized and Cfg.TopH or Cfg.WinH
-        Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, targetH)})
-        task.delay(0.12, function()
-            SyncBottomDragBar(targetH)
-            Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 130, 0, 5), BackgroundTransparency = 0.42})
+        Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
+        task.delay(0.15, function()
+            if BottomDragBar and BottomDragBar.Visible then
+                Tween(BottomDragBar, Tweens.Smooth, {Size = UDim2.new(0, 136, 0, 5), BackgroundTransparency = 0.38})
+            end
         end)
     end
 
@@ -2466,8 +2480,6 @@ function TryxzLib:CreateWindow(config)
                 0, math.clamp(FloatingUIBtn.Position.X.Offset, 8, math.max(8, s.X - 52)),
                 0, math.clamp(FloatingUIBtn.Position.Y.Offset, 8, math.max(8, s.Y - 52))
             )
-        elseif Main.Visible then
-            SyncBottomDragBar()
         end
     end)
 
@@ -2488,9 +2500,7 @@ function TryxzLib:CreateWindow(config)
     Topbar.BackgroundTransparency = 1
     Topbar.ZIndex = 5
     Topbar.Parent = Main
-    MakeDraggable(Topbar, Main, false, nil, function(nextPos)
-        BottomDragBar.Position = UDim2.new(0, nextPos.X.Offset + (Main.AbsoluteSize.X / 2), 0, nextPos.Y.Offset + Main.AbsoluteSize.Y + 10)
-    end)
+    MakeDraggable(Topbar, Main, false)
 
     local TopDivider = Instance.new("Frame")
     TopDivider.Size = UDim2.new(1, 0, 0, 1)
@@ -2645,14 +2655,12 @@ function TryxzLib:CreateWindow(config)
             TopDivider.Visible = false
             SetBlurActive(false)
             Tween(Main, Tweens.Smooth, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.TopH)})
-            task.delay(0.1, function() SyncBottomDragBar(Cfg.TopH) end)
         else
             MinBtn.Text = "-"
             BodyContainer.Visible = true
             TopDivider.Visible = true
             SetBlurActive(true)
             Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
-            task.delay(0.12, function() SyncBottomDragBar(Cfg.WinH) end)
         end
     end)
 
@@ -2670,9 +2678,7 @@ function TryxzLib:CreateWindow(config)
                 Main.Visible = true
                 BottomDragBar.Visible = true
                 SetBlurActive(not State.Minimized)
-                local targetH = State.Minimized and Cfg.TopH or Cfg.WinH
-                Tween(Main, Tweens.Bounce, {Size = UDim2.new(0, Cfg.WinW, 0, targetH)})
-                task.delay(0.12, function() SyncBottomDragBar(targetH) end)
+                Tween(Main, Tweens.Bounce, {Size = State.Minimized and UDim2.new(0, Cfg.WinW, 0, Cfg.TopH) or UDim2.new(0, Cfg.WinW, 0, Cfg.WinH)})
             end
         end
     end)
@@ -2852,7 +2858,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.5 by gthsc51"
+    CTitle.Text = "TryxzLib v3.6 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -3257,7 +3263,6 @@ function TryxzLib:CreateWindow(config)
         ScaleValLbl.Text = string.format("%.2fx", clamped)
         local pct = (clamped - 0.75) / 0.60
         Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(pct, 0, 1, 0)})
-        SyncBottomDragBar()
         if saveNow then WriteConfigFile() end
     end
 
@@ -3647,6 +3652,7 @@ function TryxzLib:CreateWindow(config)
                 TriggerHaptic(0.4)
                 SetBlurActive(false)
                 BottomDragBar.Visible = false
+                if DragSyncConn then DragSyncConn:Disconnect() end
                 if StatsConnection then StatsConnection:Disconnect() end
                 local t = Tween(Main, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
                 t.Completed:Wait()
@@ -3672,7 +3678,6 @@ function TryxzLib:CreateWindow(config)
         RegisterBindable(bindInfo)
     end
 
-    -- CreateTab supporting long tab names cleanly
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
         local tabText = tostring(name or "Tab")
@@ -3881,3 +3886,4 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
+ 
