@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v4.1 by gthsc51
-    High-Visual-Impact, Shimmer & Ripple Animated Luau UI Library for Roblox Executors
+    TryxzLib v4.2 by gthsc51
+    Futuristic Sci-Fi HUD Edition: Particle Canvas, Holo Scanlines, Cyber-Decode Text & Reactive Pulse Aura
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -142,6 +142,7 @@ for k, v in pairs(Themes["Obsidian"]) do Theme[k] = v end
 local ThemeBindings = {}
 local GradientBindings = {}
 local AnimatedGradientBorders = {}
+local SoundPulseCallbacks = {}
 
 local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -173,7 +174,6 @@ local function ApplyAccentGradient(parent, rotation, animatedSpin)
     return grad
 end
 
--- Continuous smooth gradient rotation loop for glowing borders
 RunService.RenderStepped:Connect(function(dt)
     for i = #AnimatedGradientBorders, 1, -1 do
         local g = AnimatedGradientBorders[i]
@@ -185,7 +185,38 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
--- Click Ripple Effect Utility
+-- ==========================================
+-- FUTURISTIC VISUAL EFFECTS (PARTICLES, HOLO SCANLINES, CYBER-DECODE, PULSE AURA)
+-- ==========================================
+local ScrambleGlyphs = {"#", "@", "%", "&", "0", "1", "X", "Z", "/", "+"}
+local function ScrambleText(labelObj, targetText, duration)
+    if not labelObj or not labelObj.Parent then return end
+    targetText = tostring(targetText)
+    local len = #targetText
+    if len == 0 then labelObj.Text = "" return end
+    task.spawn(function()
+        local steps = math.clamp(math.floor((duration or 0.28) / 0.025), 5, 16)
+        for s = 1, steps do
+            if not labelObj or not labelObj.Parent then return end
+            local revealed = math.floor((s / steps) * len)
+            local out = string.sub(targetText, 1, revealed)
+            for j = revealed + 1, len do
+                local ch = string.sub(targetText, j, j)
+                if ch == " " then
+                    out = out .. " "
+                else
+                    out = out .. ScrambleGlyphs[math.random(1, #ScrambleGlyphs)]
+                end
+            end
+            labelObj.Text = out
+            task.wait(0.025)
+        end
+        if labelObj and labelObj.Parent then
+            labelObj.Text = targetText
+        end
+    end)
+end
+
 local function SpawnRipple(buttonObj, customColor)
     if not buttonObj or not buttonObj.Parent then return end
     task.spawn(function()
@@ -220,8 +251,21 @@ local function SpawnRipple(buttonObj, customColor)
     end)
 end
 
--- Periodic Diagonal Shimmer Sweep Utility
+-- Safe Shimmer (Never affects parent AutomaticSize)
 local function AttachShimmer(parentFrame, intervalSec)
+    local clipper = Instance.new("Frame")
+    clipper.Name = "ShimmerClipper"
+    clipper.Size = UDim2.new(1, 0, 1, 0)
+    clipper.BackgroundTransparency = 1
+    clipper.ClipsDescendants = true
+    clipper.ZIndex = (parentFrame.ZIndex or 4) + 1
+    clipper.Parent = parentFrame
+
+    local corner = parentFrame:FindFirstChildOfClass("UICorner")
+    if corner then
+        Instance.new("UICorner", clipper).CornerRadius = corner.CornerRadius
+    end
+
     local shimmer = Instance.new("Frame")
     shimmer.Name = "ShimmerBeam"
     shimmer.Size = UDim2.new(0.32, 0, 1.8, 0)
@@ -230,8 +274,8 @@ local function AttachShimmer(parentFrame, intervalSec)
     shimmer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     shimmer.BackgroundTransparency = 0.91
     shimmer.BorderSizePixel = 0
-    shimmer.ZIndex = (parentFrame.ZIndex or 4) + 1
-    shimmer.Parent = parentFrame
+    shimmer.ZIndex = clipper.ZIndex
+    shimmer.Parent = clipper
 
     local grad = Instance.new("UIGradient", shimmer)
     grad.Transparency = NumberSequence.new{
@@ -248,6 +292,102 @@ local function AttachShimmer(parentFrame, intervalSec)
                 Tween(shimmer, TweenInfo.new(0.95, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
                     Position = UDim2.new(1.25, 0, -0.4, 0)
                 })
+            end
+        end
+    end)
+end
+
+-- Floating Particle Constellation Background
+local function AttachParticleCanvas(parentFrame, count)
+    local canvas = Instance.new("Frame")
+    canvas.Name = "ParticleCanvas"
+    canvas.Size = UDim2.new(1, 0, 1, 0)
+    canvas.BackgroundTransparency = 1
+    canvas.ClipsDescendants = true
+    canvas.ZIndex = (parentFrame.ZIndex or 1) + 1
+    canvas.Parent = parentFrame
+
+    local particles = {}
+    for i = 1, (count or 18) do
+        local sz = math.random(2, 4)
+        local dot = Instance.new("Frame")
+        dot.Size = UDim2.new(0, sz, 0, sz)
+        dot.Position = UDim2.new(math.random() * 0.95, 0, math.random() * 0.95, 0)
+        dot.BackgroundColor3 = (i % 2 == 0) and Theme.Accent or (Theme.AccentSecondary or Theme.Accent)
+        dot.BackgroundTransparency = math.random(55, 82) / 100
+        dot.BorderSizePixel = 0
+        dot.ZIndex = canvas.ZIndex
+        dot.Parent = canvas
+        Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+        BindTheme(dot, "BackgroundColor3", (i % 2 == 0) and "Accent" or "AccentSecondary")
+
+        table.insert(particles, {
+            Obj = dot,
+            X = dot.Position.X.Scale,
+            Y = dot.Position.Y.Scale,
+            VX = (math.random(-10, 10) / 1000),
+            VY = -(math.random(6, 18) / 1000)
+        })
+    end
+
+    RunService.RenderStepped:Connect(function(dt)
+        if not canvas.Parent or not parentFrame.Visible then return end
+        for _, p in ipairs(particles) do
+            p.X += p.VX * dt * 2.5
+            p.Y += p.VY * dt * 2.5
+            if p.Y < -0.04 then
+                p.Y = 1.04
+                p.X = math.random() * 0.95
+            end
+            if p.X < 0 then p.X = 1 elseif p.X > 1 then p.X = 0 end
+            p.Obj.Position = UDim2.new(p.X, 0, p.Y, 0)
+        end
+    end)
+end
+
+-- Holographic Scanlines & Laser Sweep
+local function AttachHoloGrid(parentFrame)
+    local holo = Instance.new("Frame")
+    holo.Name = "HoloGridOverlay"
+    holo.Size = UDim2.new(1, 0, 1, 0)
+    holo.BackgroundTransparency = 1
+    holo.ClipsDescendants = true
+    holo.ZIndex = (parentFrame.ZIndex or 1) + 1
+    holo.Parent = parentFrame
+
+    for i = 1, 14 do
+        local line = Instance.new("Frame")
+        line.Size = UDim2.new(1, 0, 0, 1)
+        line.Position = UDim2.new(0, 0, i / 15, 0)
+        line.BackgroundColor3 = Theme.Accent
+        line.BackgroundTransparency = 0.94
+        line.BorderSizePixel = 0
+        line.ZIndex = holo.ZIndex
+        line.Parent = holo
+        BindAccent(line, "BackgroundColor3")
+    end
+
+    local laser = Instance.new("Frame")
+    laser.Name = "HoloLaser"
+    laser.Size = UDim2.new(1, 0, 0, 2)
+    laser.Position = UDim2.new(0, 0, 0, 0)
+    laser.BackgroundColor3 = Color3.new(1, 1, 1)
+    laser.BackgroundTransparency = 0.72
+    laser.BorderSizePixel = 0
+    laser.ZIndex = holo.ZIndex + 1
+    laser.Parent = holo
+    ApplyAccentGradient(laser, 0)
+
+    task.spawn(function()
+        while holo and holo.Parent do
+            if parentFrame.Visible then
+                laser.Position = UDim2.new(0, 0, 0, 0)
+                local t = Tween(laser, TweenInfo.new(3.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                    Position = UDim2.new(0, 0, 1, -2)
+                })
+                t.Completed:Wait()
+            else
+                task.wait(0.5)
             end
         end
     end)
@@ -368,7 +508,7 @@ local function DestroyBlur()
 end
 
 -- ==========================================
--- SOUND SYSTEM
+-- SOUND SYSTEM (TRIGGERS REACTIVE PULSE AURA)
 -- ==========================================
 local PresetOrder = {"Soft Pop", "Mechanical", "Bubble", "Cyber"}
 local SoundPresets = {
@@ -470,6 +610,9 @@ function TryxzLib:SetSounds(soundTable)
 end
 
 function TryxzLib:PlaySound(soundOrType, customVolume)
+    for _, cb in ipairs(SoundPulseCallbacks) do
+        task.spawn(cb, soundOrType)
+    end
     if not SoundState.Enabled then return end
     local id = CustomNamedSounds[soundOrType] or SoundState[soundOrType] or tostring(soundOrType)
     if not id or id == "" or id == "none" then return end
@@ -676,128 +819,6 @@ local function AttachTooltip(guiObj, text)
             TooltipFrame.Visible = false
         end
     end)
-end
-
--- ==========================================
--- FLOATING ACTIVE KEYBIND LIST HUD
--- ==========================================
-local ActiveKeybindHud = nil
-function TryxzLib:CreateKeybindList(kCfg)
-    kCfg = kCfg or {}
-    if ActiveKeybindHud and ActiveKeybindHud.Frame then ActiveKeybindHud.Frame:Destroy() end
-
-    local Panel = Instance.new("Frame")
-    Panel.Name = "TryxzKeybindHUD"
-    Panel.Size = UDim2.new(0, 195, 0, 32)
-    Panel.AutomaticSize = Enum.AutomaticSize.Y
-    Panel.Position = kCfg.Position or UDim2.new(1, -212, 0.35, 0)
-    Panel.BackgroundColor3 = Theme.Sidebar
-    Panel.BorderSizePixel = 0
-    Panel.ZIndex = 34
-    Panel.Parent = ScreenGui
-    Instance.new("UICorner", Panel).CornerRadius = UDim.new(0, 14)
-    BindTheme(Panel, "BackgroundColor3", "Sidebar")
-
-    local KStroke = Instance.new("UIStroke", Panel)
-    KStroke.Color = Color3.new(1, 1, 1)
-    KStroke.Thickness = 1.3
-    ApplyAccentGradient(KStroke, 45, true)
-
-    local Pad = Instance.new("UIPadding", Panel)
-    Pad.PaddingTop, Pad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
-    Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
-
-    local List = Instance.new("UIListLayout", Panel)
-    List.Padding = UDim.new(0, 4)
-    List.SortOrder = Enum.SortOrder.LayoutOrder
-
-    local Header = Instance.new("TextLabel")
-    Header.LayoutOrder = 0
-    Header.Size = UDim2.new(1, 0, 0, 16)
-    Header.BackgroundTransparency = 1
-    Header.Text = "⌨  ACTIVE BINDS"
-    Header.TextColor3 = Theme.Accent
-    Header.Font = Enum.Font.GothamBlack
-    Header.TextSize = 10
-    Header.TextXAlignment = Enum.TextXAlignment.Left
-    Header.ZIndex = 35
-    Header.Parent = Panel
-    BindAccent(Header, "TextColor3")
-
-    local EmptyLbl = Instance.new("TextLabel")
-    EmptyLbl.LayoutOrder = 1
-    EmptyLbl.Size = UDim2.new(1, 0, 0, 14)
-    EmptyLbl.BackgroundTransparency = 1
-    EmptyLbl.Text = "No active toggles"
-    EmptyLbl.TextColor3 = Theme.SubText
-    EmptyLbl.Font = Enum.Font.Gotham
-    EmptyLbl.TextSize = 10
-    EmptyLbl.TextXAlignment = Enum.TextXAlignment.Left
-    EmptyLbl.ZIndex = 35
-    EmptyLbl.Parent = Panel
-
-    MakeDraggable(Panel, Panel, true)
-
-    local Rows = {}
-    ActiveKeybindHud = {
-        Frame = Panel,
-        Update = function(id, name, keyName, isActive)
-            if not Panel.Parent then return end
-            if isActive then
-                if not Rows[id] then
-                    local r = Instance.new("Frame")
-                    r.LayoutOrder = 2
-                    r.Size = UDim2.new(1, 0, 0, 20)
-                    r.BackgroundColor3 = Theme.Element
-                    r.ZIndex = 35
-                    r.Parent = Panel
-                    Instance.new("UICorner", r).CornerRadius = UDim.new(0, 7)
-
-                    local nLbl = Instance.new("TextLabel")
-                    nLbl.Size = UDim2.new(1, -54, 1, 0)
-                    nLbl.Position = UDim2.new(0, 7, 0, 0)
-                    nLbl.BackgroundTransparency = 1
-                    nLbl.Text = tostring(name)
-                    nLbl.TextColor3 = Theme.Text
-                    nLbl.Font = Enum.Font.GothamSemibold
-                    nLbl.TextSize = 10
-                    nLbl.TextXAlignment = Enum.TextXAlignment.Left
-                    nLbl.TextTruncate = Enum.TextTruncate.AtEnd
-                    nLbl.ZIndex = 36
-                    nLbl.Parent = r
-
-                    local kLbl = Instance.new("TextLabel")
-                    kLbl.Size = UDim2.new(0, 44, 0, 14)
-                    kLbl.Position = UDim2.new(1, -48, 0.5, -7)
-                    kLbl.BackgroundColor3 = Theme.Background
-                    kLbl.Text = tostring(keyName or "ON")
-                    kLbl.TextColor3 = Theme.Accent
-                    kLbl.Font = Enum.Font.GothamBold
-                    kLbl.TextSize = 8
-                    kLbl.ZIndex = 36
-                    kLbl.Parent = r
-                    Instance.new("UICorner", kLbl).CornerRadius = UDim.new(1, 0)
-
-                    Rows[id] = {Row = r, KeyLbl = kLbl}
-                else
-                    Rows[id].KeyLbl.Text = tostring(keyName or "ON")
-                end
-            else
-                if Rows[id] then
-                    Rows[id].Row:Destroy()
-                    Rows[id] = nil
-                end
-            end
-            local count = 0
-            for _ in pairs(Rows) do count += 1 end
-            EmptyLbl.Visible = (count == 0)
-        end
-    }
-
-    local HudObj = {}
-    function HudObj:SetVisible(v) Panel.Visible = v end
-    function HudObj:Destroy() Panel:Destroy() ActiveKeybindHud = nil end
-    return HudObj
 end
 
 -- ==========================================
@@ -1171,17 +1192,16 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM (ANIMATED GRADIENT BORDER + SHIMMER + RIPPLE)
+-- KEY SYSTEM (COMPACT AUTO-SIZED + HOLO SCANLINES + CYBER DECODE)
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
 
     local KeyBox = Instance.new("Frame")
     KeyBox.Name = "KeySystemWindow"
-    KeyBox.Size = UDim2.new(0, 345, 0, 0)
-    KeyBox.AutomaticSize = Enum.AutomaticSize.Y
+    KeyBox.Size = UDim2.new(0, 340, 0, 280)
     KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
-    KeyBox.Position = UDim2.new(0.5, 0, 0.48, 0)
+    KeyBox.Position = UDim2.new(0.5, 0, 0.5, 0)
     KeyBox.BackgroundColor3 = Theme.Background
     KeyBox.BorderSizePixel = 0
     KeyBox.ClipsDescendants = true
@@ -1195,21 +1215,22 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KStroke.Thickness = 1.6
     ApplyAccentGradient(KStroke, 45, true)
 
-    AttachShimmer(KeyBox, 4)
+    AttachHoloGrid(KeyBox)
+    AttachParticleCanvas(KeyBox, 10)
 
     local KScale = Instance.new("UIScale", KeyBox)
     KScale.Scale = 0
 
     local CloseKeyBtn = Instance.new("TextButton")
     CloseKeyBtn.Name = "CloseKeySystemBtn"
-    CloseKeyBtn.Size = UDim2.new(0, 26, 0, 26)
+    CloseKeyBtn.Size = UDim2.new(0, 24, 0, 24)
     CloseKeyBtn.Position = UDim2.new(1, -12, 0, 12)
     CloseKeyBtn.AnchorPoint = Vector2.new(1, 0)
     CloseKeyBtn.BackgroundColor3 = Theme.Error
     CloseKeyBtn.Text = "X"
     CloseKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     CloseKeyBtn.Font = Enum.Font.GothamBlack
-    CloseKeyBtn.TextSize = 12
+    CloseKeyBtn.TextSize = 11
     CloseKeyBtn.AutoButtonColor = false
     CloseKeyBtn.ZIndex = 18
     CloseKeyBtn.Parent = KeyBox
@@ -1217,16 +1238,9 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local RedGlowStroke = Instance.new("UIStroke", CloseKeyBtn)
     RedGlowStroke.Color = Theme.ErrorGlow
-    RedGlowStroke.Thickness = 1.8
+    RedGlowStroke.Thickness = 1.6
     RedGlowStroke.Transparency = 0.15
 
-    CloseKeyBtn.MouseEnter:Connect(function()
-        TryxzLib:PlaySound("Hover", 0.25)
-        Tween(CloseKeyBtn, Tweens.Fast, {BackgroundColor3 = Theme.ErrorGlow, Size = UDim2.new(0, 28, 0, 28)})
-    end)
-    CloseKeyBtn.MouseLeave:Connect(function()
-        Tween(CloseKeyBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error, Size = UDim2.new(0, 26, 0, 26)})
-    end)
     CloseKeyBtn.MouseButton1Click:Connect(function()
         TriggerHaptic(0.35)
         TryxzLib:PlaySound("Error")
@@ -1241,23 +1255,23 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KInner.Size = UDim2.new(1, 0, 0, 0)
     KInner.AutomaticSize = Enum.AutomaticSize.Y
     KInner.BackgroundTransparency = 1
-    KInner.ZIndex = 11
+    KInner.ZIndex = 12
     KInner.Parent = KeyBox
 
     local KPad = Instance.new("UIPadding", KInner)
-    KPad.PaddingTop, KPad.PaddingBottom = UDim.new(0, 16), UDim.new(0, 16)
-    KPad.PaddingLeft, KPad.PaddingRight = UDim.new(0, 20), UDim.new(0, 20)
+    KPad.PaddingTop, KPad.PaddingBottom = UDim.new(0, 14), UDim.new(0, 14)
+    KPad.PaddingLeft, KPad.PaddingRight = UDim.new(0, 18), UDim.new(0, 18)
 
     local KLayout = Instance.new("UIListLayout", KInner)
     KLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    KLayout.Padding = UDim.new(0, 8)
+    KLayout.Padding = UDim.new(0, 7)
     KLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
     local IconBadge = Instance.new("Frame")
     IconBadge.LayoutOrder = 1
-    IconBadge.Size = UDim2.new(0, 42, 0, 42)
+    IconBadge.Size = UDim2.new(0, 38, 0, 38)
     IconBadge.BackgroundColor3 = Theme.Element
-    IconBadge.ZIndex = 12
+    IconBadge.ZIndex = 13
     IconBadge.Parent = KInner
     Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
     local IBStroke = Instance.new("UIStroke", IconBadge)
@@ -1265,7 +1279,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     IBStroke.Thickness = 1.4
     ApplyAccentGradient(IBStroke, 0, true)
 
-    CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 21, UDim2.new(0.5, -10.5, 0.5, -10.5), 15)
+    CreateIcon(IconBadge, KeyConfig.Icon or Cfg.Icon or "rbxassetid://10723407389", 19, UDim2.new(0.5, -9.5, 0.5, -9.5), 15)
 
     local KTitleLbl = Instance.new("TextLabel")
     KTitleLbl.LayoutOrder = 2
@@ -1274,9 +1288,10 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KTitleLbl.Text = KeyConfig.Title or Cfg.Title
     KTitleLbl.TextColor3 = Theme.Text
     KTitleLbl.Font = Enum.Font.GothamBold
-    KTitleLbl.TextSize = 14
-    KTitleLbl.ZIndex = 12
+    KTitleLbl.TextSize = 13
+    KTitleLbl.ZIndex = 13
     KTitleLbl.Parent = KInner
+    ScrambleText(KTitleLbl, KeyConfig.Title or Cfg.Title, 0.35)
 
     local NoteFrame = Instance.new("Frame")
     NoteFrame.LayoutOrder = 3
@@ -1284,13 +1299,13 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     NoteFrame.AutomaticSize = Enum.AutomaticSize.Y
     NoteFrame.BackgroundColor3 = Theme.GrayTranslucent
     NoteFrame.BackgroundTransparency = 0.6
-    NoteFrame.ZIndex = 12
+    NoteFrame.ZIndex = 13
     NoteFrame.Parent = KInner
-    Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", NoteFrame).CornerRadius = UDim.new(0, 11)
 
     local NPad = Instance.new("UIPadding", NoteFrame)
-    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
-    NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
+    NPad.PaddingTop, NPad.PaddingBottom = UDim.new(0, 5), UDim.new(0, 5)
+    NPad.PaddingLeft, NPad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
 
     local NList = Instance.new("UIListLayout", NoteFrame)
     NList.Padding = UDim.new(0, 2)
@@ -1298,14 +1313,14 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local NoteHeaderLbl = Instance.new("TextLabel")
     NoteHeaderLbl.LayoutOrder = 1
-    NoteHeaderLbl.Size = UDim2.new(1, 0, 0, 14)
+    NoteHeaderLbl.Size = UDim2.new(1, 0, 0, 13)
     NoteHeaderLbl.BackgroundTransparency = 1
     NoteHeaderLbl.Text = "Note:"
     NoteHeaderLbl.TextColor3 = Theme.Accent
     NoteHeaderLbl.Font = Enum.Font.GothamBold
-    NoteHeaderLbl.TextSize = 11
+    NoteHeaderLbl.TextSize = 10
     NoteHeaderLbl.TextXAlignment = Enum.TextXAlignment.Left
-    NoteHeaderLbl.ZIndex = 13
+    NoteHeaderLbl.ZIndex = 14
     NoteHeaderLbl.Parent = NoteFrame
 
     local hasNote = KeyConfig.Note ~= nil and tostring(KeyConfig.Note):gsub("%s+", "") ~= ""
@@ -1320,7 +1335,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     NoteLbl.TextSize = 10
     NoteLbl.TextWrapped = true
     NoteLbl.TextXAlignment = Enum.TextXAlignment.Left
-    NoteLbl.ZIndex = 13
+    NoteLbl.ZIndex = 14
     NoteLbl.Parent = NoteFrame
 
     local InfoCard = Instance.new("Frame")
@@ -1329,13 +1344,13 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     InfoCard.AutomaticSize = Enum.AutomaticSize.Y
     InfoCard.BackgroundColor3 = Theme.GrayTranslucent
     InfoCard.BackgroundTransparency = 0.65
-    InfoCard.ZIndex = 12
+    InfoCard.ZIndex = 13
     InfoCard.Parent = KInner
-    Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", InfoCard).CornerRadius = UDim.new(0, 11)
 
     local IPad = Instance.new("UIPadding", InfoCard)
-    IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 6), UDim.new(0, 6)
-    IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
+    IPad.PaddingTop, IPad.PaddingBottom = UDim.new(0, 5), UDim.new(0, 5)
+    IPad.PaddingLeft, IPad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
 
     local IList = Instance.new("UIListLayout", InfoCard)
     IList.Padding = UDim.new(0, 2)
@@ -1343,28 +1358,28 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local InfoTopHeader = Instance.new("TextLabel")
     InfoTopHeader.LayoutOrder = 1
-    InfoTopHeader.Size = UDim2.new(1, 0, 0, 14)
+    InfoTopHeader.Size = UDim2.new(1, 0, 0, 13)
     InfoTopHeader.BackgroundTransparency = 1
     InfoTopHeader.Text = "Info:"
     InfoTopHeader.TextColor3 = Theme.Accent
     InfoTopHeader.Font = Enum.Font.GothamBold
-    InfoTopHeader.TextSize = 11
+    InfoTopHeader.TextSize = 10
     InfoTopHeader.TextXAlignment = Enum.TextXAlignment.Left
-    InfoTopHeader.ZIndex = 13
+    InfoTopHeader.ZIndex = 14
     InfoTopHeader.Parent = InfoCard
 
     local hasInfo = type(KeyConfig.Info) == "table" and ((KeyConfig.Info.Content and tostring(KeyConfig.Info.Content):gsub("%s+", "") ~= "") or (KeyConfig.Info.Text and tostring(KeyConfig.Info.Text):gsub("%s+", "") ~= ""))
     if hasInfo and KeyConfig.Info.Title and tostring(KeyConfig.Info.Title) ~= "" then
         local ISubTitle = Instance.new("TextLabel")
         ISubTitle.LayoutOrder = 2
-        ISubTitle.Size = UDim2.new(1, 0, 0, 14)
+        ISubTitle.Size = UDim2.new(1, 0, 0, 13)
         ISubTitle.BackgroundTransparency = 1
         ISubTitle.Text = tostring(KeyConfig.Info.Title)
         ISubTitle.TextColor3 = Theme.Text
         ISubTitle.Font = Enum.Font.GothamBold
         ISubTitle.TextSize = 10
         ISubTitle.TextXAlignment = Enum.TextXAlignment.Left
-        ISubTitle.ZIndex = 13
+        ISubTitle.ZIndex = 14
         ISubTitle.Parent = InfoCard
     end
 
@@ -1379,33 +1394,33 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     IBody.TextSize = 10
     IBody.TextWrapped = true
     IBody.TextXAlignment = Enum.TextXAlignment.Left
-    IBody.ZIndex = 13
+    IBody.ZIndex = 14
     IBody.Parent = InfoCard
 
     local InputHolder = Instance.new("Frame")
     InputHolder.LayoutOrder = 5
-    InputHolder.Size = UDim2.new(1, 0, 0, 34)
+    InputHolder.Size = UDim2.new(1, 0, 0, 32)
     InputHolder.BackgroundColor3 = Theme.Element
-    InputHolder.ZIndex = 12
+    InputHolder.ZIndex = 13
     InputHolder.Parent = KInner
-    Instance.new("UICorner", InputHolder).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", InputHolder).CornerRadius = UDim.new(0, 11)
 
     local InputStroke = Instance.new("UIStroke", InputHolder)
     InputStroke.Color = Theme.Divider
     InputStroke.Thickness = 1
 
     local KeyInput = Instance.new("TextBox")
-    KeyInput.Size = UDim2.new(1, -24, 1, 0)
-    KeyInput.Position = UDim2.new(0, 12, 0, 0)
+    KeyInput.Size = UDim2.new(1, -20, 1, 0)
+    KeyInput.Position = UDim2.new(0, 10, 0, 0)
     KeyInput.BackgroundTransparency = 1
     KeyInput.PlaceholderText = "Paste your key here..."
     KeyInput.PlaceholderColor3 = Theme.SubText
     KeyInput.Text = ""
     KeyInput.TextColor3 = Theme.Text
     KeyInput.Font = Enum.Font.GothamSemibold
-    KeyInput.TextSize = 12
+    KeyInput.TextSize = 11
     KeyInput.ClearTextOnFocus = false
-    KeyInput.ZIndex = 13
+    KeyInput.ZIndex = 14
     KeyInput.Parent = InputHolder
 
     KeyInput.Focused:Connect(function() Tween(InputStroke, Tweens.Fast, {Color = Theme.Accent}) end)
@@ -1413,12 +1428,12 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 
     local AccessBtn = Instance.new("TextButton")
     AccessBtn.LayoutOrder = 6
-    AccessBtn.Size = UDim2.new(1, 0, 0, 36)
+    AccessBtn.Size = UDim2.new(1, 0, 0, 34)
     AccessBtn.BackgroundColor3 = Color3.new(1, 1, 1)
     AccessBtn.Text = ""
     AccessBtn.AutoButtonColor = false
     AccessBtn.ClipsDescendants = true
-    AccessBtn.ZIndex = 12
+    AccessBtn.ZIndex = 13
     AccessBtn.Parent = KInner
     Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
     ApplyAccentGradient(AccessBtn, 0)
@@ -1433,15 +1448,15 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccLbl.TextColor3 = Theme.Text
     AccLbl.Font = Enum.Font.GothamBold
     AccLbl.TextSize = 12
-    AccLbl.ZIndex = 13
+    AccLbl.ZIndex = 14
     AccLbl.Parent = AccessBtn
 
     local AccBadge = Instance.new("Frame")
-    AccBadge.Size = UDim2.new(0, 24, 0, 24)
-    AccBadge.Position = UDim2.new(1, -31, 0.5, -12)
+    AccBadge.Size = UDim2.new(0, 22, 0, 22)
+    AccBadge.Position = UDim2.new(1, -29, 0.5, -11)
     AccBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     AccBadge.BackgroundTransparency = 0.85
-    AccBadge.ZIndex = 13
+    AccBadge.ZIndex = 14
     AccBadge.Parent = AccessBtn
     Instance.new("UICorner", AccBadge).CornerRadius = UDim.new(1, 0)
 
@@ -1451,21 +1466,21 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccArrow.Text = "→"
     AccArrow.TextColor3 = Theme.Text
     AccArrow.Font = Enum.Font.GothamBold
-    AccArrow.TextSize = 14
-    AccArrow.ZIndex = 14
+    AccArrow.TextSize = 13
+    AccArrow.ZIndex = 15
     AccArrow.Parent = AccBadge
 
     if KeyConfig.GetKeyLink and tostring(KeyConfig.GetKeyLink) ~= "" then
         local LinkBtn = Instance.new("TextButton")
         LinkBtn.Name = "CopyKeyLinkBtn"
         LinkBtn.LayoutOrder = 7
-        LinkBtn.Size = UDim2.new(1, 0, 0, 28)
+        LinkBtn.Size = UDim2.new(1, 0, 0, 26)
         LinkBtn.BackgroundColor3 = Theme.Element
         LinkBtn.BackgroundTransparency = 0.2
         LinkBtn.Text = "Copy Key Link"
         LinkBtn.TextColor3 = Theme.Text
         LinkBtn.Font = Enum.Font.GothamBold
-        LinkBtn.TextSize = 11
+        LinkBtn.TextSize = 10
         LinkBtn.AutoButtonColor = false
         LinkBtn.ClipsDescendants = true
         LinkBtn.ZIndex = 14
@@ -1487,6 +1502,15 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
             TryxzLib:Notify({Title = "Link Copied", Text = "Key link copied to clipboard.", Duration = 3})
         end)
     end
+
+    -- Sync exact compact height from layout content
+    local function SyncKeyBoxHeight()
+        local maxScreenH = math.max(240, ScreenGui.AbsoluteSize.Y - 48)
+        local targetH = math.clamp(KLayout.AbsoluteContentSize.Y + 28, 220, maxScreenH)
+        KeyBox.Size = UDim2.new(0, 340, 0, targetH)
+    end
+    task.defer(SyncKeyBoxHeight)
+    KLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(SyncKeyBoxHeight)
 
     Tween(KScale, Tweens.Bounce, {Scale = 1})
 
@@ -1529,7 +1553,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- ELEMENT FACTORY (ALL CONTROLS + RIPPLE + GLOW + LOCK + VISIBILITY)
+-- ELEMENT FACTORY (ALL CONTROLS + CYBER DECODE + RIPPLE + LOCK + VISIBILITY)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -1590,7 +1614,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         }
     end
 
-    -- 1. SECTION
+    -- 1. SECTION (With Cyber-Decode Animation)
     function API:AddSection(text, icon)
         local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
         local secIcon = type(text) == "table" and text.Icon or icon
@@ -1629,6 +1653,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         SecLbl.TextXAlignment = Enum.TextXAlignment.Left
         SecLbl.Parent = SecFrame
         BindTheme(SecLbl, "TextColor3", "Text")
+        ScrambleText(SecLbl, string.upper(secText), 0.3)
 
         local TrailLine = Instance.new("Frame")
         TrailLine.Size = UDim2.new(1, -(textX + 8), 0, 1)
@@ -1911,7 +1936,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
-    -- 6. BUTTON (WITH RIPPLE + HOVER GLOW)
+    -- 6. BUTTON
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -2080,7 +2105,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return RowFrame
     end
 
-    -- 8. TOGGLE (WITH GLOWING STROKE & RIPPLE)
+    -- 8. TOGGLE (No Floating Keybind HUD)
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -2142,14 +2167,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local bindId = Flag or ("Tgl_" .. tostring(tCfg.Name or "Toggle"))
 
-        local function SyncHud(val)
-            if ActiveKeybindHud and ActiveKeybindHud.Update then
-                local entry = Window.Keybinds and Window.Keybinds[bindId]
-                local kName = entry and entry.Key and entry.Key.Name or (typeof(tCfg.Keybind) == "EnumItem" and tCfg.Keybind.Name) or "ON"
-                ActiveKeybindHud.Update(bindId, tCfg.Name or "Toggle", kName, val)
-            end
-        end
-
         local function UpdateToggle(val, silent, skipWrite)
             StateVal = val
             if Flag and not skipWrite then Cfg.SavedData[Flag] = StateVal WriteConfigFile() end
@@ -2164,7 +2181,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 Transparency = StateVal and 0.25 or 0.55
             })
             Tween(Knob, Tweens.Bounce, {Position = StateVal and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
-            SyncHud(StateVal)
             Window:RefreshVisibility()
             task.spawn(Callback, StateVal)
         end
@@ -2174,7 +2190,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         ToggleBtn.MouseButton1Click:Connect(function() UpdateToggle(not StateVal, false, false) end)
 
         if StateVal then
-            SyncHud(true)
             task.spawn(Callback, true)
         end
 
@@ -3448,7 +3463,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (ANIMATED NEON BORDER + TOP SHIMMER + GLOWING BOTTOM DRAG LINE)
+-- CREATE MAIN WINDOW (PARTICLE CANVAS + HOLO SCANLINES + REACTIVE PULSE AURA)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -3607,6 +3622,26 @@ function TryxzLib:CreateWindow(config)
     local MainUIScale = Instance.new("UIScale", WindowHolder)
     MainUIScale.Scale = Cfg.UIScale
 
+    -- Reactive Pulse Aura Frame behind MainWindow
+    local PulseAura = Instance.new("Frame")
+    PulseAura.Name = "PulseAura"
+    PulseAura.Size = UDim2.new(1, 8, 1, -6)
+    PulseAura.Position = UDim2.new(0, -4, 0, -4)
+    PulseAura.BackgroundColor3 = Color3.new(1, 1, 1)
+    PulseAura.BackgroundTransparency = 0.86
+    PulseAura.BorderSizePixel = 0
+    PulseAura.ZIndex = 1
+    PulseAura.Parent = WindowHolder
+    Instance.new("UICorner", PulseAura).CornerRadius = UDim.new(0, 22)
+    ApplyAccentGradient(PulseAura, 45, true)
+
+    table.insert(SoundPulseCallbacks, function()
+        if PulseAura and PulseAura.Parent and WindowHolder.Visible then
+            PulseAura.BackgroundTransparency = 0.68
+            Tween(PulseAura, Tweens.Smooth, {BackgroundTransparency = 0.86})
+        end
+    end)
+
     local Main = Instance.new("Frame")
     Main.Name = "MainWindow"
     Main.Size = UDim2.new(1, 0, 1, -14)
@@ -3614,9 +3649,14 @@ function TryxzLib:CreateWindow(config)
     Main.BackgroundColor3 = Theme.Sidebar
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
+    Main.ZIndex = 2
     Main.Parent = WindowHolder
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
     BindTheme(Main, "BackgroundColor3", "Sidebar")
+
+    -- Futuristic Background Layers: Floating Particle Constellation + Holo Scanlines
+    AttachParticleCanvas(Main, 18)
+    AttachHoloGrid(Main)
 
     -- Rotating Gradient Neon Border
     local MainStroke = Instance.new("UIStroke", Main)
@@ -3625,7 +3665,6 @@ function TryxzLib:CreateWindow(config)
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     ApplyAccentGradient(MainStroke, 45, true)
 
-    -- Top Glowing Edge Bar + Shimmer Sweep
     local TopAccentGlow = Instance.new("Frame")
     TopAccentGlow.Size = UDim2.new(0.65, 0, 0, 2)
     TopAccentGlow.Position = UDim2.new(0.175, 0, 0, 0)
@@ -3805,6 +3844,7 @@ function TryxzLib:CreateWindow(config)
     TitleLabel.ZIndex = 6
     TitleLabel.Parent = Topbar
     BindTheme(TitleLabel, "TextColor3", "Text")
+    ScrambleText(TitleLabel, Cfg.Title, 0.45)
 
     if Cfg.Subtitle ~= "" then
         local SubLabel = Instance.new("TextLabel")
@@ -3904,6 +3944,11 @@ function TryxzLib:CreateWindow(config)
                 local ping = 0
                 pcall(function() ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
                 StatsLbl.Text = string.format("%d FPS | %d ms", fps, ping)
+                -- Subtle FPS-reactive PulseAura breathing
+                if PulseAura and PulseAura.Parent and WindowHolder.Visible then
+                    local targetTrans = fps >= 50 and 0.84 or 0.91
+                    Tween(PulseAura, TweenInfo.new(0.45), {BackgroundTransparency = targetTrans})
+                end
                 frames, lastUpdate = 0, now
             end
         end)
@@ -3913,6 +3958,7 @@ function TryxzLib:CreateWindow(config)
     BodyContainer.Size = UDim2.new(1, 0, 1, -Cfg.TopH)
     BodyContainer.Position = UDim2.new(0, 0, 0, Cfg.TopH)
     BodyContainer.BackgroundTransparency = 1
+    BodyContainer.ZIndex = 4
     BodyContainer.Parent = Main
 
     MinBtn.MouseButton1Click:Connect(function()
@@ -3954,6 +4000,7 @@ function TryxzLib:CreateWindow(config)
     local Sidebar = Instance.new("Frame")
     Sidebar.Size = UDim2.new(0, Cfg.SideW, 1, 0)
     Sidebar.BackgroundTransparency = 1
+    Sidebar.ZIndex = 5
     Sidebar.Parent = BodyContainer
 
     local TabContainer = Instance.new("ScrollingFrame")
@@ -3963,6 +4010,7 @@ function TryxzLib:CreateWindow(config)
     TabContainer.ScrollBarThickness = 0
     TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
     TabContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    TabContainer.ZIndex = 5
     TabContainer.Parent = Sidebar
 
     local TabLayout = Instance.new("UIListLayout", TabContainer)
@@ -3975,6 +4023,7 @@ function TryxzLib:CreateWindow(config)
         ProfileFrame.Position = UDim2.new(0, 7, 1, -48)
         ProfileFrame.BackgroundColor3 = Theme.Element
         ProfileFrame.ClipsDescendants = true
+        ProfileFrame.ZIndex = 5
         ProfileFrame.Parent = Sidebar
         Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 14)
         BindTheme(ProfileFrame, "BackgroundColor3", "Element")
@@ -3989,6 +4038,7 @@ function TryxzLib:CreateWindow(config)
         Avatar.Position = UDim2.new(0, 7, 0.5, -13)
         Avatar.BackgroundColor3 = Theme.Background
         Avatar.ScaleType = Enum.ScaleType.Fit
+        Avatar.ZIndex = 6
         Avatar.Parent = ProfileFrame
         Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
         Instance.new("UIAspectRatioConstraint", Avatar).AspectRatio = 1
@@ -4008,6 +4058,7 @@ function TryxzLib:CreateWindow(config)
         DisplayName.TextSize = 10
         DisplayName.TextXAlignment = Enum.TextXAlignment.Left
         DisplayName.TextTruncate = Enum.TextTruncate.AtEnd
+        DisplayName.ZIndex = 6
         DisplayName.Parent = ProfileFrame
         BindTheme(DisplayName, "TextColor3", "Text")
 
@@ -4021,6 +4072,7 @@ function TryxzLib:CreateWindow(config)
         UserTag.TextSize = 9
         UserTag.TextXAlignment = Enum.TextXAlignment.Left
         UserTag.TextTruncate = Enum.TextTruncate.AtEnd
+        UserTag.ZIndex = 6
         UserTag.Parent = ProfileFrame
         BindTheme(UserTag, "TextColor3", "SubText")
     end
@@ -4029,8 +4081,10 @@ function TryxzLib:CreateWindow(config)
     PagesContainer.Size = UDim2.new(1, -(Cfg.SideW + 6), 1, -6)
     PagesContainer.Position = UDim2.new(0, Cfg.SideW, 0, 0)
     PagesContainer.BackgroundColor3 = Theme.Background
+    PagesContainer.BackgroundTransparency = 0.08
     PagesContainer.BorderSizePixel = 0
     PagesContainer.ClipsDescendants = true
+    PagesContainer.ZIndex = 4
     PagesContainer.Parent = BodyContainer
     Instance.new("UICorner", PagesContainer).CornerRadius = UDim.new(0, 14)
     BindTheme(PagesContainer, "BackgroundColor3", "Background")
@@ -4051,7 +4105,7 @@ function TryxzLib:CreateWindow(config)
         SearchHolder.Size = UDim2.new(1, -20, 0, 26)
         SearchHolder.Position = UDim2.new(0, 10, 0, 8)
         SearchHolder.BackgroundColor3 = Theme.Element
-        SearchHolder.ZIndex = 4
+        SearchHolder.ZIndex = 5
         SearchHolder.Parent = PagesContainer
         Instance.new("UICorner", SearchHolder).CornerRadius = UDim.new(1, 0)
         BindTheme(SearchHolder, "BackgroundColor3", "Element")
@@ -4068,7 +4122,7 @@ function TryxzLib:CreateWindow(config)
         SearchIcon.TextColor3 = Theme.SubText
         SearchIcon.Font = Enum.Font.Gotham
         SearchIcon.TextSize = 10
-        SearchIcon.ZIndex = 5
+        SearchIcon.ZIndex = 6
         SearchIcon.Parent = SearchHolder
 
         local SearchBox = Instance.new("TextBox")
@@ -4083,7 +4137,7 @@ function TryxzLib:CreateWindow(config)
         SearchBox.TextSize = 11
         SearchBox.TextXAlignment = Enum.TextXAlignment.Left
         SearchBox.ClearTextOnFocus = false
-        SearchBox.ZIndex = 5
+        SearchBox.ZIndex = 6
         SearchBox.Parent = SearchHolder
 
         SearchBox.Focused:Connect(function() Tween(SStroke, Tweens.Fast, {Color = Theme.Accent}) end)
@@ -4157,7 +4211,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -24, 0, 18)
     CTitle.Position = UDim2.new(0, 16, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v4.1  •  by gthsc51"
+    CTitle.Text = "TryxzLib v4.2  •  by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 12
@@ -4170,7 +4224,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.Size = UDim2.new(1, -24, 0, 28)
     CDesc.Position = UDim2.new(0, 16, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Shimmer & Ripple UI Engine. Drag bottom white bar or press [" .. Cfg.Keybind.Name .. "] to toggle.\nManage function keybinds, themes, viewport scale, and clipboard profiles."
+    CDesc.Text = "Sci-Fi HUD Engine. Drag bottom white bar or press [" .. Cfg.Keybind.Name .. "] to toggle.\nManage function keybinds, themes, viewport scale, and clipboard profiles."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -4903,6 +4957,7 @@ function TryxzLib:CreateWindow(config)
             Tween(TabLbl, Tweens.Fast, {TextColor3 = Theme.Text})
             Tween(TabStroke, Tweens.Fast, {Transparency = 0.55})
             Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, isLongName and 22 or 14)})
+            ScrambleText(TabLbl, tabText, 0.25)
         end
 
         TabBtn.MouseButton1Click:Connect(function()
