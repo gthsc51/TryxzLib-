@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v4.4 by gthsc51
-    Futuristic Sci-Fi HUD Edition: Fixed High-Contrast Dialogs, Glowing Architect Credits Label & Holo Effects
+    TryxzLib v4.5 by gthsc51
+    Futuristic Sci-Fi HUD Edition: Glowing Gold Architect Emblem & Credits Card, Holo Scanlines & Particle Canvas
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -297,7 +297,7 @@ local function AttachShimmer(parentFrame, intervalSec)
     end)
 end
 
-local function AttachParticleCanvas(parentFrame, count)
+local function AttachParticleCanvas(parentFrame, count, customColorA, customColorB)
     local canvas = Instance.new("Frame")
     canvas.Name = "ParticleCanvas"
     canvas.Size = UDim2.new(1, 0, 1, 0)
@@ -312,13 +312,17 @@ local function AttachParticleCanvas(parentFrame, count)
         local dot = Instance.new("Frame")
         dot.Size = UDim2.new(0, sz, 0, sz)
         dot.Position = UDim2.new(math.random() * 0.95, 0, math.random() * 0.95, 0)
-        dot.BackgroundColor3 = (i % 2 == 0) and Theme.Accent or (Theme.AccentSecondary or Theme.Accent)
-        dot.BackgroundTransparency = math.random(55, 82) / 100
+        if customColorA then
+            dot.BackgroundColor3 = (i % 2 == 0) and customColorA or (customColorB or customColorA)
+        else
+            dot.BackgroundColor3 = (i % 2 == 0) and Theme.Accent or (Theme.AccentSecondary or Theme.Accent)
+            BindTheme(dot, "BackgroundColor3", (i % 2 == 0) and "Accent" or "AccentSecondary")
+        end
+        dot.BackgroundTransparency = math.random(50, 80) / 100
         dot.BorderSizePixel = 0
         dot.ZIndex = canvas.ZIndex
         dot.Parent = canvas
         Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
-        BindTheme(dot, "BackgroundColor3", (i % 2 == 0) and "Accent" or "AccentSecondary")
 
         table.insert(particles, {
             Obj = dot,
@@ -1047,7 +1051,7 @@ function TryxzLib:Notify(config)
 end
 
 -- ==========================================
--- MODAL CONFIRMATION DIALOG (FIXED HIGH-CONTRAST CONFIRM TEXT + HOLO DESIGN)
+-- MODAL CONFIRMATION DIALOG
 -- ==========================================
 function TryxzLib:Dialog(config)
     config = config or {}
@@ -1182,7 +1186,6 @@ function TryxzLib:Dialog(config)
     CancelLbl.ZIndex = 56
     CancelLbl.Parent = CancelBtn
 
-    -- Confirm Button with Separate Gradient Background Frame so Text is 100% Crisp & Visible
     local ConfirmBtn = Instance.new("TextButton")
     ConfirmBtn.Size = UDim2.new(0.48, 0, 1, 0)
     ConfirmBtn.Position = UDim2.new(0.52, 0, 0, 0)
@@ -1244,7 +1247,7 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM (CRISP BUTTON TEXT + COMPACT LAYOUT)
+-- KEY SYSTEM
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
@@ -2106,7 +2109,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return WrapElementControls(Btn, bCfg)
     end
 
-    -- 7. MULTI-BUTTON ROW (Crisp Text over Gradient)
+    -- 7. MULTI-BUTTON ROW
     function API:AddButtonRow(buttonsList)
         buttonsList = buttonsList or {}
         local count = math.clamp(#buttonsList, 1, 4)
@@ -3515,7 +3518,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW + SPECIAL GLOWING CREDITS LABEL IN GEAR (⚙)
+-- CREATE MAIN WINDOW + GLOWING GOLD ARCHITECT CREDITS CARD
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -4206,7 +4209,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- ORDERED SCI-FI GEAR (⚙) SETTINGS MENU + SPECIAL GLOWING ARCHITECT CREDITS LABEL
+    -- ORDERED SCI-FI GEAR (⚙) SETTINGS MENU + GLOWING GOLD ARCHITECT CREDITS CARD
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -4296,11 +4299,15 @@ function TryxzLib:CreateWindow(config)
         end
     end
 
-    -- 1. SPECIAL GLOWING HOLOGRAPHIC ARCHITECT CREDITS LABEL
+    -- 1. SPECIAL GLOWING GOLD ARCHITECT CREDITS CARD
+    local GoldBright = Color3.fromRGB(255, 215, 65)
+    local GoldDeep = Color3.fromRGB(255, 165, 25)
+    local GoldShine = Color3.fromRGB(255, 246, 175)
+
     local ArchitectCreditsCard = Instance.new("Frame")
     ArchitectCreditsCard.Name = "ArchitectCreditsCard"
     ArchitectCreditsCard.LayoutOrder = 1
-    ArchitectCreditsCard.Size = UDim2.new(1, 0, 0, 74)
+    ArchitectCreditsCard.Size = UDim2.new(1, 0, 0, 76)
     ArchitectCreditsCard.BackgroundColor3 = Theme.Element
     ArchitectCreditsCard.ClipsDescendants = true
     ArchitectCreditsCard.ZIndex = 11
@@ -4308,16 +4315,21 @@ function TryxzLib:CreateWindow(config)
     Instance.new("UICorner", ArchitectCreditsCard).CornerRadius = UDim.new(0, 14)
     BindTheme(ArchitectCreditsCard, "BackgroundColor3", "Element")
 
-    -- Animated Dual-Gradient Border + Internal Particles + Shimmer
     local CStroke = Instance.new("UIStroke", ArchitectCreditsCard)
     CStroke.Color = Color3.new(1, 1, 1)
     CStroke.Thickness = 1.6
-    ApplyAccentGradient(CStroke, 45, true)
+    local GoldBorderGrad = Instance.new("UIGradient", CStroke)
+    GoldBorderGrad.Rotation = 45
+    GoldBorderGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, GoldBright),
+        ColorSequenceKeypoint.new(0.5, GoldShine),
+        ColorSequenceKeypoint.new(1, GoldDeep)
+    }
+    table.insert(AnimatedGradientBorders, GoldBorderGrad)
 
-    AttachParticleCanvas(ArchitectCreditsCard, 10)
-    AttachShimmer(ArchitectCreditsCard, 3.0)
+    AttachParticleCanvas(ArchitectCreditsCard, 12, GoldBright, GoldShine)
+    AttachShimmer(ArchitectCreditsCard, 2.8)
 
-    -- Top Glowing Gradient Crown Bar
     local TopCrownBar = Instance.new("Frame")
     TopCrownBar.Size = UDim2.new(0.75, 0, 0, 2)
     TopCrownBar.Position = UDim2.new(0.125, 0, 0, 0)
@@ -4325,12 +4337,17 @@ function TryxzLib:CreateWindow(config)
     TopCrownBar.BorderSizePixel = 0
     TopCrownBar.ZIndex = 14
     TopCrownBar.Parent = ArchitectCreditsCard
-    ApplyAccentGradient(TopCrownBar, 0)
+    local TopCrownGrad = Instance.new("UIGradient", TopCrownBar)
+    TopCrownGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, GoldDeep),
+        ColorSequenceKeypoint.new(0.5, GoldShine),
+        ColorSequenceKeypoint.new(1, GoldDeep)
+    }
 
-    -- Left Glowing Emblem Badge
+    -- Left Emblem Badge with Valid Roblox Icon Asset
     local EmblemBadge = Instance.new("Frame")
-    EmblemBadge.Size = UDim2.new(0, 42, 0, 42)
-    EmblemBadge.Position = UDim2.new(0, 12, 0.5, -21)
+    EmblemBadge.Size = UDim2.new(0, 44, 0, 44)
+    EmblemBadge.Position = UDim2.new(0, 12, 0.5, -22)
     EmblemBadge.BackgroundColor3 = Theme.Background
     EmblemBadge.ZIndex = 13
     EmblemBadge.Parent = ArchitectCreditsCard
@@ -4338,71 +4355,89 @@ function TryxzLib:CreateWindow(config)
 
     local EmblemStroke = Instance.new("UIStroke", EmblemBadge)
     EmblemStroke.Color = Color3.new(1, 1, 1)
-    EmblemStroke.Thickness = 1.4
-    ApplyAccentGradient(EmblemStroke, 0, true)
+    EmblemStroke.Thickness = 1.5
+    local EmblemGrad = Instance.new("UIGradient", EmblemStroke)
+    EmblemGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, GoldBright),
+        ColorSequenceKeypoint.new(0.5, GoldShine),
+        ColorSequenceKeypoint.new(1, GoldDeep)
+    }
+    table.insert(AnimatedGradientBorders, EmblemGrad)
 
-    local EmblemStar = Instance.new("TextLabel")
-    EmblemStar.Size = UDim2.new(1, 0, 1, 0)
-    EmblemStar.BackgroundTransparency = 1
-    EmblemStar.Text = "✦"
-    EmblemStar.TextColor3 = Theme.Accent
-    EmblemStar.Font = Enum.Font.GothamBlack
-    EmblemStar.TextSize = 20
-    EmblemStar.ZIndex = 14
-    EmblemStar.Parent = EmblemBadge
-    BindAccent(EmblemStar, "TextColor3")
+    local EmblemIcon = Instance.new("ImageLabel")
+    EmblemIcon.Size = UDim2.new(0, 24, 0, 24)
+    EmblemIcon.Position = UDim2.new(0.5, -12, 0.5, -12)
+    EmblemIcon.BackgroundTransparency = 1
+    EmblemIcon.Image = "rbxassetid://10734950309"
+    EmblemIcon.ImageColor3 = GoldBright
+    EmblemIcon.ScaleType = Enum.ScaleType.Fit
+    EmblemIcon.ZIndex = 15
+    EmblemIcon.Parent = EmblemBadge
 
-    -- Top-Right Architect Role Pill
+    -- Top-Right Golden Creator Pill
     local RolePill = Instance.new("Frame")
-    RolePill.Size = UDim2.new(0, 78, 0, 16)
-    RolePill.Position = UDim2.new(1, -88, 0, 10)
+    RolePill.Size = UDim2.new(0, 74, 0, 17)
+    RolePill.Position = UDim2.new(1, -84, 0, 10)
     RolePill.BackgroundColor3 = Color3.new(1, 1, 1)
     RolePill.ZIndex = 13
     RolePill.Parent = ArchitectCreditsCard
     Instance.new("UICorner", RolePill).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(RolePill, 0)
+    local RoleGrad = Instance.new("UIGradient", RolePill)
+    RoleGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, GoldDeep),
+        ColorSequenceKeypoint.new(0.5, GoldBright),
+        ColorSequenceKeypoint.new(1, GoldDeep)
+    }
 
     local RoleLbl = Instance.new("TextLabel")
     RoleLbl.Size = UDim2.new(1, 0, 1, 0)
     RoleLbl.BackgroundTransparency = 1
-    RoleLbl.Text = "★ CREATOR"
-    RoleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    RoleLbl.TextStrokeColor3 = Color3.fromRGB(10, 10, 16)
-    RoleLbl.TextStrokeTransparency = 0.65
+    RoleLbl.Text = "CREATOR"
+    RoleLbl.TextColor3 = Color3.fromRGB(25, 18, 5)
     RoleLbl.Font = Enum.Font.GothamBlack
     RoleLbl.TextSize = 8
     RoleLbl.ZIndex = 14
     RoleLbl.Parent = RolePill
 
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -155, 0, 18)
-    CTitle.Position = UDim2.new(0, 62, 0, 9)
+    CTitle.Size = UDim2.new(1, -155, 0, 17)
+    CTitle.Position = UDim2.new(0, 64, 0, 8)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v4.4"
+    CTitle.Text = "TryxzLib v4.5"
     CTitle.TextColor3 = Theme.Text
-    CTitle.Font = Enum.Font.GothamBlack
-    CTitle.TextSize = 13
+    CTitle.Font = Enum.Font.GothamBold
+    CTitle.TextSize = 12
     CTitle.TextXAlignment = Enum.TextXAlignment.Left
     CTitle.ZIndex = 13
     CTitle.Parent = ArchitectCreditsCard
     BindTheme(CTitle, "TextColor3", "Text")
 
+    -- Glowing Gold "gthsc51" Author Signature
     local AuthorGlowLbl = Instance.new("TextLabel")
-    AuthorGlowLbl.Size = UDim2.new(1, -72, 0, 15)
-    AuthorGlowLbl.Position = UDim2.new(0, 62, 0, 27)
+    AuthorGlowLbl.Size = UDim2.new(1, -74, 0, 18)
+    AuthorGlowLbl.Position = UDim2.new(0, 64, 0, 25)
     AuthorGlowLbl.BackgroundTransparency = 1
-    AuthorGlowLbl.Text = "Crafted & Engineered by gthsc51"
-    AuthorGlowLbl.TextColor3 = Theme.Accent
-    AuthorGlowLbl.Font = Enum.Font.GothamBold
-    AuthorGlowLbl.TextSize = 10
+    AuthorGlowLbl.Text = "by gthsc51"
+    AuthorGlowLbl.TextColor3 = Color3.new(1, 1, 1)
+    AuthorGlowLbl.TextStrokeColor3 = Color3.fromRGB(165, 105, 0)
+    AuthorGlowLbl.TextStrokeTransparency = 0.55
+    AuthorGlowLbl.Font = Enum.Font.GothamBlack
+    AuthorGlowLbl.TextSize = 13
     AuthorGlowLbl.TextXAlignment = Enum.TextXAlignment.Left
-    AuthorGlowLbl.ZIndex = 13
+    AuthorGlowLbl.ZIndex = 14
     AuthorGlowLbl.Parent = ArchitectCreditsCard
-    BindAccent(AuthorGlowLbl, "TextColor3")
+
+    local AuthorGoldGrad = Instance.new("UIGradient", AuthorGlowLbl)
+    AuthorGoldGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, GoldBright),
+        ColorSequenceKeypoint.new(0.45, GoldShine),
+        ColorSequenceKeypoint.new(1, GoldDeep)
+    }
+    table.insert(AnimatedGradientBorders, AuthorGoldGrad)
 
     local CDesc = Instance.new("TextLabel")
-    CDesc.Size = UDim2.new(1, -72, 0, 22)
-    CDesc.Position = UDim2.new(0, 62, 0, 43)
+    CDesc.Size = UDim2.new(1, -74, 0, 22)
+    CDesc.Position = UDim2.new(0, 64, 0, 44)
     CDesc.BackgroundTransparency = 1
     CDesc.Text = "Toggle HUD: [" .. Cfg.Keybind.Name .. "]  •  github.com/gthsc51/TryxzLib-"
     CDesc.TextColor3 = Theme.SubText
