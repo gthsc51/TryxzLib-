@@ -1,6 +1,7 @@
- ```text
+<div align="center">
 
-       ,----,                                                   ,--,                       
+```text
+        ,----,                                                   ,--,                       
       ,/   .`|                                                ,---.'|                       
     ,`   .'  :                                                |   | :                       
   ;    ;     /                                                :   : |     ,--,     ,---,    
@@ -18,38 +19,51 @@
                         `--`                                                                
 ```
 
-# TryxzLib (v3.7)
+<h3>✨ Modern, Modular & Fully Animated UI Library for Roblox (Luau) ✨</h3>
 
-A modern, modular, and fully animated User Interface library written in Luau for Roblox. Designed with smooth `TweenService` transitions, rounded aesthetics, multi-profile configuration saving, and a clean object-oriented API.
+<p>
+  <img src="https://img.shields.io/badge/Version-v3.7-7355FF?style=for-the-badge&logo=roblox&logoColor=white" alt="Version v3.7" />
+  <img src="https://img.shields.io/badge/Language-Luau-00A2FF?style=for-the-badge&logo=lua&logoColor=white" alt="Language Luau" />
+  <img src="https://img.shields.io/badge/Author-gthsc51-16161C?style=for-the-badge&logo=github&logoColor=white" alt="Author gthsc51" />
+  <img src="https://img.shields.io/badge/License-Open_Source-41C378?style=for-the-badge" alt="Open Source" />
+</p>
 
-**Created by [gthsc51](https://github.com/gthsc51)**
+<p>
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-core-features">Features</a> •
+  <a href="#-window-configuration">Window Setup</a> •
+  <a href="#-components-api">Components API</a> •
+  <a href="#-utilities--themes">Utilities</a>
+</p>
 
----
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,20,24&height=2&section=header" width="100%" />
 
-## Features
+</div>
 
-- **Smooth Animations & Bottom Drag Handle:** Every interaction uses `TweenService` curves (`Quad`, `Quart`, `Back`, `Quint`). Includes a top bar drag handle plus an animated, translucent white bottom drag bar locked directly beneath the window for effortless mobile and desktop repositioning.
-- **Modular & Lightweight:** Built with a decoupled component architecture to prevent Luau register/upvalue limits and keep frame rates stable.
-- **Floating Collapse & Minimize Modes:** Collapse the main window into a draggable, screen-clamped floating `"UI"` pill button or minimize it cleanly to its top bar (`-`).
-- **Camera Glass Blur:** Animated `BlurEffect` in `Lighting` that automatically enables when the interface is open and clears when minimized (`-`), collapsed (`UI`), hidden, or unloaded.
-- **Complete Key Verification Gate:**
-  - Dedicated `Note:` and `Info:` cards with automatic fallback messages (`"There is no note at this time."` / `"There is no information at this time."`).
-  - Glowing crimson `"X"` close button, clipboard `"Copy Key Link"` button, and automatic key persistence (`SaveKey`) inside `SaveConfig`.
-- **Adaptive Sidebar & Long Tab Names:** Automatically expands the sidebar width and wraps text cleanly when long tab titles are used.
-- **Multi-Profile Save System:** Automatically saves and restores toggles, sliders, inputs, keybinds, function binds, color pickers, dropdowns, accent themes, UI scale, blur state, and audio preferences across named JSON profiles.
-- **Live Customization (`⚙` Settings):**
-  - **Function Keybinds Dropdown:** Automatically lists bindable Toggles, Sliders (`+KeyStep`), and Buttons so users can assign or clear hotkeys directly from `⚙`.
-  - **UI Viewport Scale:** Segmented stepper slider (`-` / `+` buttons + rotating diamond knob) from `0.75x` to `1.35x`.
-  - **Accent Theme Color:** Live theme switcher across the entire UI.
-  - **Camera Glass Blur, Haptic Feedback & Sound Packs:** Toggleable settings with built-in and custom audio presets.
-  - **Config Profile Manager:** Save, load, and delete multiple named profiles.
-- **Rich Component Suite:** Tabs, Horizontal Sub-Tabs, Sections, Dividers, Labels, Paragraphs, Progress Bars, Buttons (with optional Cooldowns), Toggles, Sliders, Text Inputs, Keybind Pickers, HSV Color Pickers, Dropdowns & Multi-Dropdowns (with header & per-option icons), Tooltips, Notifications, and Confirmation Dialogs.
+## 🌟 Overview
+
+**TryxzLib** is a sleek, high-performance User Interface framework built from the ground up in **Luau** for Roblox. Engineered with a decoupled, modular architecture to avoid Luau register/upvalue limits, it delivers silky-smooth `TweenService` animations, rounded aesthetics, a multi-profile save system, and comprehensive mobile & desktop ergonomics.
 
 ---
 
-## Quick Start
+## 🚀 Core Features
 
-Load the library directly from your repository:
+| Feature | Description |
+| :--- | :--- |
+| 🎨 **Silky `TweenService` Motion** | Every window transition, tab indicator, slider drag, dropdown expansion, and modal dialog uses calibrated easing curves (`Quad`, `Quart`, `Back`, `Quint`). |
+| 🤍 **Bottom White Drag Handle** | Features a classic top bar drag handle **plus** a translucent white animated bottom drag bar locked directly beneath the window for effortless mobile & desktop dragging. |
+| 🌫️ **Camera Glass Blur** | Integrated `BlurEffect` in `Lighting` that smoothly fades in when the UI is open and automatically clears when minimized (`-`), collapsed (`UI`), hidden, or unloaded. |
+| 💊 **Floating `"UI"` Pill Mode** | Collapse the entire interface into a draggable, screen-clamped floating `"UI"` pill button and restore it with a single tap. |
+| 🔐 **Key Verification Gate** | Built-in access gate featuring dedicated `Note:` & `Info:` cards (with automatic empty-state fallbacks), a glowing crimson `"X"` close button, `"Copy Key Link"`, and `SaveKey` persistence. |
+| 💾 **Multi-Profile Save System** | Automatically saves and restores component states, keybinds, accent colors, UI scale, blur state, and audio settings across named JSON profiles. |
+| ⚙️ **Interactive Gear (`⚙`) Panel** | Includes a **Function Keybinds Dropdown** (auto-lists Toggles, Sliders & Buttons), **Diamond UI Scale Slider** (`0.75x–1.35x`), **Live Accent Swatches**, **Sound Packs**, **Haptics**, and **Profile Manager**. |
+| 📐 **Adaptive Long-Tab Sidebar** | Automatically expands sidebar width and wraps text cleanly when long tab titles are used. |
+
+---
+
+## ⚡ Quick Start
+
+Load **TryxzLib** directly into your script using `HttpGet`:
 
 ```lua
 local TryxzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gthsc51/TryxzLib-/refs/heads/main/Library/Tryxz"))()
@@ -57,24 +71,26 @@ local TryxzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gths
 
 ---
 
-## Creating a Window
+## 🪟 Window Configuration
+
+Initialize your main interface window with full customization options:
 
 ```lua
 local Window = TryxzLib:CreateWindow({
     Title = "TryxzHub",
     Subtitle = "v3.7 | Interface Showcase",
-    Icon = "rbxassetid://10734950309", -- Supports rbxassetid://, numeric IDs, or text
-    Profile = true,                      -- Displays user avatar & display name in sidebar
-    Stats = true,                        -- Displays live FPS & Ping pill in top bar
-    SearchBar = true,                    -- Enables live element search bar
-    Haptics = true,                      -- Enables tactile vibration feedback
+    Icon = "rbxassetid://10734950309", -- Accepts rbxassetid://, numeric IDs, or text/emoji
+    Profile = true,                      -- Shows player headshot & @username in sidebar
+    Stats = true,                        -- Shows live FPS & Ping pill in top bar
+    SearchBar = true,                    -- Live search bar to filter elements across tabs
+    Haptics = true,                      -- Tactile controller/device vibration feedback
     Blur = {
-        Enabled = true,                  -- Smooth background blur while open
+        Enabled = true,                  -- Camera blur while window is active
         Size = 14
     },
     SaveConfig = {
         Enabled = true,
-        SaveKey = true,                  -- Remembers verified key automatically
+        SaveKey = true,                  -- Automatically remembers verified access key
         DefaultProfile = "default",
         Folder = "TryxzLibConfigs",
         FileName = "TryxzHub_Config"
@@ -97,7 +113,7 @@ local Window = TryxzLib:CreateWindow({
     },
     ToggleKey = Enum.KeyCode.RightControl,
     KeySystem = {
-        Enabled = false,                 -- Set to true to enable the access key gate
+        Enabled = false,                 -- Set to true to enable the key verification modal
         Title = "Access Verification",
         Icon = "rbxassetid://10723407389",
         Note = "Enter your access key below to continue.",
@@ -105,7 +121,7 @@ local Window = TryxzLib:CreateWindow({
             Title = "Information",
             Content = "Keys can be obtained from our official link."
         },
-        Keys = {"tryxz123"},             -- Accepts a string, table of strings, or validator function(key)
+        Keys = {"tryxz123"},             -- Supports string, table of strings, or function(key)
         ButtonText = "Verify & Enter",
         GetKeyLink = "https://github.com/gthsc51/TryxzLib-"
     }
@@ -114,41 +130,45 @@ local Window = TryxzLib:CreateWindow({
 
 ---
 
-## Tabs & Sub-Tabs
+## 📑 Tabs & Horizontal Sub-Tabs
+
+Organize your controls cleanly using sidebar tabs and horizontal sub-tabs:
 
 ```lua
--- Create a main sidebar tab (supports short or long titles; icon is optional)
+-- Create a main sidebar tab (supports short or long names; icon is optional)
 local MainTab = Window:CreateTab("Main Tab", "rbxassetid://10747373176")
 
--- Optional: Divide a tab into horizontal sub-tabs
+-- Optional: Split a tab into horizontal sub-tabs
 local GeneralSub = MainTab:AddSubTab("General")
 local AdvancedSub = MainTab:AddSubTab("Advanced")
 ```
 
-> **Note:** Both `MainTab` and `GeneralSub` share the exact same element API methods listed below.
+> 💡 **Tip:** Both `MainTab` and `GeneralSub` expose the exact same element creation API documented below.
 
 ---
 
-## Components API
+## 🧩 Components API
 
-### Sections, Dividers, Labels & Paragraphs
+<details open>
+<summary><b>📌 Sections, Dividers, Labels & Paragraphs</b></summary>
 
 ```lua
 MainTab:AddSection("General Controls")
 
 local StatusLabel = MainTab:AddLabel("Status: Idle")
--- Update dynamically:
-StatusLabel:Set("Status: Active")
+StatusLabel:Set("Status: Active") -- Update dynamically
 
 MainTab:AddParagraph({
-    Title = "Welcome",
-    Content = "Configure your preferences using the controls below."
+    Title = "Welcome to TryxzLib",
+    Content = "Configure your preferences using the interactive controls below."
 })
 
 MainTab:AddDivider()
 ```
+</details>
 
-### Progress Bar
+<details open>
+<summary><b>📊 Progress Bar</b></summary>
 
 ```lua
 local Progress = MainTab:AddProgressBar({
@@ -161,8 +181,10 @@ local Progress = MainTab:AddProgressBar({
 -- Update value and optional custom suffix text:
 Progress:Set(75, "75% Done")
 ```
+</details>
 
-### Button
+<details open>
+<summary><b>🔘 Button (With Cooldown & Gear Keybind Support)</b></summary>
 
 ```lua
 MainTab:AddButton({
@@ -179,8 +201,10 @@ MainTab:AddButton({
     end
 })
 ```
+</details>
 
-### Toggle
+<details open>
+<summary><b>🔀 Toggle</b></summary>
 
 ```lua
 local FeatureToggle = MainTab:AddToggle({
@@ -196,11 +220,12 @@ local FeatureToggle = MainTab:AddToggle({
     end
 })
 
--- Programmatically update state:
-FeatureToggle:Set(true)
+FeatureToggle:Set(true) -- Programmatically update state
 ```
+</details>
 
-### Slider
+<details open>
+<summary><b>🎚️ Slider</b></summary>
 
 ```lua
 local SpeedSlider = MainTab:AddSlider({
@@ -218,13 +243,15 @@ local SpeedSlider = MainTab:AddSlider({
     end
 })
 
--- Programmatically update value:
-SpeedSlider:Set(100)
+SpeedSlider:Set(100) -- Programmatically update value
 ```
+</details>
 
-### Text Input
+<details open>
+<summary><b>⌨️ Text Input & Keybind Picker</b></summary>
 
 ```lua
+-- Text / Numeric Input
 local NameInput = MainTab:AddInput({
     Name = "Target Name",
     Flag = "TargetNameFlag",
@@ -237,11 +264,8 @@ local NameInput = MainTab:AddInput({
         print("Input text:", text)
     end
 })
-```
 
-### Keybind Picker
-
-```lua
+-- Standalone Keybind Picker
 local Bind = MainTab:AddKeybind({
     Name = "Quick Toggle Key",
     Flag = "QuickBindFlag",
@@ -252,8 +276,10 @@ local Bind = MainTab:AddKeybind({
     end
 })
 ```
+</details>
 
-### Color Picker (HSV)
+<details open>
+<summary><b>🎨 HSV Color Picker</b></summary>
 
 ```lua
 local Picker = MainTab:AddColorPicker({
@@ -266,11 +292,13 @@ local Picker = MainTab:AddColorPicker({
     end
 })
 ```
+</details>
 
-### Dropdown & Multi-Dropdown (With Icons)
+<details open>
+<summary><b>📋 Dropdown & Multi-Dropdown (With Header & Option Icons)</b></summary>
 
 ```lua
--- Single Selection
+-- Single Selection Dropdown
 MainTab:AddDropdown({
     Name = "Target Hitbox",
     Icon = "rbxassetid://10723356507", -- Optional header icon
@@ -288,7 +316,7 @@ MainTab:AddDropdown({
     end
 })
 
--- Multiple Selection
+-- Multiple Selection Dropdown
 MainTab:AddMultiDropdown({
     Name = "Active Overlays",
     Icon = "rbxassetid://10734933222", -- Optional header icon
@@ -307,13 +335,14 @@ MainTab:AddMultiDropdown({
     end
 })
 ```
+</details>
 
 ---
 
-## Notifications, Dialogs & Utilities
+## 🛠️ Utilities & Themes
 
 ```lua
--- Send an animated notification
+-- 🔔 Send an animated toast notification
 TryxzLib:Notify({
     Title = "Action Complete",
     Text = "Your settings have been applied.",
@@ -321,7 +350,7 @@ TryxzLib:Notify({
     Sound = "Notify" -- Optional sound override
 })
 
--- Open a modal confirmation dialog
+-- 💬 Open a modal confirmation dialog
 TryxzLib:Dialog({
     Title = "Confirm Reset",
     Icon = "rbxassetid://10734933222",
@@ -336,7 +365,7 @@ TryxzLib:Dialog({
     end
 })
 
--- Register a custom function inside the Gear (⚙) Keybinds Dropdown
+-- ⌨️ Register a custom function inside the Gear (⚙) Keybinds Dropdown
 Window:RegisterKeybind({
     Id = "CustomFnBind",
     Name = "Custom Action",
@@ -347,7 +376,7 @@ Window:RegisterKeybind({
     end
 })
 
--- Dynamic Theme & Audio Helpers
+-- 🎨 Dynamic Theme & Audio Helpers
 TryxzLib:SetAccent(Color3.fromRGB(56, 152, 255))
 TryxzLib:SetSoundPreset("Mechanical")
 TryxzLib:RegisterSound("Beep", "rbxassetid://6895079853")
@@ -356,6 +385,11 @@ TryxzLib:PlaySound("Beep")
 
 ---
 
-## License
+<div align="center">
 
-This project is open-source and maintained by **gthsc51**. Credit is appreciated when using or modifying **TryxzLib** in your projects. 
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,20,24&height=2&section=footer" width="100%" />
+
+**Maintained with ❤️ by [gthsc51](https://github.com/gthsc51)**  
+*Credit is appreciated when using or modifying **TryxzLib** in your projects.*
+
+</div> 
