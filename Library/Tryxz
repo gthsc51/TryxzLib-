@@ -1,7 +1,7 @@
 --[[
    TryxzLib by gthsc51
-    Modern library, to use exploits in Roblox
-]] 
+    Modern library, for Roblox. 
+]]
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
