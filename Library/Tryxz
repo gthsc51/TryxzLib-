@@ -1,8 +1,7 @@
 --[[
-    TryxzLib v3.8 by gthsc51
+    TryxzLib v3.9 by gthsc51
     Complete, Modular, Fully Animated UI Library for Roblox Executors
-    New in v3.8: Distinct Sections, Gradient Diamond Dividers, Status Labels,
-                 Structured Paragraphs & Full Multi-Color UI Themes
+    New in v3.9: Clean Icon Badges in Dropdowns/MultiDropdowns + Enhanced & Decorated Gear (⚙) Panel
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -1113,15 +1112,57 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     end)
 end
 
+-- Helper to build clean option icon badges without any string coercion bugs
+local function BuildOptionIconBadge(parent, iconValue, posX, posY, zindex)
+    if iconValue == nil or tostring(iconValue) == "" then
+        return nil
+    end
+    local rawStr = tostring(iconValue)
+    local isAsset = string.find(rawStr, "rbxassetid://", 1, true) ~= nil or tonumber(rawStr) ~= nil
+
+    local badge = Instance.new("Frame")
+    badge.Size = UDim2.new(0, 18, 0, 18)
+    badge.Position = UDim2.new(0, posX, 0.5, posY or -9)
+    badge.BackgroundColor3 = Theme.Element
+    badge.BackgroundTransparency = 0.25
+    badge.BorderSizePixel = 0
+    badge.ZIndex = zindex or 4
+    badge.Parent = parent
+    Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
+
+    if isAsset then
+        local img = Instance.new("ImageLabel")
+        img.Size = UDim2.new(0, 13, 0, 13)
+        img.Position = UDim2.new(0.5, -6.5, 0.5, -6.5)
+        img.BackgroundTransparency = 1
+        img.Image = tonumber(rawStr) and ("rbxassetid://" .. rawStr) or rawStr
+        img.ImageColor3 = Color3.fromRGB(245, 245, 250)
+        img.ScaleType = Enum.ScaleType.Fit
+        img.ZIndex = (zindex or 4) + 1
+        img.Parent = badge
+    else
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(1, 0, 1, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = rawStr
+        lbl.TextColor3 = Color3.fromRGB(245, 245, 250)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 11
+        lbl.ZIndex = (zindex or 4) + 1
+        lbl.Parent = badge
+    end
+
+    return badge
+end
+
 -- ==========================================
--- DETACHED ELEMENT FACTORY (REFINED SECTIONS, DIVIDERS, LABELS & PARAGRAPHS)
+-- DETACHED ELEMENT FACTORY
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
     local ElementOrder = 0
     local function NextOrder() ElementOrder += 1 return ElementOrder end
 
-    -- 1. SECTION (Distinct Header Bar with Left Accent Pill, Optional Icon & Right Fading Line)
     function API:AddSection(text, icon)
         local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
         local secIcon = type(text) == "table" and text.Icon or icon
@@ -1180,7 +1221,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SecLbl
     end
 
-    -- 2. DIVIDER (Gradient Fading Line + Glowing Center Diamond Node or Optional Center Label)
     function API:AddDivider(centerText)
         local hasText = centerText ~= nil and tostring(centerText) ~= ""
         local DivHolder = Instance.new("Frame")
@@ -1238,7 +1278,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
     end
 
-    -- 3. LABEL (Status Pill with Left Accent Bar & Icon, Distinct from Interactive Buttons)
     function API:AddLabel(text, icon)
         local lblText = type(text) == "table" and (text.Text or "Label") or tostring(text or "Label")
         local lblIcon = type(text) == "table" and text.Icon or icon or "ℹ"
@@ -1290,7 +1329,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return LabelObj
     end
 
-    -- 4. PARAGRAPH (Structured Info Card with Header Separator & Optional Icon)
     function API:AddParagraph(pCfg)
         local hasIcon = pCfg.Icon ~= nil and tostring(pCfg.Icon) ~= ""
 
@@ -1371,7 +1409,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ParaObj
     end
 
-    -- 5. PROGRESS BAR
     function API:AddProgressBar(bCfg)
         local MaxVal = bCfg.Max or 100
         local CurVal = math.clamp(bCfg.Default or 0, 0, MaxVal)
@@ -1436,7 +1473,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
-    -- 6. BUTTON
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -1535,7 +1571,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         end
     end
 
-    -- 7. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -1620,7 +1655,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ToggleObj
     end
 
-    -- 8. SLIDER
     function API:AddSlider(sCfg)
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
@@ -1758,7 +1792,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SliderObj
     end
 
-    -- 9. INPUT / TEXTBOX
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
@@ -1848,7 +1881,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
-    -- 10. KEYBIND PICKER
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
@@ -1938,7 +1970,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
-    -- 11. COLOR PICKER
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
@@ -2126,7 +2157,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 12. DROPDOWN
+    -- 12. DROPDOWN (Clean Option Icon Badge)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -2164,7 +2195,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.Size = UDim2.new(0.46, -titleX, 1, 0)
         Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
-        Title.Text = dCfg.Name or "Dropdown"
+        Title.Text = tostring(dCfg.Name or "Dropdown")
         Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamSemibold
         Title.TextSize = 12
@@ -2221,9 +2252,9 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         for i, opt in ipairs(Options) do
             local optIcon = OptIcons[opt] or OptIcons[tostring(opt)] or (type(opt) == "table" and opt.Icon)
-            local optLabel = type(opt) == "table" and (opt.Text or opt.Name or tostring(opt)) or tostring(opt)
+            local optLabel = type(opt) == "table" and tostring(opt.Text or opt.Name or opt.Value or "Option") or tostring(opt)
             local optValue = type(opt) == "table" and (opt.Value or optLabel) or opt
-            local hasOptIcon = optIcon ~= nil and tostring(optIcon) ~= ""
+            local badge = BuildOptionIconBadge(ListHolder, optIcon, 8, -9, 4)
 
             local OptBtn = Instance.new("TextButton")
             OptBtn.LayoutOrder = i
@@ -2235,13 +2266,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
             BindTheme(OptBtn, "BackgroundColor3", "Background")
 
-            if hasOptIcon then
-                CreateIcon(OptBtn, optIcon, 14, UDim2.new(0, 8, 0.5, -7), 4)
+            if badge then
+                badge.Parent = OptBtn
+                badge.Position = UDim2.new(0, 7, 0.5, -9)
             end
 
             local OptTxt = Instance.new("TextLabel")
-            OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
-            OptTxt.Position = UDim2.new(0, hasOptIcon and 26 or 8, 0, 0)
+            OptTxt.Size = UDim2.new(1, badge and -34 or -14, 1, 0)
+            OptTxt.Position = UDim2.new(0, badge and 30 or 10, 0, 0)
             OptTxt.BackgroundTransparency = 1
             OptTxt.Text = optLabel
             OptTxt.TextColor3 = Theme.SubText
@@ -2279,7 +2311,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
-    -- 13. MULTI-DROPDOWN
+    -- 13. MULTI-DROPDOWN (Clean Option Icon Badge)
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -2321,7 +2353,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.Size = UDim2.new(0.42, -titleX, 1, 0)
         Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
-        Title.Text = mCfg.Name or "MultiDropdown"
+        Title.Text = tostring(mCfg.Name or "MultiDropdown")
         Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamSemibold
         Title.TextSize = 12
@@ -2387,7 +2419,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         local OptButtons = {}
         for i, opt in ipairs(Options) do
             local optIcon = OptIcons[opt] or OptIcons[tostring(opt)]
-            local hasOptIcon = optIcon ~= nil and tostring(optIcon) ~= ""
+            local optLabel = tostring(opt)
 
             local OptBtn = Instance.new("TextButton")
             OptBtn.LayoutOrder = i
@@ -2401,15 +2433,13 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             BindTheme(OptBtn, "BackgroundColor3", "Background", function() return not Selected[opt] end)
             OptButtons[opt] = OptBtn
 
-            if hasOptIcon then
-                CreateIcon(OptBtn, optIcon, 14, UDim2.new(0, 8, 0.5, -7), 4)
-            end
+            local badge = BuildOptionIconBadge(OptBtn, optIcon, 7, -9, 4)
 
             local OptTxt = Instance.new("TextLabel")
-            OptTxt.Size = UDim2.new(1, hasOptIcon and -30 or -12, 1, 0)
-            OptTxt.Position = UDim2.new(0, hasOptIcon and 26 or 8, 0, 0)
+            OptTxt.Size = UDim2.new(1, badge and -34 or -14, 1, 0)
+            OptTxt.Position = UDim2.new(0, badge and 30 or 10, 0, 0)
             OptTxt.BackgroundTransparency = 1
-            OptTxt.Text = tostring(opt)
+            OptTxt.Text = optLabel
             OptTxt.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
             OptTxt.Font = Enum.Font.Gotham
             OptTxt.TextSize = 11
@@ -2452,7 +2482,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW
+-- CREATE MAIN WINDOW + DECORATED GEAR (⚙) PANEL
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -3085,7 +3115,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE + FULL MULTI-THEME SELECTOR + KEYBINDS DROPDOWN
+    -- DECORATED SETTINGS PAGE (⚙)
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -3103,17 +3133,64 @@ function TryxzLib:CreateWindow(config)
     BindAccent(SettingsPage, "ScrollBarImageColor3")
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
-    SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 10)
+    SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 12)
     SettingsPadding.PaddingLeft, SettingsPadding.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
 
     local SettingsLayout = Instance.new("UIListLayout", SettingsPage)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- 1. Credits Card
+    local function AddGearSectionHeader(order, titleText, badgeText)
+        local row = Instance.new("Frame")
+        row.LayoutOrder = order
+        row.Size = UDim2.new(1, 0, 0, 20)
+        row.BackgroundTransparency = 1
+        row.ZIndex = 11
+        row.Parent = SettingsPage
+
+        local bar = Instance.new("Frame")
+        bar.Size = UDim2.new(0, 3, 0, 11)
+        bar.Position = UDim2.new(0, 2, 0.5, -5.5)
+        bar.BackgroundColor3 = Theme.Accent
+        bar.BorderSizePixel = 0
+        bar.ZIndex = 12
+        bar.Parent = row
+        Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+        BindAccent(bar, "BackgroundColor3")
+
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(0.7, 0, 1, 0)
+        lbl.Position = UDim2.new(0, 10, 0, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = string.upper(titleText)
+        lbl.TextColor3 = Theme.Text
+        lbl.Font = Enum.Font.GothamBlack
+        lbl.TextSize = 9
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.ZIndex = 12
+        lbl.Parent = row
+        BindTheme(lbl, "TextColor3", "Text")
+
+        if badgeText then
+            local bLbl = Instance.new("TextLabel")
+            bLbl.Size = UDim2.new(0.3, -4, 1, 0)
+            bLbl.Position = UDim2.new(0.7, 0, 0, 0)
+            bLbl.BackgroundTransparency = 1
+            bLbl.Text = tostring(badgeText)
+            bLbl.TextColor3 = Theme.Accent
+            bLbl.Font = Enum.Font.GothamBold
+            bLbl.TextSize = 9
+            bLbl.TextXAlignment = Enum.TextXAlignment.Right
+            bLbl.ZIndex = 12
+            bLbl.Parent = row
+            BindAccent(bLbl, "TextColor3")
+        end
+    end
+
+    -- 1. Decorated Credits Banner Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
-    CreditsCard.Size = UDim2.new(1, 0, 0, 62)
+    CreditsCard.Size = UDim2.new(1, 0, 0, 64)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
@@ -3121,27 +3198,37 @@ function TryxzLib:CreateWindow(config)
     BindTheme(CreditsCard, "BackgroundColor3", "Element")
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Theme.Accent
-    CStroke.Thickness = 1
+    CStroke.Thickness = 1.2
     BindAccent(CStroke, "Color")
 
+    local LeftAccentStrip = Instance.new("Frame")
+    LeftAccentStrip.Size = UDim2.new(0, 4, 1, -14)
+    LeftAccentStrip.Position = UDim2.new(0, 6, 0, 7)
+    LeftAccentStrip.BackgroundColor3 = Theme.Accent
+    LeftAccentStrip.BorderSizePixel = 0
+    LeftAccentStrip.ZIndex = 12
+    LeftAccentStrip.Parent = CreditsCard
+    Instance.new("UICorner", LeftAccentStrip).CornerRadius = UDim.new(1, 0)
+    BindAccent(LeftAccentStrip, "BackgroundColor3")
+
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -20, 0, 18)
-    CTitle.Position = UDim2.new(0, 10, 0, 7)
+    CTitle.Size = UDim2.new(1, -24, 0, 18)
+    CTitle.Position = UDim2.new(0, 16, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.8 by gthsc51"
+    CTitle.Text = "TryxzLib v3.9  •  by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
-    CTitle.TextSize = 13
+    CTitle.TextSize = 12
     CTitle.TextXAlignment = Enum.TextXAlignment.Left
     CTitle.ZIndex = 12
     CTitle.Parent = CreditsCard
     BindAccent(CTitle, "TextColor3")
 
     local CDesc = Instance.new("TextLabel")
-    CDesc.Size = UDim2.new(1, -20, 0, 28)
-    CDesc.Position = UDim2.new(0, 10, 0, 25)
+    CDesc.Size = UDim2.new(1, -24, 0, 28)
+    CDesc.Position = UDim2.new(0, 16, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Smooth animated UI library built for executors.\nDrag the bottom white line or press [" .. Cfg.Keybind.Name .. "] to move/toggle."
+    CDesc.Text = "Drag the bottom white line or press [" .. Cfg.Keybind.Name .. "] to move/toggle.\nTap any keybind pill in Function Keybinds to rebind or clear."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -3151,13 +3238,15 @@ function TryxzLib:CreateWindow(config)
     CDesc.Parent = CreditsCard
     BindTheme(CDesc, "TextColor3", "SubText")
 
-    -- 2. Function Keybinds Dropdown
+    AddGearSectionHeader(2, "Keybinds & Controls", "BINDS")
+
+    -- 3. Function Keybinds Dropdown
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
 
     local KeybindDropCard = Instance.new("Frame")
-    KeybindDropCard.LayoutOrder = 2
+    KeybindDropCard.LayoutOrder = 3
     KeybindDropCard.Size = UDim2.new(1, 0, 0, 36)
     KeybindDropCard.BackgroundColor3 = Theme.Element
     KeybindDropCard.ClipsDescendants = true
@@ -3405,9 +3494,11 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- 3. Segmented Diamond UI Scale Slider
+    AddGearSectionHeader(4, "Appearance & Themes", "STYLE")
+
+    -- 5. Segmented Diamond UI Scale Slider
     local ScaleCard = Instance.new("Frame")
-    ScaleCard.LayoutOrder = 3
+    ScaleCard.LayoutOrder = 5
     ScaleCard.Size = UDim2.new(1, 0, 0, 56)
     ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
     ScaleCard.BackgroundTransparency = 0.45
@@ -3571,9 +3662,9 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- 4. FULL MULTI-COLOR THEME PALETTE CARD
+    -- 6. FULL MULTI-COLOR THEME PALETTE CARD
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.LayoutOrder = 4
+    ThemeCard.LayoutOrder = 6
     ThemeCard.Size = UDim2.new(1, 0, 0, 52)
     ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
     ThemeCard.BackgroundTransparency = 0.5
@@ -3581,6 +3672,12 @@ function TryxzLib:CreateWindow(config)
     ThemeCard.Parent = SettingsPage
     Instance.new("UICorner", ThemeCard).CornerRadius = UDim.new(0, 12)
     BindTheme(ThemeCard, "BackgroundColor3", "GrayTranslucent")
+
+    local TCardStroke = Instance.new("UIStroke", ThemeCard)
+    TCardStroke.Color = Theme.Divider
+    TCardStroke.Thickness = 1
+    TCardStroke.Transparency = 0.4
+    BindTheme(TCardStroke, "Color", "Divider")
 
     local ThemeLbl = Instance.new("TextLabel")
     ThemeLbl.Size = UDim2.new(0.55, 0, 0, 16)
@@ -3654,7 +3751,9 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 5, 6 & 7. Special Diamond Settings Toggles
+    AddGearSectionHeader(7, "Feedback, Blur & Audio", "SYSTEM")
+
+    -- 8, 9 & 10. Special Diamond Settings Toggles
     local function CreateSpecialSettingsToggle(order, titleText, subText, initialState, onToggle)
         local st = initialState
         local Btn = Instance.new("TextButton")
@@ -3729,28 +3828,28 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    CreateSpecialSettingsToggle(5, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
+    CreateSpecialSettingsToggle(8, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
         BlurState.Enabled = val
         SetBlurActive(val and not State.Minimized and not State.Collapsed)
         TriggerHaptic(0.25)
         TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(6, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
+    CreateSpecialSettingsToggle(9, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
         Cfg.Haptics = val
         if val then TriggerHaptic(0.5) end
         TryxzLib:PlaySound("Toggle")
     end)
 
-    CreateSpecialSettingsToggle(7, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
+    CreateSpecialSettingsToggle(10, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
         SoundState.Enabled = val
         TriggerHaptic(0.25)
         if val then TryxzLib:PlaySound("Toggle") end
     end)
 
-    -- 8. Sound Pack Selector
+    -- 11. Sound Pack Selector
     local SoundSelectBtn = Instance.new("TextButton")
-    SoundSelectBtn.LayoutOrder = 8
+    SoundSelectBtn.LayoutOrder = 11
     SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
     SoundSelectBtn.BackgroundColor3 = Theme.Element
     SoundSelectBtn.Text = ""
@@ -3796,10 +3895,12 @@ function TryxzLib:CreateWindow(config)
         WriteConfigFile()
     end)
 
-    -- 9. Multi-Profile Config Manager Card
+    AddGearSectionHeader(12, "Profiles & Session", "DATA")
+
+    -- 13. Multi-Profile Config Manager Card
     if Cfg.SaveEnabled then
         local ProfCard = Instance.new("Frame")
-        ProfCard.LayoutOrder = 9
+        ProfCard.LayoutOrder = 13
         ProfCard.Size = UDim2.new(1, 0, 0, 74)
         ProfCard.BackgroundColor3 = Theme.GrayTranslucent
         ProfCard.BackgroundTransparency = 0.5
@@ -3939,9 +4040,9 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- 10. Unload / Destroy UI Button
+    -- 14. Unload / Destroy UI Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 10
+    DestroyBtn.LayoutOrder = 14
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Theme.Error
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -4199,3 +4300,4 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
+ 
