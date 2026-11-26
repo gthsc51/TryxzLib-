@@ -1,6 +1,8 @@
 --[[
-   TryxzLib by gthsc51
-    Modern library, for Roblox. 
+    TryxzLib v3.8 by gthsc51
+    Complete, Modular, Fully Animated UI Library for Roblox Executors
+    New in v3.8: Distinct Sections, Gradient Diamond Dividers, Status Labels,
+                 Structured Paragraphs & Full Multi-Color UI Themes
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -25,32 +27,109 @@ local Tweens = {
     Elastic = TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 }
 
-local Theme = {
-    Background = Color3.fromRGB(16, 16, 20),
-    Sidebar = Color3.fromRGB(22, 22, 28),
-    Element = Color3.fromRGB(30, 30, 38),
-    ElementHover = Color3.fromRGB(38, 38, 48),
-    GrayTranslucent = Color3.fromRGB(48, 48, 58),
-    Accent = Color3.fromRGB(115, 85, 255),
-    AccentHover = Color3.fromRGB(132, 105, 255),
-    Success = Color3.fromRGB(65, 195, 120),
-    Error = Color3.fromRGB(235, 55, 70),
-    ErrorGlow = Color3.fromRGB(255, 95, 110),
-    Text = Color3.fromRGB(240, 240, 245),
-    SubText = Color3.fromRGB(165, 165, 180),
-    Divider = Color3.fromRGB(55, 55, 68)
+-- ==========================================
+-- FULL MULTI-COLOR THEMES SYSTEM
+-- ==========================================
+local ThemeOrder = {"Obsidian", "Crimson Night", "Abyss Ocean", "Emerald Forest", "Solar Amber", "Sakura Dusk"}
+
+local Themes = {
+    ["Obsidian"] = {
+        Background = Color3.fromRGB(16, 16, 20),
+        Sidebar = Color3.fromRGB(22, 22, 28),
+        Element = Color3.fromRGB(30, 30, 38),
+        ElementHover = Color3.fromRGB(38, 38, 48),
+        GrayTranslucent = Color3.fromRGB(48, 48, 58),
+        Accent = Color3.fromRGB(115, 85, 255),
+        AccentHover = Color3.fromRGB(132, 105, 255),
+        Success = Color3.fromRGB(65, 195, 120),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(240, 240, 245),
+        SubText = Color3.fromRGB(165, 165, 180),
+        Divider = Color3.fromRGB(55, 55, 68)
+    },
+    ["Crimson Night"] = {
+        Background = Color3.fromRGB(20, 14, 16),
+        Sidebar = Color3.fromRGB(28, 18, 22),
+        Element = Color3.fromRGB(38, 24, 29),
+        ElementHover = Color3.fromRGB(48, 30, 36),
+        GrayTranslucent = Color3.fromRGB(62, 38, 46),
+        Accent = Color3.fromRGB(235, 68, 90),
+        AccentHover = Color3.fromRGB(250, 88, 108),
+        Success = Color3.fromRGB(65, 195, 120),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(246, 238, 240),
+        SubText = Color3.fromRGB(185, 158, 165),
+        Divider = Color3.fromRGB(72, 46, 54)
+    },
+    ["Abyss Ocean"] = {
+        Background = Color3.fromRGB(13, 18, 26),
+        Sidebar = Color3.fromRGB(18, 25, 36),
+        Element = Color3.fromRGB(25, 34, 48),
+        ElementHover = Color3.fromRGB(32, 44, 62),
+        GrayTranslucent = Color3.fromRGB(42, 56, 78),
+        Accent = Color3.fromRGB(56, 152, 255),
+        AccentHover = Color3.fromRGB(82, 168, 255),
+        Success = Color3.fromRGB(65, 195, 120),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(238, 244, 252),
+        SubText = Color3.fromRGB(156, 174, 196),
+        Divider = Color3.fromRGB(48, 64, 88)
+    },
+    ["Emerald Forest"] = {
+        Background = Color3.fromRGB(13, 22, 18),
+        Sidebar = Color3.fromRGB(18, 30, 24),
+        Element = Color3.fromRGB(24, 40, 32),
+        ElementHover = Color3.fromRGB(31, 52, 42),
+        GrayTranslucent = Color3.fromRGB(40, 64, 52),
+        Accent = Color3.fromRGB(46, 204, 113),
+        AccentHover = Color3.fromRGB(68, 220, 132),
+        Success = Color3.fromRGB(65, 215, 130),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(238, 248, 242),
+        SubText = Color3.fromRGB(156, 186, 168),
+        Divider = Color3.fromRGB(46, 72, 58)
+    },
+    ["Solar Amber"] = {
+        Background = Color3.fromRGB(22, 19, 14),
+        Sidebar = Color3.fromRGB(30, 26, 19),
+        Element = Color3.fromRGB(40, 35, 25),
+        ElementHover = Color3.fromRGB(52, 45, 32),
+        GrayTranslucent = Color3.fromRGB(64, 56, 40),
+        Accent = Color3.fromRGB(245, 178, 45),
+        AccentHover = Color3.fromRGB(255, 194, 70),
+        Success = Color3.fromRGB(65, 195, 120),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(248, 244, 236),
+        SubText = Color3.fromRGB(188, 178, 158),
+        Divider = Color3.fromRGB(74, 65, 48)
+    },
+    ["Sakura Dusk"] = {
+        Background = Color3.fromRGB(22, 15, 24),
+        Sidebar = Color3.fromRGB(30, 20, 33),
+        Element = Color3.fromRGB(40, 27, 44),
+        ElementHover = Color3.fromRGB(52, 35, 56),
+        GrayTranslucent = Color3.fromRGB(65, 44, 70),
+        Accent = Color3.fromRGB(236, 95, 185),
+        AccentHover = Color3.fromRGB(248, 118, 200),
+        Success = Color3.fromRGB(65, 195, 120),
+        Error = Color3.fromRGB(235, 55, 70),
+        ErrorGlow = Color3.fromRGB(255, 95, 110),
+        Text = Color3.fromRGB(248, 238, 246),
+        SubText = Color3.fromRGB(188, 160, 182),
+        Divider = Color3.fromRGB(76, 52, 82)
+    }
 }
 
-local AccentPresets = {
-    {Name = "Violet", Color = Color3.fromRGB(115, 85, 255)},
-    {Name = "Crimson", Color = Color3.fromRGB(235, 68, 90)},
-    {Name = "Ocean", Color = Color3.fromRGB(56, 152, 255)},
-    {Name = "Emerald", Color = Color3.fromRGB(46, 204, 113)},
-    {Name = "Gold", Color = Color3.fromRGB(245, 178, 45)},
-    {Name = "Rose", Color = Color3.fromRGB(236, 95, 185)}
-}
+local ActiveThemeName = "Obsidian"
+local Theme = {}
+for k, v in pairs(Themes["Obsidian"]) do Theme[k] = v end
 
-local AccentObjects = {}
+local ThemeBindings = {}
 
 local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -58,25 +137,62 @@ local function Tween(obj, info, props)
     return t
 end
 
+local function BindTheme(obj, prop, themeKey, conditionFn)
+    table.insert(ThemeBindings, {Obj = obj, Prop = prop, Key = themeKey, Cond = conditionFn})
+end
+
 local function BindAccent(obj, prop, conditionFn)
-    table.insert(AccentObjects, {Obj = obj, Prop = prop, Cond = conditionFn})
+    BindTheme(obj, prop, "Accent", conditionFn)
+end
+
+local function RefreshAllThemeBindings()
+    for i = #ThemeBindings, 1, -1 do
+        local entry = ThemeBindings[i]
+        if entry.Obj and entry.Obj.Parent then
+            if not entry.Cond or entry.Cond() then
+                local col = Theme[entry.Key]
+                if col then
+                    Tween(entry.Obj, Tweens.Fast, {[entry.Prop] = col})
+                end
+            end
+        else
+            table.remove(ThemeBindings, i)
+        end
+    end
+end
+
+function TryxzLib:SetTheme(themeName)
+    local preset = Themes[themeName]
+    if not preset then return end
+    ActiveThemeName = themeName
+    for k, v in pairs(preset) do
+        Theme[k] = v
+    end
+    RefreshAllThemeBindings()
+end
+
+function TryxzLib:AddTheme(themeName, paletteTable)
+    if not themeName or type(paletteTable) ~= "table" then return end
+    local base = Themes["Obsidian"]
+    local newPal = {}
+    for k, v in pairs(base) do
+        newPal[k] = paletteTable[k] or v
+    end
+    if paletteTable.Accent and not paletteTable.AccentHover then
+        local h, s, v = paletteTable.Accent:ToHSV()
+        newPal.AccentHover = Color3.fromHSV(h, math.max(0, s - 0.08), math.min(1, v + 0.08))
+    end
+    Themes[themeName] = newPal
+    if not table.find(ThemeOrder, themeName) then
+        table.insert(ThemeOrder, themeName)
+    end
 end
 
 function TryxzLib:SetAccent(newColor)
     Theme.Accent = newColor
     local h, s, v = newColor:ToHSV()
     Theme.AccentHover = Color3.fromHSV(h, math.max(0, s - 0.08), math.min(1, v + 0.08))
-
-    for i = #AccentObjects, 1, -1 do
-        local entry = AccentObjects[i]
-        if entry.Obj and entry.Obj.Parent then
-            if not entry.Cond or entry.Cond() then
-                Tween(entry.Obj, Tweens.Fast, {[entry.Prop] = newColor})
-            end
-        else
-            table.remove(AccentObjects, i)
-        end
-    end
+    RefreshAllThemeBindings()
 end
 
 -- ==========================================
@@ -246,7 +362,7 @@ function TryxzLib:PlaySound(soundOrType, customVolume)
     end)
 end
 
-local function CreateIcon(parent, iconValue, size, pos, zindex)
+local function CreateIcon(parent, iconValue, size, pos, zindex, customColor)
     if iconValue == nil or tostring(iconValue) == "" then return nil end
     local strVal = tostring(iconValue)
     local isAsset = string.find(strVal, "rbxassetid://", 1, true) ~= nil or tonumber(strVal) ~= nil
@@ -258,7 +374,7 @@ local function CreateIcon(parent, iconValue, size, pos, zindex)
         img.BackgroundTransparency = 1
         img.ImageTransparency = 0
         img.Image = tonumber(strVal) and ("rbxassetid://" .. strVal) or strVal
-        img.ImageColor3 = Color3.fromRGB(245, 245, 250)
+        img.ImageColor3 = customColor or Color3.fromRGB(245, 245, 250)
         img.ScaleType = Enum.ScaleType.Fit
         img.ZIndex = zindex or 10
         img.Parent = parent
@@ -269,7 +385,7 @@ local function CreateIcon(parent, iconValue, size, pos, zindex)
         lbl.Position = pos
         lbl.BackgroundTransparency = 1
         lbl.Text = strVal
-        lbl.TextColor3 = Color3.fromRGB(245, 245, 250)
+        lbl.TextColor3 = customColor or Color3.fromRGB(245, 245, 250)
         lbl.Font = Enum.Font.GothamBold
         lbl.TextSize = math.max(11, size - 2)
         lbl.ZIndex = zindex or 10
@@ -303,6 +419,7 @@ TooltipFrame.Visible = false
 TooltipFrame.ZIndex = 60
 TooltipFrame.Parent = ScreenGui
 Instance.new("UICorner", TooltipFrame).CornerRadius = UDim.new(0, 10)
+BindTheme(TooltipFrame, "BackgroundColor3", "Sidebar")
 
 local TipStroke = Instance.new("UIStroke", TooltipFrame)
 TipStroke.Color = Theme.Accent
@@ -323,6 +440,7 @@ TipLbl.Font = Enum.Font.GothamSemibold
 TipLbl.TextSize = 10
 TipLbl.ZIndex = 61
 TipLbl.Parent = TooltipFrame
+BindTheme(TipLbl, "TextColor3", "Text")
 
 local ActiveTipOwner = nil
 UserInputService.InputChanged:Connect(function(inp)
@@ -628,7 +746,7 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM WITH "Note:", "Info:", & "Copy Key Link"
+-- KEY SYSTEM
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
@@ -733,7 +851,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     KTitleLbl.ZIndex = 12
     KTitleLbl.Parent = KInner
 
-    -- "Note:" Section
     local NoteFrame = Instance.new("Frame")
     NoteFrame.LayoutOrder = 3
     NoteFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -779,7 +896,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     NoteLbl.ZIndex = 13
     NoteLbl.Parent = NoteFrame
 
-    -- "Info:" Paragraph Card
     local InfoCard = Instance.new("Frame")
     InfoCard.LayoutOrder = 4
     InfoCard.Size = UDim2.new(1, 0, 0, 0)
@@ -998,39 +1114,78 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- DETACHED ELEMENT FACTORY
+-- DETACHED ELEMENT FACTORY (REFINED SECTIONS, DIVIDERS, LABELS & PARAGRAPHS)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
     local ElementOrder = 0
     local function NextOrder() ElementOrder += 1 return ElementOrder end
 
-    function API:AddSection(text)
+    -- 1. SECTION (Distinct Header Bar with Left Accent Pill, Optional Icon & Right Fading Line)
+    function API:AddSection(text, icon)
+        local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
+        local secIcon = type(text) == "table" and text.Icon or icon
+        local hasIcon = secIcon ~= nil and tostring(secIcon) ~= ""
+
         local SecFrame = Instance.new("Frame")
         SecFrame.LayoutOrder = NextOrder()
         SecFrame.Size = UDim2.new(1, 0, 0, 24)
-        SecFrame.BackgroundColor3 = Theme.GrayTranslucent
-        SecFrame.BackgroundTransparency = 0.65
+        SecFrame.BackgroundTransparency = 1
         SecFrame.Parent = Container
-        Instance.new("UICorner", SecFrame).CornerRadius = UDim.new(0, 10)
+
+        local AccentPill = Instance.new("Frame")
+        AccentPill.Size = UDim2.new(0, 3, 0, 12)
+        AccentPill.Position = UDim2.new(0, 2, 0.5, -6)
+        AccentPill.BackgroundColor3 = Theme.Accent
+        AccentPill.BorderSizePixel = 0
+        AccentPill.Parent = SecFrame
+        Instance.new("UICorner", AccentPill).CornerRadius = UDim.new(1, 0)
+        BindAccent(AccentPill, "BackgroundColor3")
+
+        local textX = 10
+        if hasIcon then
+            CreateIcon(SecFrame, secIcon, 13, UDim2.new(0, 9, 0.5, -6.5), 2, Theme.Accent)
+            textX = 26
+        end
 
         local SecLbl = Instance.new("TextLabel")
-        SecLbl.Size = UDim2.new(1, -16, 1, 0)
-        SecLbl.Position = UDim2.new(0, 10, 0, 0)
+        SecLbl.Size = UDim2.new(0, 0, 1, 0)
+        SecLbl.AutomaticSize = Enum.AutomaticSize.X
+        SecLbl.Position = UDim2.new(0, textX, 0, 0)
         SecLbl.BackgroundTransparency = 1
-        SecLbl.Text = string.upper(text)
-        SecLbl.TextColor3 = Theme.SubText
-        SecLbl.Font = Enum.Font.GothamBold
+        SecLbl.Text = string.upper(secText)
+        SecLbl.TextColor3 = Theme.Text
+        SecLbl.Font = Enum.Font.GothamBlack
         SecLbl.TextSize = 10
         SecLbl.TextXAlignment = Enum.TextXAlignment.Left
         SecLbl.Parent = SecFrame
+        BindTheme(SecLbl, "TextColor3", "Text")
+
+        local TrailLine = Instance.new("Frame")
+        TrailLine.Size = UDim2.new(1, -(textX + 8), 0, 1)
+        TrailLine.Position = UDim2.new(1, 0, 0.5, 0)
+        TrailLine.AnchorPoint = Vector2.new(1, 0.5)
+        TrailLine.BackgroundColor3 = Theme.Divider
+        TrailLine.BorderSizePixel = 0
+        TrailLine.Parent = SecFrame
+        BindTheme(TrailLine, "BackgroundColor3", "Divider")
+
+        local TrailGrad = Instance.new("UIGradient", TrailLine)
+        TrailGrad.Transparency = NumberSequence.new{
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.45, 0.35),
+            NumberSequenceKeypoint.new(1, 0.9)
+        }
+
         return SecLbl
     end
 
-    function API:AddDivider()
+    -- 2. DIVIDER (Gradient Fading Line + Glowing Center Diamond Node or Optional Center Label)
+    function API:AddDivider(centerText)
+        local hasText = centerText ~= nil and tostring(centerText) ~= ""
         local DivHolder = Instance.new("Frame")
         DivHolder.LayoutOrder = NextOrder()
-        DivHolder.Size = UDim2.new(1, 0, 0, 8)
+        DivHolder.Size = UDim2.new(1, 0, 0, hasText and 16 or 12)
         DivHolder.BackgroundTransparency = 1
         DivHolder.Parent = Container
 
@@ -1039,80 +1194,174 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Line.Position = UDim2.new(0.5, 0, 0.5, 0)
         Line.AnchorPoint = Vector2.new(0.5, 0.5)
         Line.BackgroundColor3 = Theme.Divider
-        Line.BackgroundTransparency = 0.3
         Line.BorderSizePixel = 0
         Line.Parent = DivHolder
-        Instance.new("UICorner", Line).CornerRadius = UDim.new(1, 0)
+        BindTheme(Line, "BackgroundColor3", "Divider")
+
+        local LineGrad = Instance.new("UIGradient", Line)
+        LineGrad.Transparency = NumberSequence.new{
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.25, 0.2),
+            NumberSequenceKeypoint.new(0.75, 0.2),
+            NumberSequenceKeypoint.new(1, 1)
+        }
+
+        if hasText then
+            local Badge = Instance.new("TextLabel")
+            Badge.Size = UDim2.new(0, 0, 0, 14)
+            Badge.AutomaticSize = Enum.AutomaticSize.X
+            Badge.Position = UDim2.new(0.5, 0, 0.5, 0)
+            Badge.AnchorPoint = Vector2.new(0.5, 0.5)
+            Badge.BackgroundColor3 = Theme.Background
+            Badge.Text = "  " .. string.upper(tostring(centerText)) .. "  "
+            Badge.TextColor3 = Theme.SubText
+            Badge.Font = Enum.Font.GothamBold
+            Badge.TextSize = 8
+            Badge.ZIndex = 2
+            Badge.Parent = DivHolder
+            BindTheme(Badge, "BackgroundColor3", "Background")
+            BindTheme(Badge, "TextColor3", "SubText")
+        else
+            local Node = Instance.new("Frame")
+            Node.Size = UDim2.new(0, 5, 0, 5)
+            Node.Position = UDim2.new(0.5, 0, 0.5, 0)
+            Node.AnchorPoint = Vector2.new(0.5, 0.5)
+            Node.Rotation = 45
+            Node.BackgroundColor3 = Theme.Accent
+            Node.BorderSizePixel = 0
+            Node.ZIndex = 2
+            Node.Parent = DivHolder
+            Instance.new("UICorner", Node).CornerRadius = UDim.new(0, 1)
+            BindAccent(Node, "BackgroundColor3")
+        end
+
         Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
     end
 
-    function API:AddLabel(text)
+    -- 3. LABEL (Status Pill with Left Accent Bar & Icon, Distinct from Interactive Buttons)
+    function API:AddLabel(text, icon)
+        local lblText = type(text) == "table" and (text.Text or "Label") or tostring(text or "Label")
+        local lblIcon = type(text) == "table" and text.Icon or icon or "ℹ"
+
         local LblFrame = Instance.new("Frame")
         LblFrame.LayoutOrder = NextOrder()
         LblFrame.Size = UDim2.new(1, 0, 0, 28)
         LblFrame.BackgroundColor3 = Theme.GrayTranslucent
-        LblFrame.BackgroundTransparency = 0.6
+        LblFrame.BackgroundTransparency = 0.68
         LblFrame.Parent = Container
-        Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 12)
-        RegisterSearchable(text, LblFrame)
+        Instance.new("UICorner", LblFrame).CornerRadius = UDim.new(0, 10)
+        RegisterSearchable(lblText, LblFrame)
+        BindTheme(LblFrame, "BackgroundColor3", "GrayTranslucent")
+
+        local LStroke = Instance.new("UIStroke", LblFrame)
+        LStroke.Color = Theme.Divider
+        LStroke.Thickness = 1
+        LStroke.Transparency = 0.45
+        BindTheme(LStroke, "Color", "Divider")
+
+        local LeftStripe = Instance.new("Frame")
+        LeftStripe.Size = UDim2.new(0, 3, 1, -10)
+        LeftStripe.Position = UDim2.new(0, 5, 0, 5)
+        LeftStripe.BackgroundColor3 = Theme.Accent
+        LeftStripe.BorderSizePixel = 0
+        LeftStripe.Parent = LblFrame
+        Instance.new("UICorner", LeftStripe).CornerRadius = UDim.new(1, 0)
+        BindAccent(LeftStripe, "BackgroundColor3")
+
+        CreateIcon(LblFrame, lblIcon, 13, UDim2.new(0, 13, 0.5, -6.5), 2, Theme.Accent)
 
         local Lbl = Instance.new("TextLabel")
-        Lbl.Size = UDim2.new(1, -18, 1, 0)
-        Lbl.Position = UDim2.new(0, 10, 0, 0)
+        Lbl.Size = UDim2.new(1, -36, 1, 0)
+        Lbl.Position = UDim2.new(0, 30, 0, 0)
         Lbl.BackgroundTransparency = 1
-        Lbl.Text = text
+        Lbl.Text = lblText
         Lbl.TextColor3 = Theme.SubText
-        Lbl.Font = Enum.Font.Gotham
+        Lbl.Font = Enum.Font.GothamMedium
         Lbl.TextSize = 11
         Lbl.TextXAlignment = Enum.TextXAlignment.Left
+        Lbl.TextTruncate = Enum.TextTruncate.AtEnd
         Lbl.Parent = LblFrame
+        BindTheme(Lbl, "TextColor3", "SubText")
 
         local LabelObj = {}
-        function LabelObj:Set(newText) Lbl.Text = newText end
+        function LabelObj:Set(newText)
+            Lbl.Text = tostring(newText)
+        end
         return LabelObj
     end
 
+    -- 4. PARAGRAPH (Structured Info Card with Header Separator & Optional Icon)
     function API:AddParagraph(pCfg)
+        local hasIcon = pCfg.Icon ~= nil and tostring(pCfg.Icon) ~= ""
+
         local ParaFrame = Instance.new("Frame")
         ParaFrame.LayoutOrder = NextOrder()
         ParaFrame.Size = UDim2.new(1, 0, 0, 48)
         ParaFrame.AutomaticSize = Enum.AutomaticSize.Y
         ParaFrame.BackgroundColor3 = Theme.GrayTranslucent
-        ParaFrame.BackgroundTransparency = 0.6
+        ParaFrame.BackgroundTransparency = 0.65
         ParaFrame.Parent = Container
         Instance.new("UICorner", ParaFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable((pCfg.Title or "") .. " " .. (pCfg.Content or ""), ParaFrame)
+        BindTheme(ParaFrame, "BackgroundColor3", "GrayTranslucent")
+
+        local PStroke = Instance.new("UIStroke", ParaFrame)
+        PStroke.Color = Theme.Divider
+        PStroke.Thickness = 1
+        PStroke.Transparency = 0.35
+        BindTheme(PStroke, "Color", "Divider")
 
         local Pad = Instance.new("UIPadding", ParaFrame)
-        Pad.PaddingTop, Pad.PaddingBottom, Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 8), UDim.new(0, 8), UDim.new(0, 10), UDim.new(0, 10)
+        Pad.PaddingTop, Pad.PaddingBottom, Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 8), UDim.new(0, 9), UDim.new(0, 11), UDim.new(0, 11)
 
         local List = Instance.new("UIListLayout", ParaFrame)
-        List.Padding = UDim.new(0, 3)
+        List.Padding = UDim.new(0, 5)
         List.SortOrder = Enum.SortOrder.LayoutOrder
 
+        local HeaderRow = Instance.new("Frame")
+        HeaderRow.LayoutOrder = 1
+        HeaderRow.Size = UDim2.new(1, 0, 0, 16)
+        HeaderRow.BackgroundTransparency = 1
+        HeaderRow.Parent = ParaFrame
+
+        if hasIcon then
+            CreateIcon(HeaderRow, pCfg.Icon, 14, UDim2.new(0, 0, 0.5, -7), 2, Theme.Accent)
+        end
+
         local PTitle = Instance.new("TextLabel")
-        PTitle.LayoutOrder = 1
-        PTitle.Size = UDim2.new(1, 0, 0, 14)
+        PTitle.Size = UDim2.new(1, hasIcon and -20 or 0, 1, 0)
+        PTitle.Position = UDim2.new(0, hasIcon and 20 or 0, 0, 0)
         PTitle.BackgroundTransparency = 1
-        PTitle.Text = pCfg.Title or "Title"
-        PTitle.TextColor3 = Theme.Text
+        PTitle.Text = pCfg.Title or "Information"
+        PTitle.TextColor3 = Theme.Accent
         PTitle.Font = Enum.Font.GothamBold
-        PTitle.TextSize = 12
+        PTitle.TextSize = 11
         PTitle.TextXAlignment = Enum.TextXAlignment.Left
-        PTitle.Parent = ParaFrame
+        PTitle.Parent = HeaderRow
+        BindAccent(PTitle, "TextColor3")
+
+        local MiniSep = Instance.new("Frame")
+        MiniSep.LayoutOrder = 2
+        MiniSep.Size = UDim2.new(1, 0, 0, 1)
+        MiniSep.BackgroundColor3 = Theme.Divider
+        MiniSep.BackgroundTransparency = 0.45
+        MiniSep.BorderSizePixel = 0
+        MiniSep.Parent = ParaFrame
+        BindTheme(MiniSep, "BackgroundColor3", "Divider")
 
         local PBody = Instance.new("TextLabel")
-        PBody.LayoutOrder = 2
+        PBody.LayoutOrder = 3
         PBody.Size = UDim2.new(1, 0, 0, 0)
         PBody.AutomaticSize = Enum.AutomaticSize.Y
         PBody.BackgroundTransparency = 1
         PBody.Text = pCfg.Content or pCfg.Text or ""
-        PBody.TextColor3 = Theme.SubText
+        PBody.TextColor3 = Theme.Text
         PBody.Font = Enum.Font.Gotham
         PBody.TextSize = 11
         PBody.TextWrapped = true
         PBody.TextXAlignment = Enum.TextXAlignment.Left
         PBody.Parent = ParaFrame
+        BindTheme(PBody, "TextColor3", "Text")
 
         local ParaObj = {}
         function ParaObj:Set(t, c)
@@ -1122,6 +1371,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ParaObj
     end
 
+    -- 5. PROGRESS BAR
     function API:AddProgressBar(bCfg)
         local MaxVal = bCfg.Max or 100
         local CurVal = math.clamp(bCfg.Default or 0, 0, MaxVal)
@@ -1134,6 +1384,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", BarFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(bCfg.Name, BarFrame)
         AttachTooltip(BarFrame, bCfg.Tooltip)
+        BindTheme(BarFrame, "BackgroundColor3", "Element")
 
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(1, -75, 0, 20)
@@ -1145,6 +1396,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = BarFrame
+        BindTheme(Title, "TextColor3", "Text")
 
         local StatusLbl = Instance.new("TextLabel")
         StatusLbl.Size = UDim2.new(0, 65, 0, 20)
@@ -1165,6 +1417,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Track.ClipsDescendants = true
         Track.Parent = BarFrame
         Instance.new("UICorner", Track).CornerRadius = UDim.new(1, 0)
+        BindTheme(Track, "BackgroundColor3", "Background")
 
         local Fill = Instance.new("Frame")
         Fill.Size = UDim2.new(CurVal / MaxVal, 0, 1, 0)
@@ -1183,6 +1436,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
+    -- 6. BUTTON
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -1200,6 +1454,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(bCfg.Name, Btn)
         AttachTooltip(Btn, bCfg.Tooltip)
+        BindTheme(Btn, "BackgroundColor3", "Element")
 
         local CdOverlay = Instance.new("Frame")
         CdOverlay.Size = UDim2.new(0, 0, 1, 0)
@@ -1223,6 +1478,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.ZIndex = 3
         Title.Parent = Btn
+        BindTheme(Title, "TextColor3", "Text")
 
         local ArrowHint = Instance.new("TextLabel")
         ArrowHint.Size = UDim2.new(0, 18, 0, 18)
@@ -1234,6 +1490,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         ArrowHint.TextSize = 15
         ArrowHint.ZIndex = 3
         ArrowHint.Parent = Btn
+        BindTheme(ArrowHint, "TextColor3", "SubText")
 
         local function FireButton()
             if OnCooldown then
@@ -1278,6 +1535,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         end
     end
 
+    -- 7. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -1298,6 +1556,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(tCfg.Name, ToggleBtn)
         AttachTooltip(ToggleBtn, tCfg.Tooltip)
+        BindTheme(ToggleBtn, "BackgroundColor3", "Element")
 
         if hasIcon then CreateIcon(ToggleBtn, tCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 2) end
 
@@ -1311,6 +1570,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = ToggleBtn
+        BindTheme(Title, "TextColor3", "Text")
 
         local SwitchBg = Instance.new("Frame")
         SwitchBg.Size = UDim2.new(0, 34, 0, 18)
@@ -1319,6 +1579,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         SwitchBg.Parent = ToggleBtn
         Instance.new("UICorner", SwitchBg).CornerRadius = UDim.new(1, 0)
         BindAccent(SwitchBg, "BackgroundColor3", function() return StateVal end)
+        BindTheme(SwitchBg, "BackgroundColor3", "Background", function() return not StateVal end)
 
         local Knob = Instance.new("Frame")
         Knob.Size = UDim2.new(0, 12, 0, 12)
@@ -1359,6 +1620,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ToggleObj
     end
 
+    -- 8. SLIDER
     function API:AddSlider(sCfg)
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
@@ -1380,6 +1642,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(sCfg.Name, SliderFrame)
         AttachTooltip(SliderFrame, sCfg.Tooltip)
+        BindTheme(SliderFrame, "BackgroundColor3", "Element")
 
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(1, -60, 0, 20)
@@ -1391,6 +1654,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = SliderFrame
+        BindTheme(Title, "TextColor3", "Text")
 
         local ValueLbl = Instance.new("TextLabel")
         ValueLbl.Size = UDim2.new(0, 45, 0, 20)
@@ -1412,6 +1676,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Track.AutoButtonColor = false
         Track.Parent = SliderFrame
         Instance.new("UICorner", Track).CornerRadius = UDim.new(1, 0)
+        BindTheme(Track, "BackgroundColor3", "Background")
 
         local Fill = Instance.new("Frame")
         Fill.Size = UDim2.new((Default - Min) / (Max - Min), 0, 1, 0)
@@ -1493,6 +1758,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SliderObj
     end
 
+    -- 9. INPUT / TEXTBOX
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
@@ -1512,6 +1778,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", InputFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(iCfg.Name, InputFrame)
         AttachTooltip(InputFrame, iCfg.Tooltip)
+        BindTheme(InputFrame, "BackgroundColor3", "Element")
 
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(0.48, 0, 1, 0)
@@ -1523,6 +1790,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = InputFrame
+        BindTheme(Title, "TextColor3", "Text")
 
         local BoxHolder = Instance.new("Frame")
         BoxHolder.Size = UDim2.new(0.48, -10, 0, 22)
@@ -1530,6 +1798,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BoxHolder.BackgroundColor3 = Theme.Background
         BoxHolder.Parent = InputFrame
         Instance.new("UICorner", BoxHolder).CornerRadius = UDim.new(0, 8)
+        BindTheme(BoxHolder, "BackgroundColor3", "Background")
 
         local BStroke = Instance.new("UIStroke", BoxHolder)
         BStroke.Color = Theme.Divider
@@ -1579,6 +1848,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
+    -- 10. KEYBIND PICKER
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
@@ -1600,6 +1870,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(kCfg.Name, KeyFrame)
         AttachTooltip(KeyFrame, kCfg.Tooltip)
+        BindTheme(KeyFrame, "BackgroundColor3", "Element")
 
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(1, -95, 1, 0)
@@ -1611,6 +1882,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = KeyFrame
+        BindTheme(Title, "TextColor3", "Text")
 
         local BindBtn = Instance.new("TextButton")
         BindBtn.Size = UDim2.new(0, 76, 0, 20)
@@ -1624,6 +1896,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BindBtn.Parent = KeyFrame
         Instance.new("UICorner", BindBtn).CornerRadius = UDim.new(1, 0)
         BindAccent(BindBtn, "TextColor3")
+        BindTheme(BindBtn, "BackgroundColor3", "Background")
 
         local BStroke = Instance.new("UIStroke", BindBtn)
         BStroke.Color = Theme.Divider
@@ -1665,6 +1938,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
+    -- 11. COLOR PICKER
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
@@ -1687,6 +1961,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", ColorFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(cCfg.Name, ColorFrame)
         AttachTooltip(ColorFrame, cCfg.Tooltip)
+        BindTheme(ColorFrame, "BackgroundColor3", "Element")
 
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 32)
@@ -1704,6 +1979,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = Header
+        BindTheme(Title, "TextColor3", "Text")
 
         local Preview = Instance.new("Frame")
         Preview.Size = UDim2.new(0, 26, 0, 16)
@@ -1850,6 +2126,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
+    -- 12. DROPDOWN
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -1870,6 +2147,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(dCfg.Name, DropFrame)
         AttachTooltip(DropFrame, dCfg.Tooltip)
+        BindTheme(DropFrame, "BackgroundColor3", "Element")
 
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 32)
@@ -1894,6 +2172,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextTruncate = Enum.TextTruncate.AtEnd
         Title.ZIndex = 2
         Title.Parent = Header
+        BindTheme(Title, "TextColor3", "Text")
 
         local SelectedLbl = Instance.new("TextLabel")
         SelectedLbl.Size = UDim2.new(0.54, -28, 1, 0)
@@ -1954,6 +2233,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             OptBtn.AutoButtonColor = false
             OptBtn.Parent = ListHolder
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
+            BindTheme(OptBtn, "BackgroundColor3", "Background")
 
             if hasOptIcon then
                 CreateIcon(OptBtn, optIcon, 14, UDim2.new(0, 8, 0.5, -7), 4)
@@ -1999,6 +2279,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return DropObj
     end
 
+    -- 13. MULTI-DROPDOWN
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -2023,6 +2304,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", DropFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(mCfg.Name, DropFrame)
         AttachTooltip(DropFrame, mCfg.Tooltip)
+        BindTheme(DropFrame, "BackgroundColor3", "Element")
 
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 32)
@@ -2047,6 +2329,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.TextTruncate = Enum.TextTruncate.AtEnd
         Title.ZIndex = 2
         Title.Parent = Header
+        BindTheme(Title, "TextColor3", "Text")
 
         local SelectedLbl = Instance.new("TextLabel")
         SelectedLbl.Size = UDim2.new(0.58, -28, 1, 0)
@@ -2115,6 +2398,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             OptBtn.Parent = ListHolder
             Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
             BindAccent(OptBtn, "BackgroundColor3", function() return Selected[opt] end)
+            BindTheme(OptBtn, "BackgroundColor3", "Background", function() return not Selected[opt] end)
             OptButtons[opt] = OptBtn
 
             if hasOptIcon then
@@ -2168,7 +2452,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (UNIFIED WINDOWHOLDER + LOCKED WHITE BOTTOM DRAG LINE)
+-- CREATE MAIN WINDOW
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2210,7 +2494,18 @@ function TryxzLib:CreateWindow(config)
         if config.Blur.Size then BlurState.TargetSize = math.clamp(tonumber(config.Blur.Size) or 14, 2, 40) end
     end
 
-    if config.Accent then Theme.Accent = config.Accent end
+    if type(config.CustomThemes) == "table" then
+        for tName, tPal in pairs(config.CustomThemes) do
+            TryxzLib:AddTheme(tName, tPal)
+        end
+    end
+
+    if config.Theme and Themes[config.Theme] then
+        TryxzLib:SetTheme(config.Theme)
+    end
+    if config.Accent then
+        TryxzLib:SetAccent(config.Accent)
+    end
 
     if type(config.SaveConfig) == "boolean" then
         Cfg.SaveEnabled = config.SaveConfig
@@ -2241,6 +2536,7 @@ function TryxzLib:CreateWindow(config)
                 Cfg.SavedData["_SoundPreset"] = SoundState.Preset
                 Cfg.SavedData["_UIScale"] = Cfg.UIScale
                 Cfg.SavedData["_Blur"] = BlurState.Enabled
+                Cfg.SavedData["_ThemeName"] = ActiveThemeName
                 Cfg.SavedData["_Accent"] = {Theme.Accent.R, Theme.Accent.G, Theme.Accent.B}
                 writefile(Cfg.SaveFile, HttpService:JSONEncode(Cfg.SavedData))
                 if Cfg.SaveKey and Cfg.SavedKey then
@@ -2281,8 +2577,11 @@ function TryxzLib:CreateWindow(config)
             if initialData["_SoundPreset"] and SoundPresets[initialData["_SoundPreset"]] then
                 TryxzLib:SetSoundPreset(initialData["_SoundPreset"])
             end
+            if initialData["_ThemeName"] and Themes[initialData["_ThemeName"]] then
+                TryxzLib:SetTheme(initialData["_ThemeName"])
+            end
             if type(initialData["_Accent"]) == "table" and #initialData["_Accent"] == 3 then
-                Theme.Accent = Color3.new(initialData["_Accent"][1], initialData["_Accent"][2], initialData["_Accent"][3])
+                TryxzLib:SetAccent(Color3.new(initialData["_Accent"][1], initialData["_Accent"][2], initialData["_Accent"][3]))
             end
         end
     end
@@ -2297,7 +2596,6 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    -- Unified Wrapper Container (Holds MainWindow & BottomDragLine together so they never separate or deform)
     local WindowHolder = Instance.new("Frame")
     WindowHolder.Name = "TryxzWindowHolder"
     WindowHolder.Size = UDim2.new(0, 0, 0, 0)
@@ -2319,13 +2617,14 @@ function TryxzLib:CreateWindow(config)
     Main.ClipsDescendants = true
     Main.Parent = WindowHolder
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
+    BindTheme(Main, "BackgroundColor3", "Sidebar")
 
     local MainStroke = Instance.new("UIStroke", Main)
     MainStroke.Color = Theme.Divider
     MainStroke.Thickness = 1.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    BindTheme(MainStroke, "Color", "Divider")
 
-    -- Translucent White Animated Drag Line locked strictly below Main inside WindowHolder
     local BottomDragBar = Instance.new("TextButton")
     BottomDragBar.Name = "BottomDragLine"
     BottomDragBar.Size = UDim2.new(0, 140, 0, 5)
@@ -2362,6 +2661,8 @@ function TryxzLib:CreateWindow(config)
     FloatingUIBtn.ZIndex = 20
     FloatingUIBtn.Parent = ScreenGui
     Instance.new("UICorner", FloatingUIBtn).CornerRadius = UDim.new(1, 0)
+    BindTheme(FloatingUIBtn, "BackgroundColor3", "Sidebar")
+
     local FloatStroke = Instance.new("UIStroke", FloatingUIBtn)
     FloatStroke.Color = Theme.Accent
     FloatStroke.Thickness = 1.5
@@ -2463,6 +2764,7 @@ function TryxzLib:CreateWindow(config)
     TopDivider.BorderSizePixel = 0
     TopDivider.ZIndex = 6
     TopDivider.Parent = Topbar
+    BindTheme(TopDivider, "BackgroundColor3", "Divider")
 
     local hasWinIcon = Cfg.Icon ~= nil and tostring(Cfg.Icon) ~= ""
     if hasWinIcon then CreateIcon(Topbar, Cfg.Icon, 20, UDim2.new(0, 14, 0.5, -10), 6) end
@@ -2482,6 +2784,7 @@ function TryxzLib:CreateWindow(config)
     TitleLabel.TextTruncate = Enum.TextTruncate.AtEnd
     TitleLabel.ZIndex = 6
     TitleLabel.Parent = Topbar
+    BindTheme(TitleLabel, "TextColor3", "Text")
 
     if Cfg.Subtitle ~= "" then
         local SubLabel = Instance.new("TextLabel")
@@ -2496,6 +2799,7 @@ function TryxzLib:CreateWindow(config)
         SubLabel.TextTruncate = Enum.TextTruncate.AtEnd
         SubLabel.ZIndex = 6
         SubLabel.Parent = Topbar
+        BindTheme(SubLabel, "TextColor3", "SubText")
     end
 
     local MinBtn = Instance.new("TextButton")
@@ -2510,6 +2814,7 @@ function TryxzLib:CreateWindow(config)
     MinBtn.ZIndex = 6
     MinBtn.Parent = Topbar
     Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
+    BindTheme(MinBtn, "BackgroundColor3", "Element")
 
     local SettingsBtn = Instance.new("TextButton")
     SettingsBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -2524,6 +2829,7 @@ function TryxzLib:CreateWindow(config)
     SettingsBtn.Parent = Topbar
     Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(1, 0)
     BindAccent(SettingsBtn, "BackgroundColor3", function() return State.SettingsOpen end)
+    BindTheme(SettingsBtn, "BackgroundColor3", "Element", function() return not State.SettingsOpen end)
 
     local CollapseUIBtn = Instance.new("TextButton")
     CollapseUIBtn.Size = UDim2.new(0, 26, 0, 24)
@@ -2538,6 +2844,7 @@ function TryxzLib:CreateWindow(config)
     CollapseUIBtn.Parent = Topbar
     Instance.new("UICorner", CollapseUIBtn).CornerRadius = UDim.new(1, 0)
     BindAccent(CollapseUIBtn, "TextColor3")
+    BindTheme(CollapseUIBtn, "BackgroundColor3", "Element")
     local CollapseStroke = Instance.new("UIStroke", CollapseUIBtn)
     CollapseStroke.Color = Theme.Accent
     CollapseStroke.Thickness = 1
@@ -2554,6 +2861,7 @@ function TryxzLib:CreateWindow(config)
         StatsPill.ZIndex = 6
         StatsPill.Parent = Topbar
         Instance.new("UICorner", StatsPill).CornerRadius = UDim.new(1, 0)
+        BindTheme(StatsPill, "BackgroundColor3", "Element")
 
         local StatsLbl = Instance.new("TextLabel")
         StatsLbl.Size = UDim2.new(1, -8, 1, 0)
@@ -2565,6 +2873,7 @@ function TryxzLib:CreateWindow(config)
         StatsLbl.TextSize = 9
         StatsLbl.ZIndex = 7
         StatsLbl.Parent = StatsPill
+        BindTheme(StatsLbl, "TextColor3", "SubText")
 
         local frames, lastUpdate = 0, tick()
         StatsConnection = RunService.RenderStepped:Connect(function()
@@ -2661,6 +2970,7 @@ function TryxzLib:CreateWindow(config)
         ProfileFrame.ClipsDescendants = true
         ProfileFrame.Parent = Sidebar
         Instance.new("UICorner", ProfileFrame).CornerRadius = UDim.new(0, 14)
+        BindTheme(ProfileFrame, "BackgroundColor3", "Element")
 
         local Avatar = Instance.new("ImageLabel")
         Avatar.Size = UDim2.new(0, 26, 0, 26)
@@ -2687,6 +2997,7 @@ function TryxzLib:CreateWindow(config)
         DisplayName.TextXAlignment = Enum.TextXAlignment.Left
         DisplayName.TextTruncate = Enum.TextTruncate.AtEnd
         DisplayName.Parent = ProfileFrame
+        BindTheme(DisplayName, "TextColor3", "Text")
 
         local UserTag = Instance.new("TextLabel")
         UserTag.Size = UDim2.new(1, -40, 0, 12)
@@ -2699,6 +3010,7 @@ function TryxzLib:CreateWindow(config)
         UserTag.TextXAlignment = Enum.TextXAlignment.Left
         UserTag.TextTruncate = Enum.TextTruncate.AtEnd
         UserTag.Parent = ProfileFrame
+        BindTheme(UserTag, "TextColor3", "SubText")
     end
 
     local PagesContainer = Instance.new("Frame")
@@ -2709,6 +3021,7 @@ function TryxzLib:CreateWindow(config)
     PagesContainer.ClipsDescendants = true
     PagesContainer.Parent = BodyContainer
     Instance.new("UICorner", PagesContainer).CornerRadius = UDim.new(0, 14)
+    BindTheme(PagesContainer, "BackgroundColor3", "Background")
 
     local Window = {Tabs = {}, TabOrder = 0, Flags = {}}
     local PageTopOffset = 0
@@ -2722,6 +3035,7 @@ function TryxzLib:CreateWindow(config)
         SearchHolder.ZIndex = 4
         SearchHolder.Parent = PagesContainer
         Instance.new("UICorner", SearchHolder).CornerRadius = UDim.new(1, 0)
+        BindTheme(SearchHolder, "BackgroundColor3", "Element")
 
         local SStroke = Instance.new("UIStroke", SearchHolder)
         SStroke.Color = Theme.Divider
@@ -2771,7 +3085,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- SETTINGS PAGE + KEYBINDS DROPDOWN
+    -- SETTINGS PAGE + FULL MULTI-THEME SELECTOR + KEYBINDS DROPDOWN
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -2785,6 +3099,8 @@ function TryxzLib:CreateWindow(config)
     SettingsPage.ZIndex = 10
     SettingsPage.Parent = PagesContainer
     Instance.new("UICorner", SettingsPage).CornerRadius = UDim.new(0, 14)
+    BindTheme(SettingsPage, "BackgroundColor3", "Background")
+    BindAccent(SettingsPage, "ScrollBarImageColor3")
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
     SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 10)
@@ -2794,6 +3110,7 @@ function TryxzLib:CreateWindow(config)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+    -- 1. Credits Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
     CreditsCard.Size = UDim2.new(1, 0, 0, 62)
@@ -2801,6 +3118,7 @@ function TryxzLib:CreateWindow(config)
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
     Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(CreditsCard, "BackgroundColor3", "Element")
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Theme.Accent
     CStroke.Thickness = 1
@@ -2810,7 +3128,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -20, 0, 18)
     CTitle.Position = UDim2.new(0, 10, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.7 by gthsc51"
+    CTitle.Text = "TryxzLib v3.8 by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 13
@@ -2831,7 +3149,9 @@ function TryxzLib:CreateWindow(config)
     CDesc.TextXAlignment = Enum.TextXAlignment.Left
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
+    BindTheme(CDesc, "TextColor3", "SubText")
 
+    -- 2. Function Keybinds Dropdown
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
@@ -2844,6 +3164,7 @@ function TryxzLib:CreateWindow(config)
     KeybindDropCard.ZIndex = 11
     KeybindDropCard.Parent = SettingsPage
     Instance.new("UICorner", KeybindDropCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(KeybindDropCard, "BackgroundColor3", "Element")
 
     local KDropStroke = Instance.new("UIStroke", KeybindDropCard)
     KDropStroke.Color = Theme.Accent
@@ -2883,6 +3204,7 @@ function TryxzLib:CreateWindow(config)
     KDropTitle.TextTruncate = Enum.TextTruncate.AtEnd
     KDropTitle.ZIndex = 13
     KDropTitle.Parent = KDropHeader
+    BindTheme(KDropTitle, "TextColor3", "Text")
 
     local KDropCount = Instance.new("TextLabel")
     KDropCount.Size = UDim2.new(0, 56, 1, 0)
@@ -3092,6 +3414,7 @@ function TryxzLib:CreateWindow(config)
     ScaleCard.ZIndex = 11
     ScaleCard.Parent = SettingsPage
     Instance.new("UICorner", ScaleCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(ScaleCard, "BackgroundColor3", "GrayTranslucent")
 
     local SCStroke = Instance.new("UIStroke", ScaleCard)
     SCStroke.Color = Theme.Accent
@@ -3110,6 +3433,7 @@ function TryxzLib:CreateWindow(config)
     ScaleTitle.TextXAlignment = Enum.TextXAlignment.Left
     ScaleTitle.ZIndex = 12
     ScaleTitle.Parent = ScaleCard
+    BindTheme(ScaleTitle, "TextColor3", "Text")
 
     local ScaleBadge = Instance.new("Frame")
     ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
@@ -3247,31 +3571,46 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- 4. Accent Theme Picker Card
+    -- 4. FULL MULTI-COLOR THEME PALETTE CARD
     local ThemeCard = Instance.new("Frame")
     ThemeCard.LayoutOrder = 4
-    ThemeCard.Size = UDim2.new(1, 0, 0, 48)
+    ThemeCard.Size = UDim2.new(1, 0, 0, 52)
     ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
     ThemeCard.BackgroundTransparency = 0.5
     ThemeCard.ZIndex = 11
     ThemeCard.Parent = SettingsPage
     Instance.new("UICorner", ThemeCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(ThemeCard, "BackgroundColor3", "GrayTranslucent")
 
     local ThemeLbl = Instance.new("TextLabel")
-    ThemeLbl.Size = UDim2.new(1, -20, 0, 16)
+    ThemeLbl.Size = UDim2.new(0.55, 0, 0, 16)
     ThemeLbl.Position = UDim2.new(0, 12, 0, 5)
     ThemeLbl.BackgroundTransparency = 1
-    ThemeLbl.Text = "Accent Theme Color"
+    ThemeLbl.Text = "UI Theme Palette"
     ThemeLbl.TextColor3 = Theme.Text
     ThemeLbl.Font = Enum.Font.GothamBold
     ThemeLbl.TextSize = 11
     ThemeLbl.TextXAlignment = Enum.TextXAlignment.Left
     ThemeLbl.ZIndex = 12
     ThemeLbl.Parent = ThemeCard
+    BindTheme(ThemeLbl, "TextColor3", "Text")
+
+    local ActiveThemeLbl = Instance.new("TextLabel")
+    ActiveThemeLbl.Size = UDim2.new(0.45, -14, 0, 16)
+    ActiveThemeLbl.Position = UDim2.new(0.55, 0, 0, 5)
+    ActiveThemeLbl.BackgroundTransparency = 1
+    ActiveThemeLbl.Text = ActiveThemeName
+    ActiveThemeLbl.TextColor3 = Theme.Accent
+    ActiveThemeLbl.Font = Enum.Font.GothamBold
+    ActiveThemeLbl.TextSize = 10
+    ActiveThemeLbl.TextXAlignment = Enum.TextXAlignment.Right
+    ActiveThemeLbl.ZIndex = 12
+    ActiveThemeLbl.Parent = ThemeCard
+    BindAccent(ActiveThemeLbl, "TextColor3")
 
     local SwatchRow = Instance.new("Frame")
-    SwatchRow.Size = UDim2.new(1, -24, 0, 20)
-    SwatchRow.Position = UDim2.new(0, 12, 0, 23)
+    SwatchRow.Size = UDim2.new(1, -24, 0, 22)
+    SwatchRow.Position = UDim2.new(0, 12, 0, 24)
     SwatchRow.BackgroundTransparency = 1
     SwatchRow.ZIndex = 12
     SwatchRow.Parent = ThemeCard
@@ -3280,25 +3619,37 @@ function TryxzLib:CreateWindow(config)
     SwatchList.FillDirection = Enum.FillDirection.Horizontal
     SwatchList.Padding = UDim.new(0, 8)
 
-    for _, preset in ipairs(AccentPresets) do
+    for _, tName in ipairs(ThemeOrder) do
+        local pal = Themes[tName]
         local DotBtn = Instance.new("TextButton")
-        DotBtn.Size = UDim2.new(0, 18, 0, 18)
-        DotBtn.BackgroundColor3 = preset.Color
+        DotBtn.Size = UDim2.new(0, 20, 0, 20)
+        DotBtn.BackgroundColor3 = pal.Accent
         DotBtn.Text = ""
         DotBtn.AutoButtonColor = false
         DotBtn.ZIndex = 13
         DotBtn.Parent = SwatchRow
         Instance.new("UICorner", DotBtn).CornerRadius = UDim.new(1, 0)
+        AttachTooltip(DotBtn, tName)
+
+        local InnerBgDot = Instance.new("Frame")
+        InnerBgDot.Size = UDim2.new(0, 8, 0, 8)
+        InnerBgDot.Position = UDim2.new(0.5, 0, 0.5, 0)
+        InnerBgDot.AnchorPoint = Vector2.new(0.5, 0.5)
+        InnerBgDot.BackgroundColor3 = pal.Background
+        InnerBgDot.ZIndex = 14
+        InnerBgDot.Parent = DotBtn
+        Instance.new("UICorner", InnerBgDot).CornerRadius = UDim.new(1, 0)
 
         local DStroke = Instance.new("UIStroke", DotBtn)
         DStroke.Color = Theme.Text
         DStroke.Thickness = 1.5
-        DStroke.Transparency = 0.7
+        DStroke.Transparency = 0.6
 
         DotBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.25)
             TryxzLib:PlaySound("Click")
-            TryxzLib:SetAccent(preset.Color)
+            TryxzLib:SetTheme(tName)
+            ActiveThemeLbl.Text = tName
             WriteConfigFile()
         end)
     end
@@ -3316,6 +3667,7 @@ function TryxzLib:CreateWindow(config)
         Btn.ZIndex = 11
         Btn.Parent = SettingsPage
         Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
+        BindTheme(Btn, "BackgroundColor3", "GrayTranslucent")
 
         local Stroke = Instance.new("UIStroke", Btn)
         Stroke.Color = st and Theme.Accent or Theme.Divider
@@ -3333,6 +3685,7 @@ function TryxzLib:CreateWindow(config)
         Tbl.TextXAlignment = Enum.TextXAlignment.Left
         Tbl.ZIndex = 12
         Tbl.Parent = Btn
+        BindTheme(Tbl, "TextColor3", "Text")
 
         local Sub = Instance.new("TextLabel")
         Sub.Size = UDim2.new(1, -55, 0, 12)
@@ -3345,6 +3698,7 @@ function TryxzLib:CreateWindow(config)
         Sub.TextXAlignment = Enum.TextXAlignment.Left
         Sub.ZIndex = 12
         Sub.Parent = Btn
+        BindTheme(Sub, "TextColor3", "SubText")
 
         local Box = Instance.new("Frame")
         Box.Size = UDim2.new(0, 18, 0, 18)
@@ -3404,6 +3758,7 @@ function TryxzLib:CreateWindow(config)
     SoundSelectBtn.ZIndex = 11
     SoundSelectBtn.Parent = SettingsPage
     Instance.new("UICorner", SoundSelectBtn).CornerRadius = UDim.new(0, 12)
+    BindTheme(SoundSelectBtn, "BackgroundColor3", "Element")
 
     local SndTitle = Instance.new("TextLabel")
     SndTitle.Size = UDim2.new(0.55, 0, 1, 0)
@@ -3416,6 +3771,7 @@ function TryxzLib:CreateWindow(config)
     SndTitle.TextXAlignment = Enum.TextXAlignment.Left
     SndTitle.ZIndex = 12
     SndTitle.Parent = SoundSelectBtn
+    BindTheme(SndTitle, "TextColor3", "Text")
 
     local SndCurrent = Instance.new("TextLabel")
     SndCurrent.Size = UDim2.new(0.45, -14, 1, 0)
@@ -3450,6 +3806,7 @@ function TryxzLib:CreateWindow(config)
         ProfCard.ZIndex = 11
         ProfCard.Parent = SettingsPage
         Instance.new("UICorner", ProfCard).CornerRadius = UDim.new(0, 12)
+        BindTheme(ProfCard, "BackgroundColor3", "GrayTranslucent")
 
         local ProfTitle = Instance.new("TextLabel")
         ProfTitle.Size = UDim2.new(1, -20, 0, 16)
@@ -3546,6 +3903,10 @@ function TryxzLib:CreateWindow(config)
                             bindObj:SetKey(loaded["_FnBinds"][fnId], true)
                         end
                     end
+                end
+                if loaded["_ThemeName"] and Themes[loaded["_ThemeName"]] then
+                    TryxzLib:SetTheme(loaded["_ThemeName"])
+                    ActiveThemeLbl.Text = loaded["_ThemeName"]
                 end
                 if type(loaded["_Accent"]) == "table" and #loaded["_Accent"] == 3 then
                     TryxzLib:SetAccent(Color3.new(loaded["_Accent"][1], loaded["_Accent"][2], loaded["_Accent"][3]))
@@ -3699,6 +4060,8 @@ function TryxzLib:CreateWindow(config)
         PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
         local TabData = {Btn = TabBtn, Lbl = TabLbl, Page = TabWrapper, Indicator = Indicator, Items = {}}
+        BindTheme(TabBtn, "BackgroundColor3", "Element", function() return TabWrapper.Visible end)
+        BindTheme(TabBtn, "BackgroundColor3", "Sidebar", function() return not TabWrapper.Visible end)
 
         local function SelectTab()
             if State.SettingsOpen then
@@ -3757,6 +4120,7 @@ function TryxzLib:CreateWindow(config)
                 SubTabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
                 SubTabBar.Parent = TabWrapper
                 Instance.new("UICorner", SubTabBar).CornerRadius = UDim.new(1, 0)
+                BindTheme(SubTabBar, "BackgroundColor3", "Element")
 
                 local SBarPad = Instance.new("UIPadding", SubTabBar)
                 SBarPad.PaddingTop, SBarPad.PaddingBottom = UDim.new(0, 3), UDim.new(0, 3)
