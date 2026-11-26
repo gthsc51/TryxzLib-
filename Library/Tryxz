@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v4.2 by gthsc51
-    Futuristic Sci-Fi HUD Edition: Particle Canvas, Holo Scanlines, Cyber-Decode Text & Reactive Pulse Aura
+    TryxzLib v4.3 by gthsc51
+    Futuristic Sci-Fi HUD Edition: Ordered Cyber Settings Menu, Particle Canvas, Holo Scanlines & Reactive Pulse Aura
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -143,6 +143,7 @@ local ThemeBindings = {}
 local GradientBindings = {}
 local AnimatedGradientBorders = {}
 local SoundPulseCallbacks = {}
+local ThemeChangeCallbacks = {}
 
 local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -186,7 +187,7 @@ RunService.RenderStepped:Connect(function(dt)
 end)
 
 -- ==========================================
--- FUTURISTIC VISUAL EFFECTS (PARTICLES, HOLO SCANLINES, CYBER-DECODE, PULSE AURA)
+-- FUTURISTIC VISUAL EFFECTS
 -- ==========================================
 local ScrambleGlyphs = {"#", "@", "%", "&", "0", "1", "X", "Z", "/", "+"}
 local function ScrambleText(labelObj, targetText, duration)
@@ -251,7 +252,6 @@ local function SpawnRipple(buttonObj, customColor)
     end)
 end
 
--- Safe Shimmer (Never affects parent AutomaticSize)
 local function AttachShimmer(parentFrame, intervalSec)
     local clipper = Instance.new("Frame")
     clipper.Name = "ShimmerClipper"
@@ -297,7 +297,6 @@ local function AttachShimmer(parentFrame, intervalSec)
     end)
 end
 
--- Floating Particle Constellation Background
 local function AttachParticleCanvas(parentFrame, count)
     local canvas = Instance.new("Frame")
     canvas.Name = "ParticleCanvas"
@@ -345,7 +344,6 @@ local function AttachParticleCanvas(parentFrame, count)
     end)
 end
 
--- Holographic Scanlines & Laser Sweep
 local function AttachHoloGrid(parentFrame)
     local holo = Instance.new("Frame")
     holo.Name = "HoloGridOverlay"
@@ -418,6 +416,9 @@ local function RefreshAllThemeBindings()
         else
             table.remove(GradientBindings, i)
         end
+    end
+    for _, cb in ipairs(ThemeChangeCallbacks) do
+        task.spawn(cb, ActiveThemeName)
     end
 end
 
@@ -508,7 +509,7 @@ local function DestroyBlur()
 end
 
 -- ==========================================
--- SOUND SYSTEM (TRIGGERS REACTIVE PULSE AURA)
+-- SOUND SYSTEM
 -- ==========================================
 local PresetOrder = {"Soft Pop", "Mechanical", "Bubble", "Cyber"}
 local SoundPresets = {
@@ -1192,7 +1193,7 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM (COMPACT AUTO-SIZED + HOLO SCANLINES + CYBER DECODE)
+-- KEY SYSTEM
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
@@ -1503,7 +1504,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
         end)
     end
 
-    -- Sync exact compact height from layout content
     local function SyncKeyBoxHeight()
         local maxScreenH = math.max(240, ScreenGui.AbsoluteSize.Y - 48)
         local targetH = math.clamp(KLayout.AbsoluteContentSize.Y + 28, 220, maxScreenH)
@@ -1553,7 +1553,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- ELEMENT FACTORY (ALL CONTROLS + CYBER DECODE + RIPPLE + LOCK + VISIBILITY)
+-- ELEMENT FACTORY
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -1614,7 +1614,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         }
     end
 
-    -- 1. SECTION (With Cyber-Decode Animation)
+    -- 1. SECTION
     function API:AddSection(text, icon)
         local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
         local secIcon = type(text) == "table" and text.Icon or icon
@@ -2105,7 +2105,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return RowFrame
     end
 
-    -- 8. TOGGLE (No Floating Keybind HUD)
+    -- 8. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -3367,21 +3367,9 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.Parent = TopRow
         BindAccent(Title, "TextColor3")
 
-        local CopyBtn = Instance.new("TextButton")
-        CopyBtn.Size = UDim2.new(0, 44, 0, 18)
-        CopyBtn.Position = UDim2.new(1, -94, 0.5, -9)
-        CopyBtn.BackgroundColor3 = Theme.Background
-        CopyBtn.Text = "Copy"
-        CopyBtn.TextColor3 = Theme.Text
-        CopyBtn.Font = Enum.Font.GothamBold
-        CopyBtn.TextSize = 9
-        CopyBtn.AutoButtonColor = false
-        CopyBtn.Parent = TopRow
-        Instance.new("UICorner", CopyBtn).CornerRadius = UDim.new(1, 0)
-
         local ClearBtn = Instance.new("TextButton")
-        ClearBtn.Size = UDim2.new(0, 44, 0, 18)
-        ClearBtn.Position = UDim2.new(1, -46, 0.5, -9)
+        ClearBtn.Size = UDim2.new(0, 48, 0, 18)
+        ClearBtn.Position = UDim2.new(1, -50, 0.5, -9)
         ClearBtn.BackgroundColor3 = Theme.Error
         ClearBtn.Text = "Clear"
         ClearBtn.TextColor3 = Theme.Text
@@ -3450,12 +3438,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             end
         end
 
-        CopyBtn.MouseButton1Click:Connect(function()
-            if setclipboard then pcall(function() setclipboard(table.concat(history, "\n")) end) end
-            TryxzLib:Notify({Title = "Console Copied", Text = "Logs copied to clipboard.", Duration = 2})
-        end)
         ClearBtn.MouseButton1Click:Connect(function() ConsoleObj:Clear() end)
-
         return ConsoleObj
     end
 
@@ -3463,7 +3446,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW (PARTICLE CANVAS + HOLO SCANLINES + REACTIVE PULSE AURA)
+-- CREATE MAIN WINDOW + ORDERED SCI-FI SETTINGS GEAR (⚙)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -3622,7 +3605,6 @@ function TryxzLib:CreateWindow(config)
     local MainUIScale = Instance.new("UIScale", WindowHolder)
     MainUIScale.Scale = Cfg.UIScale
 
-    -- Reactive Pulse Aura Frame behind MainWindow
     local PulseAura = Instance.new("Frame")
     PulseAura.Name = "PulseAura"
     PulseAura.Size = UDim2.new(1, 8, 1, -6)
@@ -3654,11 +3636,9 @@ function TryxzLib:CreateWindow(config)
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
     BindTheme(Main, "BackgroundColor3", "Sidebar")
 
-    -- Futuristic Background Layers: Floating Particle Constellation + Holo Scanlines
     AttachParticleCanvas(Main, 18)
     AttachHoloGrid(Main)
 
-    -- Rotating Gradient Neon Border
     local MainStroke = Instance.new("UIStroke", Main)
     MainStroke.Color = Color3.new(1, 1, 1)
     MainStroke.Thickness = 1.6
@@ -3806,7 +3786,7 @@ function TryxzLib:CreateWindow(config)
         OpenMainWindow(false)
     end
 
-    -- Topbar with Periodic Shimmer Effect
+    -- Topbar
     local Topbar = Instance.new("Frame")
     Topbar.Size = UDim2.new(1, 0, 0, Cfg.TopH)
     Topbar.BackgroundTransparency = 1
@@ -3944,7 +3924,6 @@ function TryxzLib:CreateWindow(config)
                 local ping = 0
                 pcall(function() ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
                 StatsLbl.Text = string.format("%d FPS | %d ms", fps, ping)
-                -- Subtle FPS-reactive PulseAura breathing
                 if PulseAura and PulseAura.Parent and WindowHolder.Visible then
                     local targetTrans = fps >= 50 and 0.84 or 0.91
                     Tween(PulseAura, TweenInfo.new(0.45), {BackgroundTransparency = targetTrans})
@@ -4158,7 +4137,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- DECORATED SETTINGS PAGE (⚙)
+    -- ORDERED & FUTURISTIC SCI-FI GEAR (⚙) SETTINGS MENU
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -4175,13 +4154,80 @@ function TryxzLib:CreateWindow(config)
     BindTheme(SettingsPage, "BackgroundColor3", "Background")
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
-    SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 12)
+    SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 14)
     SettingsPadding.PaddingLeft, SettingsPadding.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
 
     local SettingsLayout = Instance.new("UIListLayout", SettingsPage)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+    local function AddSciFiGearHeader(order, indexTag, titleText)
+        local row = Instance.new("Frame")
+        row.LayoutOrder = order
+        row.Size = UDim2.new(1, 0, 0, 20)
+        row.BackgroundTransparency = 1
+        row.ZIndex = 11
+        row.Parent = SettingsPage
+
+        local diamond = Instance.new("Frame")
+        diamond.Size = UDim2.new(0, 6, 0, 6)
+        diamond.Position = UDim2.new(0, 3, 0.5, -3)
+        diamond.Rotation = 45
+        diamond.BackgroundColor3 = Color3.new(1, 1, 1)
+        diamond.BorderSizePixel = 0
+        diamond.ZIndex = 12
+        diamond.Parent = row
+        Instance.new("UICorner", diamond).CornerRadius = UDim.new(0, 1)
+        ApplyAccentGradient(diamond, 45)
+
+        local codeLbl = Instance.new("TextLabel")
+        codeLbl.Size = UDim2.new(0, 24, 1, 0)
+        codeLbl.Position = UDim2.new(0, 13, 0, 0)
+        codeLbl.BackgroundTransparency = 1
+        codeLbl.Text = indexTag
+        codeLbl.TextColor3 = Theme.Accent
+        codeLbl.Font = Enum.Font.Code
+        codeLbl.TextSize = 10
+        codeLbl.TextXAlignment = Enum.TextXAlignment.Left
+        codeLbl.ZIndex = 12
+        codeLbl.Parent = row
+        BindAccent(codeLbl, "TextColor3")
+
+        local titleLbl = Instance.new("TextLabel")
+        titleLbl.Size = UDim2.new(0, 0, 1, 0)
+        titleLbl.AutomaticSize = Enum.AutomaticSize.X
+        titleLbl.Position = UDim2.new(0, 36, 0, 0)
+        titleLbl.BackgroundTransparency = 1
+        titleLbl.Text = "// " .. string.upper(titleText)
+        titleLbl.TextColor3 = Theme.Text
+        titleLbl.Font = Enum.Font.GothamBlack
+        titleLbl.TextSize = 9
+        titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+        titleLbl.ZIndex = 12
+        titleLbl.Parent = row
+        BindTheme(titleLbl, "TextColor3", "Text")
+
+        local line = Instance.new("Frame")
+        line.Size = UDim2.new(1, -135, 0, 1)
+        line.Position = UDim2.new(1, 0, 0.5, 0)
+        line.AnchorPoint = Vector2.new(1, 0.5)
+        line.BackgroundColor3 = Color3.new(1, 1, 1)
+        line.BorderSizePixel = 0
+        line.ZIndex = 12
+        line.Parent = row
+        ApplyAccentGradient(line, 0)
+
+        local lGrad = line:FindFirstChildOfClass("UIGradient")
+        if lGrad then
+            lGrad.Transparency = NumberSequence.new{
+                NumberSequenceKeypoint.new(0, 1),
+                NumberSequenceKeypoint.new(0.4, 0.35),
+                NumberSequenceKeypoint.new(1, 0.9)
+            }
+        end
+    end
+
+    -- 1. CORE SYSTEM BANNER CARD
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
     CreditsCard.Size = UDim2.new(1, 0, 0, 62)
@@ -4191,11 +4237,11 @@ function TryxzLib:CreateWindow(config)
     CreditsCard.Parent = SettingsPage
     Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 12)
     BindTheme(CreditsCard, "BackgroundColor3", "Element")
-    AttachShimmer(CreditsCard, 4.5)
+    AttachShimmer(CreditsCard, 4.2)
 
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Color3.new(1, 1, 1)
-    CStroke.Thickness = 1.3
+    CStroke.Thickness = 1.4
     ApplyAccentGradient(CStroke, 0, true)
 
     local LeftStrip = Instance.new("Frame")
@@ -4207,11 +4253,23 @@ function TryxzLib:CreateWindow(config)
     Instance.new("UICorner", LeftStrip).CornerRadius = UDim.new(1, 0)
     ApplyAccentGradient(LeftStrip, 90)
 
+    local StatusBadge = Instance.new("TextLabel")
+    StatusBadge.Size = UDim2.new(0, 56, 0, 16)
+    StatusBadge.Position = UDim2.new(1, -66, 0, 8)
+    StatusBadge.BackgroundColor3 = Theme.Background
+    StatusBadge.Text = "● ONLINE"
+    StatusBadge.TextColor3 = Theme.Success
+    StatusBadge.Font = Enum.Font.GothamBlack
+    StatusBadge.TextSize = 8
+    StatusBadge.ZIndex = 12
+    StatusBadge.Parent = CreditsCard
+    Instance.new("UICorner", StatusBadge).CornerRadius = UDim.new(1, 0)
+
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -24, 0, 18)
+    CTitle.Size = UDim2.new(1, -88, 0, 18)
     CTitle.Position = UDim2.new(0, 16, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v4.2  •  by gthsc51"
+    CTitle.Text = "TryxzLib v4.3  •  CORE HUD"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 12
@@ -4224,7 +4282,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.Size = UDim2.new(1, -24, 0, 28)
     CDesc.Position = UDim2.new(0, 16, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Sci-Fi HUD Engine. Drag bottom white bar or press [" .. Cfg.Keybind.Name .. "] to toggle.\nManage function keybinds, themes, viewport scale, and clipboard profiles."
+    CDesc.Text = "Created by gthsc51  |  Toggle Key: [" .. Cfg.Keybind.Name .. "]\nConfigure themes, viewport scale, keybinds, audio & profiles below."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -4233,13 +4291,259 @@ function TryxzLib:CreateWindow(config)
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
 
-    -- Function Keybinds Dropdown
+    -- SECTION 01: VISUALS & THEMES
+    AddSciFiGearHeader(2, "01", "Visuals & Themes")
+
+    -- Theme Palette Selector Card
+    local ThemeCard = Instance.new("Frame")
+    ThemeCard.LayoutOrder = 3
+    ThemeCard.Size = UDim2.new(1, 0, 0, 52)
+    ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
+    ThemeCard.BackgroundTransparency = 0.48
+    ThemeCard.ZIndex = 11
+    ThemeCard.Parent = SettingsPage
+    Instance.new("UICorner", ThemeCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(ThemeCard, "BackgroundColor3", "GrayTranslucent")
+
+    local TCardStroke = Instance.new("UIStroke", ThemeCard)
+    TCardStroke.Color = Theme.Divider
+    TCardStroke.Thickness = 1
+    TCardStroke.Transparency = 0.45
+
+    local ThemeLbl = Instance.new("TextLabel")
+    ThemeLbl.Size = UDim2.new(0.55, 0, 0, 16)
+    ThemeLbl.Position = UDim2.new(0, 12, 0, 5)
+    ThemeLbl.BackgroundTransparency = 1
+    ThemeLbl.Text = "Neural Theme Matrix"
+    ThemeLbl.TextColor3 = Theme.Text
+    ThemeLbl.Font = Enum.Font.GothamBold
+    ThemeLbl.TextSize = 11
+    ThemeLbl.TextXAlignment = Enum.TextXAlignment.Left
+    ThemeLbl.ZIndex = 12
+    ThemeLbl.Parent = ThemeCard
+    BindTheme(ThemeLbl, "TextColor3", "Text")
+
+    local ActiveThemeLbl = Instance.new("TextLabel")
+    ActiveThemeLbl.Size = UDim2.new(0.45, -14, 0, 16)
+    ActiveThemeLbl.Position = UDim2.new(0.55, 0, 0, 5)
+    ActiveThemeLbl.BackgroundTransparency = 1
+    ActiveThemeLbl.Text = ActiveThemeName
+    ActiveThemeLbl.TextColor3 = Theme.Accent
+    ActiveThemeLbl.Font = Enum.Font.GothamBold
+    ActiveThemeLbl.TextSize = 10
+    ActiveThemeLbl.TextXAlignment = Enum.TextXAlignment.Right
+    ActiveThemeLbl.ZIndex = 12
+    ActiveThemeLbl.Parent = ThemeCard
+    BindAccent(ActiveThemeLbl, "TextColor3")
+
+    table.insert(ThemeChangeCallbacks, function(newTName)
+        if ActiveThemeLbl and ActiveThemeLbl.Parent then
+            ActiveThemeLbl.Text = tostring(newTName)
+        end
+    end)
+
+    local SwatchRow = Instance.new("Frame")
+    SwatchRow.Size = UDim2.new(1, -24, 0, 22)
+    SwatchRow.Position = UDim2.new(0, 12, 0, 24)
+    SwatchRow.BackgroundTransparency = 1
+    SwatchRow.ZIndex = 12
+    SwatchRow.Parent = ThemeCard
+
+    local SwatchList = Instance.new("UIListLayout", SwatchRow)
+    SwatchList.FillDirection = Enum.FillDirection.Horizontal
+    SwatchList.Padding = UDim.new(0, 8)
+
+    for _, tName in ipairs(ThemeOrder) do
+        local pal = Themes[tName]
+        local DotBtn = Instance.new("TextButton")
+        DotBtn.Size = UDim2.new(0, 20, 0, 20)
+        DotBtn.BackgroundColor3 = pal.Accent
+        DotBtn.Text = ""
+        DotBtn.AutoButtonColor = false
+        DotBtn.ZIndex = 13
+        DotBtn.Parent = SwatchRow
+        Instance.new("UICorner", DotBtn).CornerRadius = UDim.new(1, 0)
+        AttachTooltip(DotBtn, tName)
+
+        local InnerCore = Instance.new("Frame")
+        InnerCore.Size = UDim2.new(0, 8, 0, 8)
+        InnerCore.Position = UDim2.new(0.5, 0, 0.5, 0)
+        InnerCore.AnchorPoint = Vector2.new(0.5, 0.5)
+        InnerCore.BackgroundColor3 = pal.Background
+        InnerCore.ZIndex = 14
+        InnerCore.Parent = DotBtn
+        Instance.new("UICorner", InnerCore).CornerRadius = UDim.new(1, 0)
+
+        local DStroke = Instance.new("UIStroke", DotBtn)
+        DStroke.Color = Theme.Text
+        DStroke.Thickness = 1.4
+        DStroke.Transparency = 0.6
+
+        DotBtn.MouseButton1Click:Connect(function()
+            TriggerHaptic(0.25)
+            TryxzLib:PlaySound("Click")
+            TryxzLib:SetTheme(tName)
+            WriteConfigFile()
+        end)
+    end
+
+    -- Diamond UI Viewport Scale Card
+    local ScaleCard = Instance.new("Frame")
+    ScaleCard.LayoutOrder = 4
+    ScaleCard.Size = UDim2.new(1, 0, 0, 56)
+    ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
+    ScaleCard.BackgroundTransparency = 0.45
+    ScaleCard.ZIndex = 11
+    ScaleCard.Parent = SettingsPage
+    Instance.new("UICorner", ScaleCard).CornerRadius = UDim.new(0, 12)
+    BindTheme(ScaleCard, "BackgroundColor3", "GrayTranslucent")
+
+    local SCStroke = Instance.new("UIStroke", ScaleCard)
+    SCStroke.Color = Theme.Divider
+    SCStroke.Thickness = 1
+    SCStroke.Transparency = 0.45
+
+    local ScaleTitle = Instance.new("TextLabel")
+    ScaleTitle.Size = UDim2.new(0.6, 0, 0, 18)
+    ScaleTitle.Position = UDim2.new(0, 12, 0, 6)
+    ScaleTitle.BackgroundTransparency = 1
+    ScaleTitle.Text = "HUD Viewport Scale"
+    ScaleTitle.TextColor3 = Theme.Text
+    ScaleTitle.Font = Enum.Font.GothamBold
+    ScaleTitle.TextSize = 11
+    ScaleTitle.TextXAlignment = Enum.TextXAlignment.Left
+    ScaleTitle.ZIndex = 12
+    ScaleTitle.Parent = ScaleCard
+    BindTheme(ScaleTitle, "TextColor3", "Text")
+
+    local ScaleBadge = Instance.new("Frame")
+    ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
+    ScaleBadge.Position = UDim2.new(1, -60, 0, 6)
+    ScaleBadge.BackgroundColor3 = Color3.new(1, 1, 1)
+    ScaleBadge.ZIndex = 12
+    ScaleBadge.Parent = ScaleCard
+    Instance.new("UICorner", ScaleBadge).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(ScaleBadge, 0)
+
+    local ScaleValLbl = Instance.new("TextLabel")
+    ScaleValLbl.Size = UDim2.new(1, 0, 1, 0)
+    ScaleValLbl.BackgroundTransparency = 1
+    ScaleValLbl.Text = string.format("%.2fx", Cfg.UIScale)
+    ScaleValLbl.TextColor3 = Theme.Text
+    ScaleValLbl.Font = Enum.Font.GothamBlack
+    ScaleValLbl.TextSize = 10
+    ScaleValLbl.ZIndex = 13
+    ScaleValLbl.Parent = ScaleBadge
+
+    local MinusScaleBtn = Instance.new("TextButton")
+    MinusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
+    MinusScaleBtn.Position = UDim2.new(0, 10, 0, 29)
+    MinusScaleBtn.BackgroundColor3 = Theme.Background
+    MinusScaleBtn.Text = "-"
+    MinusScaleBtn.TextColor3 = Theme.Text
+    MinusScaleBtn.Font = Enum.Font.GothamBold
+    MinusScaleBtn.TextSize = 13
+    MinusScaleBtn.AutoButtonColor = false
+    MinusScaleBtn.ZIndex = 13
+    MinusScaleBtn.Parent = ScaleCard
+    Instance.new("UICorner", MinusScaleBtn).CornerRadius = UDim.new(1, 0)
+
+    local PlusScaleBtn = Instance.new("TextButton")
+    PlusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
+    PlusScaleBtn.Position = UDim2.new(1, -30, 0, 29)
+    PlusScaleBtn.BackgroundColor3 = Theme.Background
+    PlusScaleBtn.Text = "+"
+    PlusScaleBtn.TextColor3 = Theme.Text
+    PlusScaleBtn.Font = Enum.Font.GothamBold
+    PlusScaleBtn.TextSize = 12
+    PlusScaleBtn.AutoButtonColor = false
+    PlusScaleBtn.ZIndex = 13
+    PlusScaleBtn.Parent = ScaleCard
+    Instance.new("UICorner", PlusScaleBtn).CornerRadius = UDim.new(1, 0)
+
+    local ScaleTrack = Instance.new("TextButton")
+    ScaleTrack.Size = UDim2.new(1, -72, 0, 8)
+    ScaleTrack.Position = UDim2.new(0, 36, 0, 35)
+    ScaleTrack.BackgroundColor3 = Theme.Background
+    ScaleTrack.Text = ""
+    ScaleTrack.AutoButtonColor = false
+    ScaleTrack.ZIndex = 12
+    ScaleTrack.Parent = ScaleCard
+    Instance.new("UICorner", ScaleTrack).CornerRadius = UDim.new(1, 0)
+
+    for idx = 0, 4 do
+        local tickDot = Instance.new("Frame")
+        tickDot.Size = UDim2.new(0, 3, 0, 3)
+        tickDot.AnchorPoint = Vector2.new(0.5, 0.5)
+        tickDot.Position = UDim2.new(idx / 4, 0, 0.5, 0)
+        tickDot.BackgroundColor3 = Theme.SubText
+        tickDot.BackgroundTransparency = 0.4
+        tickDot.BorderSizePixel = 0
+        tickDot.ZIndex = 13
+        tickDot.Parent = ScaleTrack
+        Instance.new("UICorner", tickDot).CornerRadius = UDim.new(1, 0)
+    end
+
+    local ScaleFill = Instance.new("Frame")
+    ScaleFill.Size = UDim2.new((Cfg.UIScale - 0.75) / 0.60, 0, 1, 0)
+    ScaleFill.BackgroundColor3 = Color3.new(1, 1, 1)
+    ScaleFill.ZIndex = 13
+    ScaleFill.Parent = ScaleTrack
+    Instance.new("UICorner", ScaleFill).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(ScaleFill, 0)
+
+    local DiamondKnob = Instance.new("Frame")
+    DiamondKnob.Size = UDim2.new(0, 13, 0, 13)
+    DiamondKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+    DiamondKnob.Position = UDim2.new(1, 0, 0.5, 0)
+    DiamondKnob.Rotation = 45
+    DiamondKnob.BackgroundColor3 = Theme.Text
+    DiamondKnob.ZIndex = 15
+    DiamondKnob.Parent = ScaleFill
+    Instance.new("UICorner", DiamondKnob).CornerRadius = UDim.new(0, 4)
+
+    local function ApplyNewUIScale(targetScale, saveNow)
+        local clamped = math.clamp(math.floor(targetScale * 20 + 0.5) / 20, 0.75, 1.35)
+        Cfg.UIScale = clamped
+        MainUIScale.Scale = clamped
+        ScaleValLbl.Text = string.format("%.2fx", clamped)
+        Tween(ScaleFill, TweenInfo.new(0.08), {Size = UDim2.new((clamped - 0.75) / 0.60, 0, 1, 0)})
+        if saveNow then WriteConfigFile() end
+    end
+
+    MinusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale - 0.05, true) end)
+    PlusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale + 0.05, true) end)
+
+    local draggingScale = false
+    ScaleTrack.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+            draggingScale = true
+            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
+            ApplyNewUIScale(0.75 + pos * 0.60, false)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(inp)
+        if draggingScale and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
+            ApplyNewUIScale(0.75 + pos * 0.60, false)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(inp)
+        if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) and draggingScale then
+            draggingScale = false
+            WriteConfigFile()
+        end
+    end)
+
+    -- SECTION 02: KEYBINDS MATRIX
+    AddSciFiGearHeader(5, "02", "Keybinds Matrix")
+
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
 
     local KeybindDropCard = Instance.new("Frame")
-    KeybindDropCard.LayoutOrder = 2
+    KeybindDropCard.LayoutOrder = 6
     KeybindDropCard.Size = UDim2.new(1, 0, 0, 36)
     KeybindDropCard.BackgroundColor3 = Theme.Element
     KeybindDropCard.ClipsDescendants = true
@@ -4263,20 +4567,21 @@ function TryxzLib:CreateWindow(config)
     KDropHeader.Parent = KeybindDropCard
 
     local KDropTitle = Instance.new("TextLabel")
-    KDropTitle.Size = UDim2.new(1, -96, 1, 0)
+    KDropTitle.Size = UDim2.new(1, -104, 1, 0)
     KDropTitle.Position = UDim2.new(0, 12, 0, 0)
     KDropTitle.BackgroundTransparency = 1
-    KDropTitle.Text = "⌨  Function Keybinds"
+    KDropTitle.Text = "Function Keybinds"
     KDropTitle.TextColor3 = Theme.Text
     KDropTitle.Font = Enum.Font.GothamBold
     KDropTitle.TextSize = 11
     KDropTitle.TextXAlignment = Enum.TextXAlignment.Left
     KDropTitle.ZIndex = 13
     KDropTitle.Parent = KDropHeader
+    BindTheme(KDropTitle, "TextColor3", "Text")
 
     local KDropCount = Instance.new("TextLabel")
     KDropCount.Size = UDim2.new(0, 56, 1, 0)
-    KDropCount.Position = UDim2.new(1, -80, 0, 0)
+    KDropCount.Position = UDim2.new(1, -82, 0, 0)
     KDropCount.BackgroundTransparency = 1
     KDropCount.Text = "0 items"
     KDropCount.TextColor3 = Theme.SubText
@@ -4290,12 +4595,13 @@ function TryxzLib:CreateWindow(config)
     KDropArrow.Size = UDim2.new(0, 16, 0, 16)
     KDropArrow.Position = UDim2.new(1, -22, 0.5, -8)
     KDropArrow.BackgroundTransparency = 1
-    KDropArrow.Text = "▾"
+    KDropArrow.Text = "▼"
     KDropArrow.TextColor3 = Theme.Accent
     KDropArrow.Font = Enum.Font.GothamBold
-    KDropArrow.TextSize = 12
+    KDropArrow.TextSize = 9
     KDropArrow.ZIndex = 13
     KDropArrow.Parent = KDropHeader
+    BindAccent(KDropArrow, "TextColor3")
 
     local KListHolder = Instance.new("Frame")
     KListHolder.Size = UDim2.new(1, -16, 0, 0)
@@ -4307,6 +4613,18 @@ function TryxzLib:CreateWindow(config)
     local KListLayout = Instance.new("UIListLayout", KListHolder)
     KListLayout.Padding = UDim.new(0, 4)
     KListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local EmptyBindLbl = Instance.new("TextLabel")
+    EmptyBindLbl.LayoutOrder = 0
+    EmptyBindLbl.Size = UDim2.new(1, 0, 0, 26)
+    EmptyBindLbl.BackgroundColor3 = Theme.Background
+    EmptyBindLbl.Text = "No bindable functions registered"
+    EmptyBindLbl.TextColor3 = Theme.SubText
+    EmptyBindLbl.Font = Enum.Font.Gotham
+    EmptyBindLbl.TextSize = 10
+    EmptyBindLbl.ZIndex = 13
+    EmptyBindLbl.Parent = KListHolder
+    Instance.new("UICorner", EmptyBindLbl).CornerRadius = UDim.new(0, 8)
 
     local function RefreshKeybindDropdownHeight()
         local rows = math.max(1, #BindableEntries)
@@ -4326,6 +4644,7 @@ function TryxzLib:CreateWindow(config)
     end)
 
     local function RegisterBindable(info)
+        EmptyBindLbl.Visible = false
         local idx = #BindableEntries + 1
         local savedKeyName = Cfg.SaveEnabled and Cfg.SavedData["_FnBinds"] and Cfg.SavedData["_FnBinds"][info.Id]
         local assignedKey = nil
@@ -4450,200 +4769,181 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    -- Diamond UI Viewport Scale
-    local ScaleCard = Instance.new("Frame")
-    ScaleCard.LayoutOrder = 3
-    ScaleCard.Size = UDim2.new(1, 0, 0, 54)
-    ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
-    ScaleCard.BackgroundTransparency = 0.45
-    ScaleCard.ZIndex = 11
-    ScaleCard.Parent = SettingsPage
-    Instance.new("UICorner", ScaleCard).CornerRadius = UDim.new(0, 12)
+    -- SECTION 03: SYSTEM & AUDIO
+    AddSciFiGearHeader(7, "03", "System & Audio")
 
-    local ScaleTitle = Instance.new("TextLabel")
-    ScaleTitle.Size = UDim2.new(0.6, 0, 0, 18)
-    ScaleTitle.Position = UDim2.new(0, 12, 0, 5)
-    ScaleTitle.BackgroundTransparency = 1
-    ScaleTitle.Text = "UI Viewport Scale"
-    ScaleTitle.TextColor3 = Theme.Text
-    ScaleTitle.Font = Enum.Font.GothamBold
-    ScaleTitle.TextSize = 11
-    ScaleTitle.TextXAlignment = Enum.TextXAlignment.Left
-    ScaleTitle.ZIndex = 12
-    ScaleTitle.Parent = ScaleCard
+    local function CreateSciFiGearToggle(order, titleText, subText, initialState, onToggle)
+        local st = initialState
+        local Btn = Instance.new("TextButton")
+        Btn.LayoutOrder = order
+        Btn.Size = UDim2.new(1, 0, 0, 34)
+        Btn.BackgroundColor3 = Theme.GrayTranslucent
+        Btn.BackgroundTransparency = 0.45
+        Btn.Text = ""
+        Btn.AutoButtonColor = false
+        Btn.ZIndex = 11
+        Btn.Parent = SettingsPage
+        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
+        BindTheme(Btn, "BackgroundColor3", "GrayTranslucent")
 
-    local ScaleBadge = Instance.new("Frame")
-    ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
-    ScaleBadge.Position = UDim2.new(1, -60, 0, 5)
-    ScaleBadge.BackgroundColor3 = Color3.new(1, 1, 1)
-    ScaleBadge.ZIndex = 12
-    ScaleBadge.Parent = ScaleCard
-    Instance.new("UICorner", ScaleBadge).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(ScaleBadge, 0)
+        local Stroke = Instance.new("UIStroke", Btn)
+        Stroke.Color = st and Theme.Accent or Theme.Divider
+        Stroke.Thickness = 1
+        BindAccent(Stroke, "Color", function() return st end)
 
-    local ScaleValLbl = Instance.new("TextLabel")
-    ScaleValLbl.Size = UDim2.new(1, 0, 1, 0)
-    ScaleValLbl.BackgroundTransparency = 1
-    ScaleValLbl.Text = string.format("%.2fx", Cfg.UIScale)
-    ScaleValLbl.TextColor3 = Theme.Text
-    ScaleValLbl.Font = Enum.Font.GothamBlack
-    ScaleValLbl.TextSize = 10
-    ScaleValLbl.ZIndex = 13
-    ScaleValLbl.Parent = ScaleBadge
+        local Tbl = Instance.new("TextLabel")
+        Tbl.Size = UDim2.new(1, -55, 0, 15)
+        Tbl.Position = UDim2.new(0, 12, 0, 4)
+        Tbl.BackgroundTransparency = 1
+        Tbl.Text = titleText
+        Tbl.TextColor3 = Theme.Text
+        Tbl.Font = Enum.Font.GothamBold
+        Tbl.TextSize = 11
+        Tbl.TextXAlignment = Enum.TextXAlignment.Left
+        Tbl.ZIndex = 12
+        Tbl.Parent = Btn
+        BindTheme(Tbl, "TextColor3", "Text")
 
-    local ScaleTrack = Instance.new("TextButton")
-    ScaleTrack.Size = UDim2.new(1, -24, 0, 8)
-    ScaleTrack.Position = UDim2.new(0, 12, 0, 32)
-    ScaleTrack.BackgroundColor3 = Theme.Background
-    ScaleTrack.Text = ""
-    ScaleTrack.AutoButtonColor = false
-    ScaleTrack.ZIndex = 12
-    ScaleTrack.Parent = ScaleCard
-    Instance.new("UICorner", ScaleTrack).CornerRadius = UDim.new(1, 0)
+        local Sub = Instance.new("TextLabel")
+        Sub.Size = UDim2.new(1, -55, 0, 12)
+        Sub.Position = UDim2.new(0, 12, 0, 18)
+        Sub.BackgroundTransparency = 1
+        Sub.Text = subText
+        Sub.TextColor3 = Theme.SubText
+        Sub.Font = Enum.Font.Gotham
+        Sub.TextSize = 9
+        Sub.TextXAlignment = Enum.TextXAlignment.Left
+        Sub.ZIndex = 12
+        Sub.Parent = Btn
+        BindTheme(Sub, "TextColor3", "SubText")
 
-    local ScaleFill = Instance.new("Frame")
-    ScaleFill.Size = UDim2.new((Cfg.UIScale - 0.75) / 0.60, 0, 1, 0)
-    ScaleFill.BackgroundColor3 = Color3.new(1, 1, 1)
-    ScaleFill.ZIndex = 13
-    ScaleFill.Parent = ScaleTrack
-    Instance.new("UICorner", ScaleFill).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(ScaleFill, 0)
+        local Box = Instance.new("Frame")
+        Box.Size = UDim2.new(0, 18, 0, 18)
+        Box.Position = UDim2.new(1, -28, 0.5, -9)
+        Box.BackgroundColor3 = st and Theme.Accent or Theme.Background
+        Box.Rotation = st and 45 or 0
+        Box.ZIndex = 12
+        Box.Parent = Btn
+        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 5)
+        BindAccent(Box, "BackgroundColor3", function() return st end)
 
-    local DiamondKnob = Instance.new("Frame")
-    DiamondKnob.Size = UDim2.new(0, 13, 0, 13)
-    DiamondKnob.AnchorPoint = Vector2.new(0.5, 0.5)
-    DiamondKnob.Position = UDim2.new(1, 0, 0.5, 0)
-    DiamondKnob.Rotation = 45
-    DiamondKnob.BackgroundColor3 = Theme.Text
-    DiamondKnob.ZIndex = 15
-    DiamondKnob.Parent = ScaleFill
-    Instance.new("UICorner", DiamondKnob).CornerRadius = UDim.new(0, 4)
+        local Core = Instance.new("Frame")
+        Core.Size = st and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)
+        Core.Position = UDim2.new(0.5, 0, 0.5, 0)
+        Core.AnchorPoint = Vector2.new(0.5, 0.5)
+        Core.BackgroundColor3 = Theme.Text
+        Core.ZIndex = 13
+        Core.Parent = Box
+        Instance.new("UICorner", Core).CornerRadius = UDim.new(1, 0)
 
-    local function ApplyNewUIScale(targetScale, saveNow)
-        local clamped = math.clamp(math.floor(targetScale * 20 + 0.5) / 20, 0.75, 1.35)
-        Cfg.UIScale = clamped
-        MainUIScale.Scale = clamped
-        ScaleValLbl.Text = string.format("%.2fx", clamped)
-        Tween(ScaleFill, TweenInfo.new(0.08), {Size = UDim2.new((clamped - 0.75) / 0.60, 0, 1, 0)})
-        if saveNow then WriteConfigFile() end
-    end
-
-    local draggingScale = false
-    ScaleTrack.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-            draggingScale = true
-            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
-            ApplyNewUIScale(0.75 + pos * 0.60, false)
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(inp)
-        if draggingScale and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
-            ApplyNewUIScale(0.75 + pos * 0.60, false)
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(inp)
-        if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) and draggingScale then
-            draggingScale = false
+        Btn.MouseButton1Click:Connect(function()
+            st = not st
+            onToggle(st)
             WriteConfigFile()
-        end
-    end)
-
-    -- Theme Palette Selector
-    local ThemeCard = Instance.new("Frame")
-    ThemeCard.LayoutOrder = 4
-    ThemeCard.Size = UDim2.new(1, 0, 0, 50)
-    ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
-    ThemeCard.BackgroundTransparency = 0.5
-    ThemeCard.ZIndex = 11
-    ThemeCard.Parent = SettingsPage
-    Instance.new("UICorner", ThemeCard).CornerRadius = UDim.new(0, 12)
-
-    local ThemeLbl = Instance.new("TextLabel")
-    ThemeLbl.Size = UDim2.new(0.55, 0, 0, 16)
-    ThemeLbl.Position = UDim2.new(0, 12, 0, 5)
-    ThemeLbl.BackgroundTransparency = 1
-    ThemeLbl.Text = "UI Theme Palette"
-    ThemeLbl.TextColor3 = Theme.Text
-    ThemeLbl.Font = Enum.Font.GothamBold
-    ThemeLbl.TextSize = 11
-    ThemeLbl.TextXAlignment = Enum.TextXAlignment.Left
-    ThemeLbl.ZIndex = 12
-    ThemeLbl.Parent = ThemeCard
-
-    local ActiveThemeLbl = Instance.new("TextLabel")
-    ActiveThemeLbl.Size = UDim2.new(0.45, -14, 0, 16)
-    ActiveThemeLbl.Position = UDim2.new(0.55, 0, 0, 5)
-    ActiveThemeLbl.BackgroundTransparency = 1
-    ActiveThemeLbl.Text = ActiveThemeName
-    ActiveThemeLbl.TextColor3 = Theme.Accent
-    ActiveThemeLbl.Font = Enum.Font.GothamBold
-    ActiveThemeLbl.TextSize = 10
-    ActiveThemeLbl.TextXAlignment = Enum.TextXAlignment.Right
-    ActiveThemeLbl.ZIndex = 12
-    ActiveThemeLbl.Parent = ThemeCard
-    BindAccent(ActiveThemeLbl, "TextColor3")
-
-    local SwatchRow = Instance.new("Frame")
-    SwatchRow.Size = UDim2.new(1, -24, 0, 22)
-    SwatchRow.Position = UDim2.new(0, 12, 0, 23)
-    SwatchRow.BackgroundTransparency = 1
-    SwatchRow.ZIndex = 12
-    SwatchRow.Parent = ThemeCard
-
-    local SwatchList = Instance.new("UIListLayout", SwatchRow)
-    SwatchList.FillDirection = Enum.FillDirection.Horizontal
-    SwatchList.Padding = UDim.new(0, 8)
-
-    for _, tName in ipairs(ThemeOrder) do
-        local pal = Themes[tName]
-        local DotBtn = Instance.new("TextButton")
-        DotBtn.Size = UDim2.new(0, 20, 0, 20)
-        DotBtn.BackgroundColor3 = pal.Accent
-        DotBtn.Text = ""
-        DotBtn.AutoButtonColor = false
-        DotBtn.ZIndex = 13
-        DotBtn.Parent = SwatchRow
-        Instance.new("UICorner", DotBtn).CornerRadius = UDim.new(1, 0)
-        AttachTooltip(DotBtn, tName)
-
-        DotBtn.MouseButton1Click:Connect(function()
-            TriggerHaptic(0.25)
-            TryxzLib:PlaySound("Click")
-            TryxzLib:SetTheme(tName)
-            ActiveThemeLbl.Text = tName
-            WriteConfigFile()
+            Tween(Box, Tweens.Bounce, {BackgroundColor3 = st and Theme.Accent or Theme.Background, Rotation = st and 45 or 0})
+            Tween(Core, Tweens.Bounce, {Size = st and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)})
+            Tween(Stroke, Tweens.Fast, {Color = st and Theme.Accent or Theme.Divider})
         end)
     end
 
-    -- Multi-Profile & Clipboard Export/Import Card
+    CreateSciFiGearToggle(8, "Camera Glass Blur", "Backdrop depth blur while HUD is open", BlurState.Enabled, function(val)
+        BlurState.Enabled = val
+        SetBlurActive(val and not State.Minimized and not State.Collapsed)
+        TriggerHaptic(0.25)
+        TryxzLib:PlaySound("Toggle")
+    end)
+
+    CreateSciFiGearToggle(9, "Haptic Feedback", "Tactile vibration pulse on interactions", Cfg.Haptics, function(val)
+        Cfg.Haptics = val
+        if val then TriggerHaptic(0.5) end
+        TryxzLib:PlaySound("Toggle")
+    end)
+
+    CreateSciFiGearToggle(10, "UI Sound Effects", "Synthesized audio cues on UI events", SoundState.Enabled, function(val)
+        SoundState.Enabled = val
+        TriggerHaptic(0.25)
+        if val then TryxzLib:PlaySound("Toggle") end
+    end)
+
+    local SoundSelectBtn = Instance.new("TextButton")
+    SoundSelectBtn.LayoutOrder = 11
+    SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
+    SoundSelectBtn.BackgroundColor3 = Theme.Element
+    SoundSelectBtn.Text = ""
+    SoundSelectBtn.AutoButtonColor = false
+    SoundSelectBtn.ZIndex = 11
+    SoundSelectBtn.Parent = SettingsPage
+    Instance.new("UICorner", SoundSelectBtn).CornerRadius = UDim.new(0, 12)
+    BindTheme(SoundSelectBtn, "BackgroundColor3", "Element")
+
+    local SndTitle = Instance.new("TextLabel")
+    SndTitle.Size = UDim2.new(0.55, 0, 1, 0)
+    SndTitle.Position = UDim2.new(0, 12, 0, 0)
+    SndTitle.BackgroundTransparency = 1
+    SndTitle.Text = "Audio Sound Pack"
+    SndTitle.TextColor3 = Theme.Text
+    SndTitle.Font = Enum.Font.GothamSemibold
+    SndTitle.TextSize = 11
+    SndTitle.TextXAlignment = Enum.TextXAlignment.Left
+    SndTitle.ZIndex = 12
+    SndTitle.Parent = SoundSelectBtn
+    BindTheme(SndTitle, "TextColor3", "Text")
+
+    local SndCurrent = Instance.new("TextLabel")
+    SndCurrent.Size = UDim2.new(0.45, -14, 1, 0)
+    SndCurrent.Position = UDim2.new(0.55, 0, 0, 0)
+    SndCurrent.BackgroundTransparency = 1
+    SndCurrent.Text = SoundState.Preset
+    SndCurrent.TextColor3 = Theme.Accent
+    SndCurrent.Font = Enum.Font.GothamBold
+    SndCurrent.TextSize = 11
+    SndCurrent.TextXAlignment = Enum.TextXAlignment.Right
+    SndCurrent.ZIndex = 12
+    SndCurrent.Parent = SoundSelectBtn
+    BindAccent(SndCurrent, "TextColor3")
+
+    SoundSelectBtn.MouseButton1Click:Connect(function()
+        local idx = table.find(PresetOrder, SoundState.Preset) or 1
+        local nextPreset = PresetOrder[(idx % #PresetOrder) + 1]
+        TryxzLib:SetSoundPreset(nextPreset)
+        SndCurrent.Text = nextPreset
+        TriggerHaptic(0.25)
+        TryxzLib:PlaySound("Click")
+        WriteConfigFile()
+    end)
+
+    -- SECTION 04: CONFIG PROFILES & SESSION (Clean Local Profiles Only)
+    AddSciFiGearHeader(12, "04", "Profiles & Session")
+
     if Cfg.SaveEnabled then
         local ProfCard = Instance.new("Frame")
-        ProfCard.LayoutOrder = 5
-        ProfCard.Size = UDim2.new(1, 0, 0, 98)
+        ProfCard.LayoutOrder = 13
+        ProfCard.Size = UDim2.new(1, 0, 0, 76)
         ProfCard.BackgroundColor3 = Theme.GrayTranslucent
         ProfCard.BackgroundTransparency = 0.5
         ProfCard.ZIndex = 11
         ProfCard.Parent = SettingsPage
         Instance.new("UICorner", ProfCard).CornerRadius = UDim.new(0, 12)
+        BindTheme(ProfCard, "BackgroundColor3", "GrayTranslucent")
 
         local ProfTitle = Instance.new("TextLabel")
         ProfTitle.Size = UDim2.new(1, -20, 0, 16)
         ProfTitle.Position = UDim2.new(0, 12, 0, 5)
         ProfTitle.BackgroundTransparency = 1
-        ProfTitle.Text = "Config Profile: " .. Cfg.ActiveProfile
+        ProfTitle.Text = "Active Profile: " .. Cfg.ActiveProfile
         ProfTitle.TextColor3 = Theme.Text
         ProfTitle.Font = Enum.Font.GothamBold
         ProfTitle.TextSize = 11
         ProfTitle.TextXAlignment = Enum.TextXAlignment.Left
         ProfTitle.ZIndex = 12
         ProfTitle.Parent = ProfCard
+        BindTheme(ProfTitle, "TextColor3", "Text")
 
         local ProfInput = Instance.new("TextBox")
         ProfInput.Size = UDim2.new(1, -24, 0, 22)
         ProfInput.Position = UDim2.new(0, 12, 0, 23)
         ProfInput.BackgroundColor3 = Theme.Background
-        ProfInput.PlaceholderText = "Profile name or paste JSON config to import..."
+        ProfInput.PlaceholderText = "Enter profile name (e.g. Legit, Rage)..."
         ProfInput.PlaceholderColor3 = Theme.SubText
         ProfInput.Text = Cfg.ActiveProfile
         ProfInput.TextColor3 = Theme.Text
@@ -4669,7 +4969,6 @@ function TryxzLib:CreateWindow(config)
             end
             if loaded["_ThemeName"] and Themes[loaded["_ThemeName"]] then
                 TryxzLib:SetTheme(loaded["_ThemeName"])
-                ActiveThemeLbl.Text = loaded["_ThemeName"]
             end
             if loaded["_UIScale"] ~= nil then
                 ApplyNewUIScale(tonumber(loaded["_UIScale"]) or 1, false)
@@ -4678,7 +4977,7 @@ function TryxzLib:CreateWindow(config)
 
         local SaveProfBtn = Instance.new("TextButton")
         SaveProfBtn.Size = UDim2.new(0.31, 0, 0, 20)
-        SaveProfBtn.Position = UDim2.new(0, 12, 0, 49)
+        SaveProfBtn.Position = UDim2.new(0, 12, 0, 50)
         SaveProfBtn.BackgroundColor3 = Theme.Accent
         SaveProfBtn.Text = "Save"
         SaveProfBtn.TextColor3 = Theme.Text
@@ -4688,10 +4987,11 @@ function TryxzLib:CreateWindow(config)
         SaveProfBtn.ZIndex = 12
         SaveProfBtn.Parent = ProfCard
         Instance.new("UICorner", SaveProfBtn).CornerRadius = UDim.new(1, 0)
+        BindAccent(SaveProfBtn, "BackgroundColor3")
 
         local LoadProfBtn = Instance.new("TextButton")
         LoadProfBtn.Size = UDim2.new(0.31, 0, 0, 20)
-        LoadProfBtn.Position = UDim2.new(0.345, 0, 0, 49)
+        LoadProfBtn.Position = UDim2.new(0.345, 0, 0, 50)
         LoadProfBtn.BackgroundColor3 = Theme.Element
         LoadProfBtn.Text = "Load"
         LoadProfBtn.TextColor3 = Theme.Text
@@ -4704,7 +5004,7 @@ function TryxzLib:CreateWindow(config)
 
         local DelProfBtn = Instance.new("TextButton")
         DelProfBtn.Size = UDim2.new(0.31, 0, 0, 20)
-        DelProfBtn.Position = UDim2.new(0.69, -12, 0, 49)
+        DelProfBtn.Position = UDim2.new(0.69, -12, 0, 50)
         DelProfBtn.BackgroundColor3 = Theme.Error
         DelProfBtn.Text = "Delete"
         DelProfBtn.TextColor3 = Theme.Text
@@ -4715,37 +5015,11 @@ function TryxzLib:CreateWindow(config)
         DelProfBtn.Parent = ProfCard
         Instance.new("UICorner", DelProfBtn).CornerRadius = UDim.new(1, 0)
 
-        local ExportBtn = Instance.new("TextButton")
-        ExportBtn.Size = UDim2.new(0.48, -6, 0, 20)
-        ExportBtn.Position = UDim2.new(0, 12, 0, 73)
-        ExportBtn.BackgroundColor3 = Theme.Element
-        ExportBtn.Text = "📋 Export JSON"
-        ExportBtn.TextColor3 = Theme.Text
-        ExportBtn.Font = Enum.Font.GothamBold
-        ExportBtn.TextSize = 10
-        ExportBtn.AutoButtonColor = false
-        ExportBtn.ZIndex = 12
-        ExportBtn.Parent = ProfCard
-        Instance.new("UICorner", ExportBtn).CornerRadius = UDim.new(1, 0)
-
-        local ImportBtn = Instance.new("TextButton")
-        ImportBtn.Size = UDim2.new(0.48, -6, 0, 20)
-        ImportBtn.Position = UDim2.new(0.52, -6, 0, 73)
-        ImportBtn.BackgroundColor3 = Theme.Element
-        ImportBtn.Text = "📥 Import JSON"
-        ImportBtn.TextColor3 = Theme.Text
-        ImportBtn.Font = Enum.Font.GothamBold
-        ImportBtn.TextSize = 10
-        ImportBtn.AutoButtonColor = false
-        ImportBtn.ZIndex = 12
-        ImportBtn.Parent = ProfCard
-        Instance.new("UICorner", ImportBtn).CornerRadius = UDim.new(1, 0)
-
         SaveProfBtn.MouseButton1Click:Connect(function()
             local pName = ProfInput.Text ~= "" and ProfInput.Text or "default"
             Cfg.ActiveProfile = pName
             Cfg.SaveFile = GetProfilePath(pName)
-            ProfTitle.Text = "Config Profile: " .. pName
+            ProfTitle.Text = "Active Profile: " .. pName
             WriteConfigFile()
             TryxzLib:Notify({Title = "Profile Saved", Text = "Saved '" .. pName .. "'.", Duration = 3})
         end)
@@ -4757,7 +5031,7 @@ function TryxzLib:CreateWindow(config)
                 Cfg.ActiveProfile = pName
                 Cfg.SaveFile = GetProfilePath(pName)
                 Cfg.SavedData = loaded
-                ProfTitle.Text = "Config Profile: " .. pName
+                ProfTitle.Text = "Active Profile: " .. pName
                 ApplyConfigTable(loaded)
                 TryxzLib:Notify({Title = "Profile Loaded", Text = "Loaded '" .. pName .. "'.", Duration = 3})
             else
@@ -4773,30 +5047,11 @@ function TryxzLib:CreateWindow(config)
             end)
             TryxzLib:Notify({Title = "Deleted", Text = "Removed '" .. pName .. "'.", Duration = 2.5})
         end)
-
-        ExportBtn.MouseButton1Click:Connect(function()
-            WriteConfigFile()
-            local jsonStr = HttpService:JSONEncode(Cfg.SavedData)
-            if setclipboard then pcall(function() setclipboard(jsonStr) end) end
-            TryxzLib:Notify({Title = "Exported", Text = "Config JSON copied to clipboard.", Duration = 3})
-        end)
-
-        ImportBtn.MouseButton1Click:Connect(function()
-            local ok, decoded = pcall(function() return HttpService:JSONDecode(ProfInput.Text) end)
-            if ok and type(decoded) == "table" then
-                Cfg.SavedData = decoded
-                ApplyConfigTable(decoded)
-                WriteConfigFile()
-                TryxzLib:Notify({Title = "Imported", Text = "Config applied from JSON text.", Duration = 3})
-            else
-                TryxzLib:Notify({Title = "Invalid JSON", Text = "Paste valid JSON into the profile box first.", Duration = 3, Sound = "Error"})
-            end
-        end)
     end
 
     -- Destroy UI Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 10
+    DestroyBtn.LayoutOrder = 14
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Theme.Error
     DestroyBtn.Text = "Unload / Destroy UI"
