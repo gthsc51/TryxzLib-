@@ -1,7 +1,6 @@
 --[[
-    TryxzLib v3.9 by gthsc51
-    Complete, Modular, Fully Animated UI Library for Roblox Executors
-    New in v3.9: Clean Icon Badges in Dropdowns/MultiDropdowns + Enhanced & Decorated Gear (⚙) Panel
+    TryxzLib v4.0 by gthsc51
+    Next-Gen Modular, Gradient-Accented, Fully Animated UI Library for Roblox Executors
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -27,35 +26,39 @@ local Tweens = {
 }
 
 -- ==========================================
--- FULL MULTI-COLOR THEMES SYSTEM
+-- DUAL-GRADIENT MULTI-COLOR THEMES
 -- ==========================================
 local ThemeOrder = {"Obsidian", "Crimson Night", "Abyss Ocean", "Emerald Forest", "Solar Amber", "Sakura Dusk"}
 
 local Themes = {
     ["Obsidian"] = {
-        Background = Color3.fromRGB(16, 16, 20),
-        Sidebar = Color3.fromRGB(22, 22, 28),
-        Element = Color3.fromRGB(30, 30, 38),
-        ElementHover = Color3.fromRGB(38, 38, 48),
-        GrayTranslucent = Color3.fromRGB(48, 48, 58),
+        Background = Color3.fromRGB(14, 14, 19),
+        Sidebar = Color3.fromRGB(20, 20, 27),
+        Element = Color3.fromRGB(28, 28, 37),
+        ElementHover = Color3.fromRGB(36, 36, 48),
+        GrayTranslucent = Color3.fromRGB(46, 46, 58),
         Accent = Color3.fromRGB(115, 85, 255),
+        AccentSecondary = Color3.fromRGB(175, 110, 255),
         AccentHover = Color3.fromRGB(132, 105, 255),
         Success = Color3.fromRGB(65, 195, 120),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
-        Text = Color3.fromRGB(240, 240, 245),
-        SubText = Color3.fromRGB(165, 165, 180),
-        Divider = Color3.fromRGB(55, 55, 68)
+        Text = Color3.fromRGB(242, 242, 248),
+        SubText = Color3.fromRGB(162, 162, 178),
+        Divider = Color3.fromRGB(54, 54, 68)
     },
     ["Crimson Night"] = {
-        Background = Color3.fromRGB(20, 14, 16),
-        Sidebar = Color3.fromRGB(28, 18, 22),
-        Element = Color3.fromRGB(38, 24, 29),
-        ElementHover = Color3.fromRGB(48, 30, 36),
-        GrayTranslucent = Color3.fromRGB(62, 38, 46),
+        Background = Color3.fromRGB(19, 13, 15),
+        Sidebar = Color3.fromRGB(27, 17, 21),
+        Element = Color3.fromRGB(37, 23, 28),
+        ElementHover = Color3.fromRGB(48, 29, 36),
+        GrayTranslucent = Color3.fromRGB(60, 36, 45),
         Accent = Color3.fromRGB(235, 68, 90),
+        AccentSecondary = Color3.fromRGB(255, 125, 95),
         AccentHover = Color3.fromRGB(250, 88, 108),
         Success = Color3.fromRGB(65, 195, 120),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
         Text = Color3.fromRGB(246, 238, 240),
@@ -63,14 +66,16 @@ local Themes = {
         Divider = Color3.fromRGB(72, 46, 54)
     },
     ["Abyss Ocean"] = {
-        Background = Color3.fromRGB(13, 18, 26),
-        Sidebar = Color3.fromRGB(18, 25, 36),
-        Element = Color3.fromRGB(25, 34, 48),
-        ElementHover = Color3.fromRGB(32, 44, 62),
-        GrayTranslucent = Color3.fromRGB(42, 56, 78),
+        Background = Color3.fromRGB(12, 17, 25),
+        Sidebar = Color3.fromRGB(17, 24, 35),
+        Element = Color3.fromRGB(24, 33, 47),
+        ElementHover = Color3.fromRGB(31, 43, 61),
+        GrayTranslucent = Color3.fromRGB(40, 54, 76),
         Accent = Color3.fromRGB(56, 152, 255),
+        AccentSecondary = Color3.fromRGB(55, 225, 235),
         AccentHover = Color3.fromRGB(82, 168, 255),
         Success = Color3.fromRGB(65, 195, 120),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
         Text = Color3.fromRGB(238, 244, 252),
@@ -78,14 +83,16 @@ local Themes = {
         Divider = Color3.fromRGB(48, 64, 88)
     },
     ["Emerald Forest"] = {
-        Background = Color3.fromRGB(13, 22, 18),
-        Sidebar = Color3.fromRGB(18, 30, 24),
-        Element = Color3.fromRGB(24, 40, 32),
-        ElementHover = Color3.fromRGB(31, 52, 42),
-        GrayTranslucent = Color3.fromRGB(40, 64, 52),
+        Background = Color3.fromRGB(12, 21, 17),
+        Sidebar = Color3.fromRGB(17, 29, 23),
+        Element = Color3.fromRGB(23, 39, 31),
+        ElementHover = Color3.fromRGB(30, 51, 41),
+        GrayTranslucent = Color3.fromRGB(39, 63, 51),
         Accent = Color3.fromRGB(46, 204, 113),
+        AccentSecondary = Color3.fromRGB(110, 235, 155),
         AccentHover = Color3.fromRGB(68, 220, 132),
         Success = Color3.fromRGB(65, 215, 130),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
         Text = Color3.fromRGB(238, 248, 242),
@@ -93,14 +100,16 @@ local Themes = {
         Divider = Color3.fromRGB(46, 72, 58)
     },
     ["Solar Amber"] = {
-        Background = Color3.fromRGB(22, 19, 14),
-        Sidebar = Color3.fromRGB(30, 26, 19),
-        Element = Color3.fromRGB(40, 35, 25),
-        ElementHover = Color3.fromRGB(52, 45, 32),
-        GrayTranslucent = Color3.fromRGB(64, 56, 40),
+        Background = Color3.fromRGB(21, 18, 13),
+        Sidebar = Color3.fromRGB(29, 25, 18),
+        Element = Color3.fromRGB(39, 34, 24),
+        ElementHover = Color3.fromRGB(51, 44, 31),
+        GrayTranslucent = Color3.fromRGB(63, 55, 39),
         Accent = Color3.fromRGB(245, 178, 45),
+        AccentSecondary = Color3.fromRGB(255, 120, 60),
         AccentHover = Color3.fromRGB(255, 194, 70),
         Success = Color3.fromRGB(65, 195, 120),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
         Text = Color3.fromRGB(248, 244, 236),
@@ -108,14 +117,16 @@ local Themes = {
         Divider = Color3.fromRGB(74, 65, 48)
     },
     ["Sakura Dusk"] = {
-        Background = Color3.fromRGB(22, 15, 24),
-        Sidebar = Color3.fromRGB(30, 20, 33),
-        Element = Color3.fromRGB(40, 27, 44),
-        ElementHover = Color3.fromRGB(52, 35, 56),
-        GrayTranslucent = Color3.fromRGB(65, 44, 70),
+        Background = Color3.fromRGB(21, 14, 23),
+        Sidebar = Color3.fromRGB(29, 19, 32),
+        Element = Color3.fromRGB(39, 26, 43),
+        ElementHover = Color3.fromRGB(51, 34, 55),
+        GrayTranslucent = Color3.fromRGB(64, 43, 69),
         Accent = Color3.fromRGB(236, 95, 185),
+        AccentSecondary = Color3.fromRGB(165, 105, 255),
         AccentHover = Color3.fromRGB(248, 118, 200),
         Success = Color3.fromRGB(65, 195, 120),
+        Warning = Color3.fromRGB(245, 185, 55),
         Error = Color3.fromRGB(235, 55, 70),
         ErrorGlow = Color3.fromRGB(255, 95, 110),
         Text = Color3.fromRGB(248, 238, 246),
@@ -129,6 +140,7 @@ local Theme = {}
 for k, v in pairs(Themes["Obsidian"]) do Theme[k] = v end
 
 local ThemeBindings = {}
+local GradientBindings = {}
 
 local function Tween(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -144,6 +156,18 @@ local function BindAccent(obj, prop, conditionFn)
     BindTheme(obj, prop, "Accent", conditionFn)
 end
 
+local function ApplyAccentGradient(parent, rotation)
+    local grad = Instance.new("UIGradient")
+    grad.Rotation = rotation or 0
+    grad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Theme.Accent),
+        ColorSequenceKeypoint.new(1, Theme.AccentSecondary or Theme.Accent)
+    }
+    grad.Parent = parent
+    table.insert(GradientBindings, grad)
+    return grad
+end
+
 local function RefreshAllThemeBindings()
     for i = #ThemeBindings, 1, -1 do
         local entry = ThemeBindings[i]
@@ -156,6 +180,17 @@ local function RefreshAllThemeBindings()
             end
         else
             table.remove(ThemeBindings, i)
+        end
+    end
+    for i = #GradientBindings, 1, -1 do
+        local g = GradientBindings[i]
+        if g and g.Parent then
+            g.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Theme.Accent),
+                ColorSequenceKeypoint.new(1, Theme.AccentSecondary or Theme.Accent)
+            }
+        else
+            table.remove(GradientBindings, i)
         end
     end
 end
@@ -181,6 +216,10 @@ function TryxzLib:AddTheme(themeName, paletteTable)
         local h, s, v = paletteTable.Accent:ToHSV()
         newPal.AccentHover = Color3.fromHSV(h, math.max(0, s - 0.08), math.min(1, v + 0.08))
     end
+    if paletteTable.Accent and not paletteTable.AccentSecondary then
+        local h, s, v = paletteTable.Accent:ToHSV()
+        newPal.AccentSecondary = Color3.fromHSV((h + 0.08) % 1, s, math.min(1, v + 0.06))
+    end
     Themes[themeName] = newPal
     if not table.find(ThemeOrder, themeName) then
         table.insert(ThemeOrder, themeName)
@@ -191,6 +230,7 @@ function TryxzLib:SetAccent(newColor)
     Theme.Accent = newColor
     local h, s, v = newColor:ToHSV()
     Theme.AccentHover = Color3.fromHSV(h, math.max(0, s - 0.08), math.min(1, v + 0.08))
+    Theme.AccentSecondary = Color3.fromHSV((h + 0.08) % 1, s, math.min(1, v + 0.06))
     RefreshAllThemeBindings()
 end
 
@@ -393,6 +433,45 @@ local function CreateIcon(parent, iconValue, size, pos, zindex, customColor)
     end
 end
 
+local function BuildOptionIconBadge(parent, iconValue, posX, posY, zindex)
+    if iconValue == nil or tostring(iconValue) == "" then return nil end
+    local rawStr = tostring(iconValue)
+    local isAsset = string.find(rawStr, "rbxassetid://", 1, true) ~= nil or tonumber(rawStr) ~= nil
+
+    local badge = Instance.new("Frame")
+    badge.Size = UDim2.new(0, 18, 0, 18)
+    badge.Position = UDim2.new(0, posX, 0.5, posY or -9)
+    badge.BackgroundColor3 = Theme.Element
+    badge.BackgroundTransparency = 0.25
+    badge.BorderSizePixel = 0
+    badge.ZIndex = zindex or 4
+    badge.Parent = parent
+    Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
+
+    if isAsset then
+        local img = Instance.new("ImageLabel")
+        img.Size = UDim2.new(0, 13, 0, 13)
+        img.Position = UDim2.new(0.5, -6.5, 0.5, -6.5)
+        img.BackgroundTransparency = 1
+        img.Image = tonumber(rawStr) and ("rbxassetid://" .. rawStr) or rawStr
+        img.ImageColor3 = Color3.fromRGB(245, 245, 250)
+        img.ScaleType = Enum.ScaleType.Fit
+        img.ZIndex = (zindex or 4) + 1
+        img.Parent = badge
+    else
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(1, 0, 1, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = rawStr
+        lbl.TextColor3 = Color3.fromRGB(245, 245, 250)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 11
+        lbl.ZIndex = (zindex or 4) + 1
+        lbl.Parent = badge
+    end
+    return badge
+end
+
 -- ScreenGui Setup
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "TryxzLib_" .. tostring(math.random(1000, 9999))
@@ -407,6 +486,50 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
+-- Draggable Utility
+local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback)
+    local dragging, dragInput, dragStart, startPos, moved = false, nil, nil, nil, false
+
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            moved = false
+            dragStart = input.Position
+            startPos = targetFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                    if not moved and onClickCallback then onClickCallback() end
+                end
+            end)
+        end
+    end)
+
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            if delta.Magnitude > 4 then moved = true end
+            local newX = startPos.X.Offset + delta.X
+            local newY = startPos.Y.Offset + delta.Y
+            if clampToScreen then
+                local screenSize = ScreenGui.AbsoluteSize
+                local objSize = targetFrame.AbsoluteSize
+                newX = math.clamp(newX, 8, math.max(8, screenSize.X - objSize.X - 8))
+                newY = math.clamp(newY, 8, math.max(8, screenSize.Y - objSize.Y - 8))
+            end
+            Tween(targetFrame, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+            })
+        end
+    end)
+end
+
 -- Floating Tooltip System
 local TooltipFrame = Instance.new("Frame")
 TooltipFrame.Name = "GlobalTooltip"
@@ -415,7 +538,7 @@ TooltipFrame.AutomaticSize = Enum.AutomaticSize.XY
 TooltipFrame.BackgroundColor3 = Theme.Sidebar
 TooltipFrame.BorderSizePixel = 0
 TooltipFrame.Visible = false
-TooltipFrame.ZIndex = 60
+TooltipFrame.ZIndex = 70
 TooltipFrame.Parent = ScreenGui
 Instance.new("UICorner", TooltipFrame).CornerRadius = UDim.new(0, 10)
 BindTheme(TooltipFrame, "BackgroundColor3", "Sidebar")
@@ -437,7 +560,7 @@ TipLbl.Text = ""
 TipLbl.TextColor3 = Theme.Text
 TipLbl.Font = Enum.Font.GothamSemibold
 TipLbl.TextSize = 10
-TipLbl.ZIndex = 61
+TipLbl.ZIndex = 71
 TipLbl.Parent = TooltipFrame
 BindTheme(TipLbl, "TextColor3", "Text")
 
@@ -468,65 +591,417 @@ local function AttachTooltip(guiObj, text)
     end)
 end
 
--- Notification Container
-local NotifHolder = Instance.new("Frame")
-NotifHolder.Name = "Notifications"
-NotifHolder.Size = UDim2.new(0, 250, 1, -20)
-NotifHolder.Position = UDim2.new(1, -260, 0, 10)
-NotifHolder.BackgroundTransparency = 1
-NotifHolder.ZIndex = 40
-NotifHolder.Parent = ScreenGui
+-- ==========================================
+-- FLOATING WATERMARK, KEYBIND LIST & QUICK BUTTONS
+-- ==========================================
+function TryxzLib:CreateWatermark(wCfg)
+    wCfg = wCfg or {}
+    local titleStr = tostring(wCfg.Title or "TryxzHub")
+    local showTime = wCfg.ShowTime ~= false
+    local showStats = wCfg.ShowStats ~= false
 
-local NotifLayout = Instance.new("UIListLayout", NotifHolder)
-NotifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-NotifLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-NotifLayout.Padding = UDim.new(0, 8)
+    local Pill = Instance.new("Frame")
+    Pill.Name = "TryxzWatermark"
+    Pill.Size = UDim2.new(0, 0, 0, 28)
+    Pill.AutomaticSize = Enum.AutomaticSize.X
+    Pill.Position = wCfg.Position or UDim2.new(0, 16, 0, 14)
+    Pill.BackgroundColor3 = Theme.Sidebar
+    Pill.BorderSizePixel = 0
+    Pill.ZIndex = 35
+    Pill.Parent = ScreenGui
+    Instance.new("UICorner", Pill).CornerRadius = UDim.new(1, 0)
+    BindTheme(Pill, "BackgroundColor3", "Sidebar")
+
+    local WStroke = Instance.new("UIStroke", Pill)
+    WStroke.Color = Theme.Accent
+    WStroke.Thickness = 1.2
+    BindAccent(WStroke, "Color")
+
+    local TopLine = Instance.new("Frame")
+    TopLine.Size = UDim2.new(0.6, 0, 0, 2)
+    TopLine.Position = UDim2.new(0.2, 0, 0, 0)
+    TopLine.BackgroundColor3 = Color3.new(1, 1, 1)
+    TopLine.BorderSizePixel = 0
+    TopLine.ZIndex = 36
+    TopLine.Parent = Pill
+    ApplyAccentGradient(TopLine, 0)
+
+    local Pad = Instance.new("UIPadding", Pill)
+    Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Size = UDim2.new(0, 0, 1, 0)
+    Lbl.AutomaticSize = Enum.AutomaticSize.X
+    Lbl.BackgroundTransparency = 1
+    Lbl.Text = titleStr
+    Lbl.TextColor3 = Theme.Text
+    Lbl.Font = Enum.Font.GothamBold
+    Lbl.TextSize = 11
+    Lbl.ZIndex = 36
+    Lbl.Parent = Pill
+    BindTheme(Lbl, "TextColor3", "Text")
+
+    MakeDraggable(Pill, Pill, true)
+
+    local frames, lastUpd = 0, tick()
+    local conn = RunService.RenderStepped:Connect(function()
+        if not Pill.Parent then return end
+        frames += 1
+        local now = tick()
+        if now - lastUpd >= 0.5 then
+            local parts = {titleStr}
+            if showStats then
+                local fps = math.floor(frames / (now - lastUpd))
+                local ping = 0
+                pcall(function() ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
+                table.insert(parts, string.format("%d FPS", fps))
+                table.insert(parts, string.format("%d ms", ping))
+            end
+            if showTime then
+                table.insert(parts, os.date("%H:%M:%S"))
+            end
+            Lbl.Text = table.concat(parts, "  •  ")
+            frames, lastUpd = 0, now
+        end
+    end)
+
+    local WmObj = {}
+    function WmObj:SetTitle(t) titleStr = tostring(t) end
+    function WmObj:SetVisible(v) Pill.Visible = v end
+    function WmObj:Destroy() if conn then conn:Disconnect() end Pill:Destroy() end
+    return WmObj
+end
+
+local ActiveKeybindHud = nil
+function TryxzLib:CreateKeybindList(kCfg)
+    kCfg = kCfg or {}
+    if ActiveKeybindHud and ActiveKeybindHud.Frame then ActiveKeybindHud.Frame:Destroy() end
+
+    local Panel = Instance.new("Frame")
+    Panel.Name = "TryxzKeybindHUD"
+    Panel.Size = UDim2.new(0, 195, 0, 32)
+    Panel.AutomaticSize = Enum.AutomaticSize.Y
+    Panel.Position = kCfg.Position or UDim2.new(1, -212, 0.35, 0)
+    Panel.BackgroundColor3 = Theme.Sidebar
+    Panel.BorderSizePixel = 0
+    Panel.ZIndex = 34
+    Panel.Parent = ScreenGui
+    Instance.new("UICorner", Panel).CornerRadius = UDim.new(0, 14)
+    BindTheme(Panel, "BackgroundColor3", "Sidebar")
+
+    local KStroke = Instance.new("UIStroke", Panel)
+    KStroke.Color = Theme.Accent
+    KStroke.Thickness = 1.2
+    KStroke.Transparency = 0.35
+    BindAccent(KStroke, "Color")
+
+    local Pad = Instance.new("UIPadding", Panel)
+    Pad.PaddingTop, Pad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
+    Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+
+    local List = Instance.new("UIListLayout", Panel)
+    List.Padding = UDim.new(0, 4)
+    List.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local Header = Instance.new("TextLabel")
+    Header.LayoutOrder = 0
+    Header.Size = UDim2.new(1, 0, 0, 16)
+    Header.BackgroundTransparency = 1
+    Header.Text = "⌨  ACTIVE BINDS"
+    Header.TextColor3 = Theme.Accent
+    Header.Font = Enum.Font.GothamBlack
+    Header.TextSize = 10
+    Header.TextXAlignment = Enum.TextXAlignment.Left
+    Header.ZIndex = 35
+    Header.Parent = Panel
+    BindAccent(Header, "TextColor3")
+
+    local EmptyLbl = Instance.new("TextLabel")
+    EmptyLbl.LayoutOrder = 1
+    EmptyLbl.Size = UDim2.new(1, 0, 0, 14)
+    EmptyLbl.BackgroundTransparency = 1
+    EmptyLbl.Text = "No active toggles"
+    EmptyLbl.TextColor3 = Theme.SubText
+    EmptyLbl.Font = Enum.Font.Gotham
+    EmptyLbl.TextSize = 10
+    EmptyLbl.TextXAlignment = Enum.TextXAlignment.Left
+    EmptyLbl.ZIndex = 35
+    EmptyLbl.Parent = Panel
+
+    MakeDraggable(Panel, Panel, true)
+
+    local Rows = {}
+    ActiveKeybindHud = {
+        Frame = Panel,
+        Update = function(id, name, keyName, isActive)
+            if not Panel.Parent then return end
+            if isActive then
+                if not Rows[id] then
+                    local r = Instance.new("Frame")
+                    r.LayoutOrder = 2
+                    r.Size = UDim2.new(1, 0, 0, 20)
+                    r.BackgroundColor3 = Theme.Element
+                    r.ZIndex = 35
+                    r.Parent = Panel
+                    Instance.new("UICorner", r).CornerRadius = UDim.new(0, 7)
+
+                    local nLbl = Instance.new("TextLabel")
+                    nLbl.Size = UDim2.new(1, -54, 1, 0)
+                    nLbl.Position = UDim2.new(0, 7, 0, 0)
+                    nLbl.BackgroundTransparency = 1
+                    nLbl.Text = tostring(name)
+                    nLbl.TextColor3 = Theme.Text
+                    nLbl.Font = Enum.Font.GothamSemibold
+                    nLbl.TextSize = 10
+                    nLbl.TextXAlignment = Enum.TextXAlignment.Left
+                    nLbl.TextTruncate = Enum.TextTruncate.AtEnd
+                    nLbl.ZIndex = 36
+                    nLbl.Parent = r
+
+                    local kLbl = Instance.new("TextLabel")
+                    kLbl.Size = UDim2.new(0, 44, 0, 14)
+                    kLbl.Position = UDim2.new(1, -48, 0.5, -7)
+                    kLbl.BackgroundColor3 = Theme.Background
+                    kLbl.Text = tostring(keyName or "ON")
+                    kLbl.TextColor3 = Theme.Accent
+                    kLbl.Font = Enum.Font.GothamBold
+                    kLbl.TextSize = 8
+                    kLbl.ZIndex = 36
+                    kLbl.Parent = r
+                    Instance.new("UICorner", kLbl).CornerRadius = UDim.new(1, 0)
+
+                    Rows[id] = {Row = r, KeyLbl = kLbl}
+                else
+                    Rows[id].KeyLbl.Text = tostring(keyName or "ON")
+                end
+            else
+                if Rows[id] then
+                    Rows[id].Row:Destroy()
+                    Rows[id] = nil
+                end
+            end
+            local count = 0
+            for _ in pairs(Rows) do count += 1 end
+            EmptyLbl.Visible = (count == 0)
+        end
+    }
+
+    local HudObj = {}
+    function HudObj:SetVisible(v) Panel.Visible = v end
+    function HudObj:Destroy() Panel:Destroy() ActiveKeybindHud = nil end
+    return HudObj
+end
+
+function TryxzLib:CreateQuickButton(qCfg)
+    qCfg = qCfg or {}
+    local isToggle = qCfg.Toggle == true
+    local activeState = qCfg.Default or false
+    local cb = qCfg.Callback or function() end
+
+    local Btn = Instance.new("TextButton")
+    Btn.Name = "TryxzQuickButton"
+    Btn.Size = UDim2.new(0, 48, 0, 48)
+    Btn.Position = qCfg.Position or UDim2.new(0, 20, 0.5, 0)
+    Btn.BackgroundColor3 = activeState and Theme.Accent or Theme.Sidebar
+    Btn.Text = ""
+    Btn.AutoButtonColor = false
+    Btn.ZIndex = 36
+    Btn.Parent = ScreenGui
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(1, 0)
+
+    local QStroke = Instance.new("UIStroke", Btn)
+    QStroke.Color = Theme.Accent
+    QStroke.Thickness = 1.6
+    BindAccent(QStroke, "Color")
+
+    if qCfg.Icon and tostring(qCfg.Icon) ~= "" then
+        CreateIcon(Btn, qCfg.Icon, 20, UDim2.new(0.5, -10, 0.25, -4), 37)
+    end
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Size = UDim2.new(1, -6, 0, 14)
+    Lbl.Position = UDim2.new(0, 3, qCfg.Icon and 0.62 or 0.5, qCfg.Icon and 0 or -7)
+    Lbl.BackgroundTransparency = 1
+    Lbl.Text = tostring(qCfg.Name or "Act")
+    Lbl.TextColor3 = Theme.Text
+    Lbl.Font = Enum.Font.GothamBold
+    Lbl.TextSize = 9
+    Lbl.TextTruncate = Enum.TextTruncate.AtEnd
+    Lbl.ZIndex = 37
+    Lbl.Parent = Btn
+
+    AttachTooltip(Btn, qCfg.Tooltip or qCfg.Name)
+
+    MakeDraggable(Btn, Btn, true, function()
+        TryxzLib:PlaySound("Click")
+        if isToggle then
+            activeState = not activeState
+            Tween(Btn, Tweens.Fast, {BackgroundColor3 = activeState and Theme.Accent or Theme.Sidebar})
+            task.spawn(cb, activeState)
+        else
+            Tween(Btn, TweenInfo.new(0.08), {BackgroundColor3 = Theme.Accent})
+            task.delay(0.12, function() Tween(Btn, Tweens.Fast, {BackgroundColor3 = Theme.Sidebar}) end)
+            task.spawn(cb)
+        end
+    end)
+
+    local QObj = {}
+    function QObj:SetState(v)
+        activeState = v
+        Tween(Btn, Tweens.Fast, {BackgroundColor3 = activeState and Theme.Accent or Theme.Sidebar})
+    end
+    function QObj:SetVisible(v) Btn.Visible = v end
+    function QObj:Destroy() Btn:Destroy() end
+    return QObj
+end
+
+-- ==========================================
+-- TOP BANNER ALERT
+-- ==========================================
+function TryxzLib:Banner(bCfg)
+    bCfg = bCfg or {}
+    local text = tostring(bCfg.Text or "Alert")
+    local dur = bCfg.Duration or 4
+    TryxzLib:PlaySound(bCfg.Sound or "Notify")
+
+    local Bar = Instance.new("Frame")
+    Bar.Size = UDim2.new(0, 0, 0, 30)
+    Bar.Position = UDim2.new(0.5, 0, 0, 12)
+    Bar.AnchorPoint = Vector2.new(0.5, 0)
+    Bar.BackgroundColor3 = Theme.Sidebar
+    Bar.ClipsDescendants = true
+    Bar.ZIndex = 55
+    Bar.Parent = ScreenGui
+    Instance.new("UICorner", Bar).CornerRadius = UDim.new(1, 0)
+
+    local BStroke = Instance.new("UIStroke", Bar)
+    BStroke.Color = Theme.Accent
+    BStroke.Thickness = 1.3
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Size = UDim2.new(1, -24, 1, 0)
+    Lbl.Position = UDim2.new(0, 12, 0, 0)
+    Lbl.BackgroundTransparency = 1
+    Lbl.Text = "⚡  " .. text
+    Lbl.TextColor3 = Theme.Text
+    Lbl.Font = Enum.Font.GothamBold
+    Lbl.TextSize = 11
+    Lbl.ZIndex = 56
+    Lbl.Parent = Bar
+
+    Tween(Bar, Tweens.Bounce, {Size = UDim2.new(0, math.clamp(#text * 7 + 54, 180, 420), 0, 30)})
+    task.delay(dur, function()
+        local t = Tween(Bar, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 30)})
+        t.Completed:Wait()
+        Bar:Destroy()
+    end)
+end
+
+-- ==========================================
+-- INTERACTIVE NOTIFICATION SYSTEM (WITH ID UPDATES, POSITION & ACTION BUTTONS)
+-- ==========================================
+local NotifHolders = {}
+local ActiveNotifById = {}
+
+local function GetNotifHolder(posKey)
+    posKey = posKey or "BottomRight"
+    if NotifHolders[posKey] and NotifHolders[posKey].Parent then
+        return NotifHolders[posKey]
+    end
+    local holder = Instance.new("Frame")
+    holder.Name = "Notifications_" .. posKey
+    holder.Size = UDim2.new(0, 265, 1, -20)
+    holder.BackgroundTransparency = 1
+    holder.ZIndex = 45
+    holder.Parent = ScreenGui
+
+    local layout = Instance.new("UIListLayout", holder)
+    layout.Padding = UDim.new(0, 8)
+
+    if posKey == "TopRight" then
+        holder.Position = UDim2.new(1, -275, 0, 10)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Top
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    elseif posKey == "TopLeft" then
+        holder.Position = UDim2.new(0, 10, 0, 10)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Top
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    elseif posKey == "BottomLeft" then
+        holder.Position = UDim2.new(0, 10, 0, 10)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    else
+        holder.Position = UDim2.new(1, -275, 0, 10)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    end
+
+    NotifHolders[posKey] = holder
+    return holder
+end
+
+local DefaultNotifPosition = "BottomRight"
 
 function TryxzLib:Notify(config)
     config = config or {}
     local Title = config.Title or "Notification"
     local Text = config.Text or ""
     local Duration = config.Duration or 4
+    local Actions = config.Actions
+    local NotifId = config.Id
+    local Holder = GetNotifHolder(config.Position or DefaultNotifPosition)
+
+    if NotifId and ActiveNotifById[NotifId] and ActiveNotifById[NotifId].Parent then
+        local existing = ActiveNotifById[NotifId]
+        existing.TitleLbl.Text = Title
+        existing.BodyLbl.Text = Text
+        return
+    end
+
     TryxzLib:PlaySound(config.Sound or "Notify")
+
+    local hasActions = type(Actions) == "table" and #Actions > 0
+    local targetH = hasActions and 88 or 62
 
     local NotifFrame = Instance.new("Frame")
     NotifFrame.Size = UDim2.new(1, 0, 0, 0)
     NotifFrame.BackgroundColor3 = Theme.Sidebar
     NotifFrame.BorderSizePixel = 0
     NotifFrame.ClipsDescendants = true
-    NotifFrame.ZIndex = 41
-    NotifFrame.Parent = NotifHolder
+    NotifFrame.ZIndex = 46
+    NotifFrame.Parent = Holder
     Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 14)
 
     local Stroke = Instance.new("UIStroke", NotifFrame)
     Stroke.Color = Theme.Accent
     Stroke.Thickness = 1
-    Stroke.Transparency = 0.45
+    Stroke.Transparency = 0.4
 
     local AccentBar = Instance.new("Frame")
     AccentBar.Size = UDim2.new(0, 4, 1, -14)
     AccentBar.Position = UDim2.new(0, 5, 0, 7)
-    AccentBar.BackgroundColor3 = Theme.Accent
+    AccentBar.BackgroundColor3 = Color3.new(1, 1, 1)
     AccentBar.BorderSizePixel = 0
-    AccentBar.ZIndex = 42
+    AccentBar.ZIndex = 47
     AccentBar.Parent = NotifFrame
     Instance.new("UICorner", AccentBar).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(AccentBar, 90)
 
     local TitleLbl = Instance.new("TextLabel")
     TitleLbl.Size = UDim2.new(1, -24, 0, 18)
-    TitleLbl.Position = UDim2.new(0, 15, 0, 7)
+    TitleLbl.Position = UDim2.new(0, 15, 0, 6)
     TitleLbl.BackgroundTransparency = 1
     TitleLbl.Text = Title
     TitleLbl.TextColor3 = Theme.Text
     TitleLbl.Font = Enum.Font.GothamBold
     TitleLbl.TextSize = 12
     TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLbl.ZIndex = 42
+    TitleLbl.ZIndex = 47
     TitleLbl.Parent = NotifFrame
 
     local BodyLbl = Instance.new("TextLabel")
-    BodyLbl.Size = UDim2.new(1, -24, 0, 30)
-    BodyLbl.Position = UDim2.new(0, 15, 0, 25)
+    BodyLbl.Size = UDim2.new(1, -24, 0, 28)
+    BodyLbl.Position = UDim2.new(0, 15, 0, 24)
     BodyLbl.BackgroundTransparency = 1
     BodyLbl.Text = Text
     BodyLbl.TextColor3 = Theme.SubText
@@ -535,27 +1010,70 @@ function TryxzLib:Notify(config)
     BodyLbl.TextWrapped = true
     BodyLbl.TextXAlignment = Enum.TextXAlignment.Left
     BodyLbl.TextYAlignment = Enum.TextYAlignment.Top
-    BodyLbl.ZIndex = 42
+    BodyLbl.ZIndex = 47
     BodyLbl.Parent = NotifFrame
 
-    local TimerBar = Instance.new("Frame")
-    TimerBar.Size = UDim2.new(1, -16, 0, 2)
-    TimerBar.Position = UDim2.new(0, 8, 1, -3)
-    TimerBar.BackgroundColor3 = Theme.Accent
-    TimerBar.BorderSizePixel = 0
-    TimerBar.ZIndex = 42
-    TimerBar.Parent = NotifFrame
-    Instance.new("UICorner", TimerBar).CornerRadius = UDim.new(1, 0)
-
-    Tween(NotifFrame, Tweens.Bounce, {Size = UDim2.new(1, 0, 0, 62)})
-    Tween(TimerBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 2)})
-
-    task.delay(Duration, function()
+    local closed = false
+    local function DismissNotif()
+        if closed then return end
+        closed = true
+        if NotifId then ActiveNotifById[NotifId] = nil end
         local closeTween = Tween(NotifFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1})
         Tween(Stroke, Tweens.Fast, {Transparency = 1})
         closeTween.Completed:Wait()
         NotifFrame:Destroy()
-    end)
+    end
+
+    if hasActions then
+        local ActRow = Instance.new("Frame")
+        ActRow.Size = UDim2.new(1, -22, 0, 22)
+        ActRow.Position = UDim2.new(0, 15, 0, 56)
+        ActRow.BackgroundTransparency = 1
+        ActRow.ZIndex = 47
+        ActRow.Parent = NotifFrame
+
+        local ActList = Instance.new("UIListLayout", ActRow)
+        ActList.FillDirection = Enum.FillDirection.Horizontal
+        ActList.Padding = UDim.new(0, 6)
+
+        for i, act in ipairs(Actions) do
+            local aBtn = Instance.new("TextButton")
+            aBtn.Size = UDim2.new(1 / #Actions, -4, 1, 0)
+            aBtn.BackgroundColor3 = i == 1 and Theme.Accent or Theme.Element
+            aBtn.Text = tostring(act.Text or "OK")
+            aBtn.TextColor3 = Theme.Text
+            aBtn.Font = Enum.Font.GothamBold
+            aBtn.TextSize = 10
+            aBtn.AutoButtonColor = false
+            aBtn.ZIndex = 48
+            aBtn.Parent = ActRow
+            Instance.new("UICorner", aBtn).CornerRadius = UDim.new(1, 0)
+
+            aBtn.MouseButton1Click:Connect(function()
+                TryxzLib:PlaySound("Click")
+                if act.Callback then task.spawn(act.Callback) end
+                DismissNotif()
+            end)
+        end
+    end
+
+    local TimerBar = Instance.new("Frame")
+    TimerBar.Size = UDim2.new(1, -16, 0, 2)
+    TimerBar.Position = UDim2.new(0, 8, 1, -3)
+    TimerBar.BackgroundColor3 = Color3.new(1, 1, 1)
+    TimerBar.BorderSizePixel = 0
+    TimerBar.ZIndex = 47
+    TimerBar.Parent = NotifFrame
+    Instance.new("UICorner", TimerBar).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(TimerBar, 0)
+
+    if NotifId then
+        ActiveNotifById[NotifId] = {Parent = NotifFrame, TitleLbl = TitleLbl, BodyLbl = BodyLbl}
+    end
+
+    Tween(NotifFrame, Tweens.Bounce, {Size = UDim2.new(1, 0, 0, targetH)})
+    Tween(TimerBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 2)})
+    task.delay(Duration, DismissNotif)
 end
 
 -- Modal Confirmation Dialog
@@ -664,7 +1182,7 @@ function TryxzLib:Dialog(config)
     local ConfirmBtn = Instance.new("TextButton")
     ConfirmBtn.Size = UDim2.new(0.48, 0, 1, 0)
     ConfirmBtn.Position = UDim2.new(0.52, 0, 0, 0)
-    ConfirmBtn.BackgroundColor3 = Theme.Accent
+    ConfirmBtn.BackgroundColor3 = Color3.new(1, 1, 1)
     ConfirmBtn.Text = ConfirmText
     ConfirmBtn.TextColor3 = Theme.Text
     ConfirmBtn.Font = Enum.Font.GothamBold
@@ -673,6 +1191,7 @@ function TryxzLib:Dialog(config)
     ConfirmBtn.ZIndex = 53
     ConfirmBtn.Parent = BtnRow
     Instance.new("UICorner", ConfirmBtn).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(ConfirmBtn, 0)
 
     local function CloseDialog(cb)
         TryxzLib:PlaySound("Click")
@@ -685,49 +1204,6 @@ function TryxzLib:Dialog(config)
 
     CancelBtn.MouseButton1Click:Connect(function() CloseDialog(OnCancel) end)
     ConfirmBtn.MouseButton1Click:Connect(function() CloseDialog(OnConfirm) end)
-end
-
-local function MakeDraggable(dragHandle, targetFrame, clampToScreen, onClickCallback)
-    local dragging, dragInput, dragStart, startPos, moved = false, nil, nil, nil, false
-
-    dragHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            moved = false
-            dragStart = input.Position
-            startPos = targetFrame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                    if not moved and onClickCallback then onClickCallback() end
-                end
-            end)
-        end
-    end)
-
-    dragHandle.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            if delta.Magnitude > 4 then moved = true end
-            local newX = startPos.X.Offset + delta.X
-            local newY = startPos.Y.Offset + delta.Y
-            if clampToScreen then
-                local screenSize = ScreenGui.AbsoluteSize
-                local objSize = targetFrame.AbsoluteSize
-                newX = math.clamp(newX, 8, math.max(8, screenSize.X - objSize.X - 8))
-                newY = math.clamp(newY, 8, math.max(8, screenSize.Y - objSize.Y - 8))
-            end
-            Tween(targetFrame, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
-            })
-        end
-    end)
 end
 
 local function CheckKeyValid(KeyConfig, entered)
@@ -986,17 +1462,13 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     local AccessBtn = Instance.new("TextButton")
     AccessBtn.LayoutOrder = 6
     AccessBtn.Size = UDim2.new(1, 0, 0, 36)
-    AccessBtn.BackgroundColor3 = Theme.Accent
+    AccessBtn.BackgroundColor3 = Color3.new(1, 1, 1)
     AccessBtn.Text = ""
     AccessBtn.AutoButtonColor = false
     AccessBtn.ZIndex = 12
     AccessBtn.Parent = KInner
     Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
-
-    local AccStroke = Instance.new("UIStroke", AccessBtn)
-    AccStroke.Color = Color3.fromRGB(185, 165, 255)
-    AccStroke.Thickness = 1.2
-    AccStroke.Transparency = 0.3
+    ApplyAccentGradient(AccessBtn, 0)
 
     local KBtnText = KeyConfig.ButtonText or "Unlock Access"
     local AccLbl = Instance.new("TextLabel")
@@ -1028,16 +1500,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccArrow.TextSize = 14
     AccArrow.ZIndex = 14
     AccArrow.Parent = AccBadge
-
-    AccessBtn.MouseEnter:Connect(function()
-        TryxzLib:PlaySound("Hover", 0.25)
-        Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.AccentHover})
-        Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -28, 0.5, -12)})
-    end)
-    AccessBtn.MouseLeave:Connect(function()
-        Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
-        Tween(AccBadge, Tweens.Fast, {Position = UDim2.new(1, -31, 0.5, -12)})
-    end)
 
     if KeyConfig.GetKeyLink and tostring(KeyConfig.GetKeyLink) ~= "" then
         local LinkBtn = Instance.new("TextButton")
@@ -1083,7 +1545,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
             end
             AccLbl.Text = "Access Granted!"
             AccArrow.Text = "✓"
-            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Success})
             Tween(InputStroke, Tweens.Fast, {Color = Theme.Success})
             task.wait(0.35)
             local closeK = Tween(KScale, Tweens.Smooth, {Scale = 0})
@@ -1094,7 +1555,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
             TriggerHaptic(0.45)
             TryxzLib:PlaySound("Error")
             Tween(InputStroke, Tweens.Fast, {Color = Theme.Error})
-            Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error})
             AccLbl.Text = "Invalid Key"
             local origPos = KeyBox.Position
             for _, offset in ipairs({-8, 8, -5, 5, 0}) do
@@ -1103,7 +1563,6 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
             end
             task.delay(0.6, function()
                 if AccessBtn and AccessBtn.Parent then
-                    Tween(AccessBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent})
                     Tween(InputStroke, Tweens.Fast, {Color = Theme.Divider})
                     AccLbl.Text = KBtnText
                 end
@@ -1112,57 +1571,69 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     end)
 end
 
--- Helper to build clean option icon badges without any string coercion bugs
-local function BuildOptionIconBadge(parent, iconValue, posX, posY, zindex)
-    if iconValue == nil or tostring(iconValue) == "" then
-        return nil
-    end
-    local rawStr = tostring(iconValue)
-    local isAsset = string.find(rawStr, "rbxassetid://", 1, true) ~= nil or tonumber(rawStr) ~= nil
-
-    local badge = Instance.new("Frame")
-    badge.Size = UDim2.new(0, 18, 0, 18)
-    badge.Position = UDim2.new(0, posX, 0.5, posY or -9)
-    badge.BackgroundColor3 = Theme.Element
-    badge.BackgroundTransparency = 0.25
-    badge.BorderSizePixel = 0
-    badge.ZIndex = zindex or 4
-    badge.Parent = parent
-    Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
-
-    if isAsset then
-        local img = Instance.new("ImageLabel")
-        img.Size = UDim2.new(0, 13, 0, 13)
-        img.Position = UDim2.new(0.5, -6.5, 0.5, -6.5)
-        img.BackgroundTransparency = 1
-        img.Image = tonumber(rawStr) and ("rbxassetid://" .. rawStr) or rawStr
-        img.ImageColor3 = Color3.fromRGB(245, 245, 250)
-        img.ScaleType = Enum.ScaleType.Fit
-        img.ZIndex = (zindex or 4) + 1
-        img.Parent = badge
-    else
-        local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, 0, 1, 0)
-        lbl.BackgroundTransparency = 1
-        lbl.Text = rawStr
-        lbl.TextColor3 = Color3.fromRGB(245, 245, 250)
-        lbl.Font = Enum.Font.GothamBold
-        lbl.TextSize = 11
-        lbl.ZIndex = (zindex or 4) + 1
-        lbl.Parent = badge
-    end
-
-    return badge
-end
-
 -- ==========================================
--- DETACHED ELEMENT FACTORY
+-- ELEMENT FACTORY (ALL CONTROLS + LOCK + CONDITIONAL VISIBILITY)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
     local ElementOrder = 0
     local function NextOrder() ElementOrder += 1 return ElementOrder end
 
+    local function WrapElementControls(rootObj, eCfg)
+        local Locked = false
+        local LockOverlay = Instance.new("TextButton")
+        LockOverlay.Name = "LockOverlay"
+        LockOverlay.Size = UDim2.new(1, 0, 1, 0)
+        LockOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+        LockOverlay.BackgroundTransparency = 0.28
+        LockOverlay.Text = ""
+        LockOverlay.AutoButtonColor = false
+        LockOverlay.Visible = false
+        LockOverlay.ZIndex = 25
+        LockOverlay.Parent = rootObj
+        Instance.new("UICorner", LockOverlay).CornerRadius = UDim.new(0, 12)
+
+        local LockLbl = Instance.new("TextLabel")
+        LockLbl.Size = UDim2.new(1, -16, 1, 0)
+        LockLbl.Position = UDim2.new(0, 8, 0, 0)
+        LockLbl.BackgroundTransparency = 1
+        LockLbl.Text = "🔒 Locked"
+        LockLbl.TextColor3 = Theme.Text
+        LockLbl.Font = Enum.Font.GothamBold
+        LockLbl.TextSize = 11
+        LockLbl.ZIndex = 26
+        LockLbl.Parent = LockOverlay
+
+        LockOverlay.MouseButton1Click:Connect(function()
+            TriggerHaptic(0.35)
+            TryxzLib:PlaySound("Error", 0.25)
+        end)
+
+        if type(eCfg) == "table" then
+            if eCfg.Locked then
+                Locked = true
+                LockLbl.Text = "🔒 " .. tostring(eCfg.LockReason or "Locked")
+                LockOverlay.Visible = true
+            end
+            if type(eCfg.VisibleIf) == "function" then
+                table.insert(Window.VisibilityRules, {Obj = rootObj, Cond = eCfg.VisibleIf})
+                rootObj.Visible = eCfg.VisibleIf() == true
+            end
+        end
+
+        return {
+            SetLocked = function(_, state, reason)
+                Locked = state == true
+                LockLbl.Text = "🔒 " .. tostring(reason or "Locked")
+                LockOverlay.Visible = Locked
+            end,
+            SetVisible = function(_, vis)
+                rootObj.Visible = vis == true
+            end
+        }
+    end
+
+    -- 1. SECTION
     function API:AddSection(text, icon)
         local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
         local secIcon = type(text) == "table" and text.Icon or icon
@@ -1177,11 +1648,11 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         local AccentPill = Instance.new("Frame")
         AccentPill.Size = UDim2.new(0, 3, 0, 12)
         AccentPill.Position = UDim2.new(0, 2, 0.5, -6)
-        AccentPill.BackgroundColor3 = Theme.Accent
+        AccentPill.BackgroundColor3 = Color3.new(1, 1, 1)
         AccentPill.BorderSizePixel = 0
         AccentPill.Parent = SecFrame
         Instance.new("UICorner", AccentPill).CornerRadius = UDim.new(1, 0)
-        BindAccent(AccentPill, "BackgroundColor3")
+        ApplyAccentGradient(AccentPill, 90)
 
         local textX = 10
         if hasIcon then
@@ -1217,10 +1688,10 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             NumberSequenceKeypoint.new(0.45, 0.35),
             NumberSequenceKeypoint.new(1, 0.9)
         }
-
         return SecLbl
     end
 
+    -- 2. DIVIDER
     function API:AddDivider(centerText)
         local hasText = centerText ~= nil and tostring(centerText) ~= ""
         local DivHolder = Instance.new("Frame")
@@ -1278,6 +1749,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
     end
 
+    -- 3. LABEL
     function API:AddLabel(text, icon)
         local lblText = type(text) == "table" and (text.Text or "Label") or tostring(text or "Label")
         local lblIcon = type(text) == "table" and text.Icon or icon or "ℹ"
@@ -1301,11 +1773,11 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         local LeftStripe = Instance.new("Frame")
         LeftStripe.Size = UDim2.new(0, 3, 1, -10)
         LeftStripe.Position = UDim2.new(0, 5, 0, 5)
-        LeftStripe.BackgroundColor3 = Theme.Accent
+        LeftStripe.BackgroundColor3 = Color3.new(1, 1, 1)
         LeftStripe.BorderSizePixel = 0
         LeftStripe.Parent = LblFrame
         Instance.new("UICorner", LeftStripe).CornerRadius = UDim.new(1, 0)
-        BindAccent(LeftStripe, "BackgroundColor3")
+        ApplyAccentGradient(LeftStripe, 90)
 
         CreateIcon(LblFrame, lblIcon, 13, UDim2.new(0, 13, 0.5, -6.5), 2, Theme.Accent)
 
@@ -1323,12 +1795,11 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BindTheme(Lbl, "TextColor3", "SubText")
 
         local LabelObj = {}
-        function LabelObj:Set(newText)
-            Lbl.Text = tostring(newText)
-        end
+        function LabelObj:Set(newText) Lbl.Text = tostring(newText) end
         return LabelObj
     end
 
+    -- 4. PARAGRAPH
     function API:AddParagraph(pCfg)
         local hasIcon = pCfg.Icon ~= nil and tostring(pCfg.Icon) ~= ""
 
@@ -1409,6 +1880,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ParaObj
     end
 
+    -- 5. PROGRESS BAR
     function API:AddProgressBar(bCfg)
         local MaxVal = bCfg.Max or 100
         local CurVal = math.clamp(bCfg.Default or 0, 0, MaxVal)
@@ -1458,12 +1930,12 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local Fill = Instance.new("Frame")
         Fill.Size = UDim2.new(CurVal / MaxVal, 0, 1, 0)
-        Fill.BackgroundColor3 = Theme.Accent
+        Fill.BackgroundColor3 = Color3.new(1, 1, 1)
         Fill.Parent = Track
         Instance.new("UICorner", Fill).CornerRadius = UDim.new(1, 0)
-        BindAccent(Fill, "BackgroundColor3")
+        ApplyAccentGradient(Fill, 0)
 
-        local BarObj = {}
+        local BarObj = WrapElementControls(BarFrame, bCfg)
         function BarObj:Set(val, customText)
             CurVal = math.clamp(val, 0, MaxVal)
             local pct = CurVal / MaxVal
@@ -1473,6 +1945,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
+    -- 6. BUTTON
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -1569,8 +2042,69 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 Trigger = FireButton
             })
         end
+
+        return WrapElementControls(Btn, bCfg)
     end
 
+    -- 7. MULTI-BUTTON ROW (2 or 3 compact buttons side-by-side)
+    function API:AddButtonRow(buttonsList)
+        buttonsList = buttonsList or {}
+        local count = math.clamp(#buttonsList, 1, 4)
+        local RowFrame = Instance.new("Frame")
+        RowFrame.LayoutOrder = NextOrder()
+        RowFrame.Size = UDim2.new(1, 0, 0, 32)
+        RowFrame.BackgroundTransparency = 1
+        RowFrame.Parent = Container
+
+        local gap = 6
+        for idx, bCfg in ipairs(buttonsList) do
+            local hasIcon = bCfg.Icon ~= nil and tostring(bCfg.Icon) ~= ""
+            local wScale = 1 / count
+            local wOffset = -((count - 1) * gap) / count
+            local xOffset = (idx - 1) * gap
+
+            local SubBtn = Instance.new("TextButton")
+            SubBtn.Size = UDim2.new(wScale, wOffset, 1, 0)
+            SubBtn.Position = UDim2.new(wScale * (idx - 1), xOffset, 0, 0)
+            SubBtn.BackgroundColor3 = bCfg.Accent and Theme.Accent or Theme.Element
+            SubBtn.Text = ""
+            SubBtn.AutoButtonColor = false
+            SubBtn.Parent = RowFrame
+            Instance.new("UICorner", SubBtn).CornerRadius = UDim.new(0, 11)
+            RegisterSearchable(bCfg.Name, SubBtn)
+            AttachTooltip(SubBtn, bCfg.Tooltip)
+
+            if hasIcon then
+                CreateIcon(SubBtn, bCfg.Icon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+            end
+
+            local Lbl = Instance.new("TextLabel")
+            Lbl.Size = UDim2.new(1, hasIcon and -26 or -10, 1, 0)
+            Lbl.Position = UDim2.new(0, hasIcon and 24 or 5, 0, 0)
+            Lbl.BackgroundTransparency = 1
+            Lbl.Text = tostring(bCfg.Name or "Action")
+            Lbl.TextColor3 = Theme.Text
+            Lbl.Font = Enum.Font.GothamBold
+            Lbl.TextSize = 11
+            Lbl.TextXAlignment = hasIcon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
+            Lbl.TextTruncate = Enum.TextTruncate.AtEnd
+            Lbl.ZIndex = 3
+            Lbl.Parent = SubBtn
+
+            SubBtn.MouseButton1Click:Connect(function()
+                TriggerHaptic(0.25)
+                TryxzLib:PlaySound(bCfg.Sound or "Click")
+                Tween(SubBtn, TweenInfo.new(0.08), {BackgroundColor3 = Theme.Accent})
+                task.delay(0.1, function()
+                    Tween(SubBtn, Tweens.Fast, {BackgroundColor3 = bCfg.Accent and Theme.Accent or Theme.Element})
+                end)
+                if bCfg.Callback then task.spawn(bCfg.Callback) end
+            end)
+        end
+        return RowFrame
+    end
+
+    -- 8. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -1623,12 +2157,24 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Knob.Parent = SwitchBg
         Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
+        local bindId = Flag or ("Tgl_" .. tostring(tCfg.Name or "Toggle"))
+
+        local function SyncHud(val)
+            if ActiveKeybindHud and ActiveKeybindHud.Update then
+                local entry = Window.Keybinds and Window.Keybinds[bindId]
+                local kName = entry and entry.Key and entry.Key.Name or (typeof(tCfg.Keybind) == "EnumItem" and tCfg.Keybind.Name) or "ON"
+                ActiveKeybindHud.Update(bindId, tCfg.Name or "Toggle", kName, val)
+            end
+        end
+
         local function UpdateToggle(val, silent, skipWrite)
             StateVal = val
             if Flag and not skipWrite then Cfg.SavedData[Flag] = StateVal WriteConfigFile() end
             if not silent then TriggerHaptic(0.28) TryxzLib:PlaySound(tCfg.Sound or "Toggle") end
             Tween(SwitchBg, Tweens.Fast, {BackgroundColor3 = StateVal and Theme.Accent or Theme.Background})
             Tween(Knob, Tweens.Bounce, {Position = StateVal and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)})
+            SyncHud(StateVal)
+            Window:RefreshVisibility()
             task.spawn(Callback, StateVal)
         end
 
@@ -1636,15 +2182,19 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         ToggleBtn.MouseLeave:Connect(function() Tween(ToggleBtn, Tweens.Fast, {BackgroundColor3 = Theme.Element}) end)
         ToggleBtn.MouseButton1Click:Connect(function() UpdateToggle(not StateVal, false, false) end)
 
-        if StateVal then task.spawn(Callback, true) end
+        if StateVal then
+            SyncHud(true)
+            task.spawn(Callback, true)
+        end
 
-        local ToggleObj = {}
+        local ToggleObj = WrapElementControls(ToggleBtn, tCfg)
         function ToggleObj:Set(val, skipWrite) UpdateToggle(val, true, skipWrite) end
+        function ToggleObj:Get() return StateVal end
         if Flag then Window.Flags[Flag] = ToggleObj end
 
         if RegisterBindable and tCfg.Bindable ~= false then
             RegisterBindable({
-                Id = Flag or ("Tgl_" .. tostring(tCfg.Name or "Toggle")),
+                Id = bindId,
                 Name = tCfg.Name or "Toggle",
                 Kind = "Toggle",
                 DefaultKey = tCfg.Keybind,
@@ -1655,6 +2205,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ToggleObj
     end
 
+    -- 9. SLIDER
     function API:AddSlider(sCfg)
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
@@ -1714,10 +2265,10 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local Fill = Instance.new("Frame")
         Fill.Size = UDim2.new((Default - Min) / (Max - Min), 0, 1, 0)
-        Fill.BackgroundColor3 = Theme.Accent
+        Fill.BackgroundColor3 = Color3.new(1, 1, 1)
         Fill.Parent = Track
         Instance.new("UICorner", Fill).CornerRadius = UDim.new(1, 0)
-        BindAccent(Fill, "BackgroundColor3")
+        ApplyAccentGradient(Fill, 0)
 
         local Dot = Instance.new("Frame")
         Dot.Size = UDim2.new(0, 11, 0, 11)
@@ -1769,10 +2320,9 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         task.spawn(Callback, Default)
 
-        local SliderObj = {}
-        function SliderObj:Set(val, skipWrite)
-            SetSlider(val, true, not skipWrite)
-        end
+        local SliderObj = WrapElementControls(SliderFrame, sCfg)
+        function SliderObj:Set(val, skipWrite) SetSlider(val, true, not skipWrite) end
+        function SliderObj:Get() return CurrentVal end
         if Flag then Window.Flags[Flag] = SliderObj end
 
         if RegisterBindable and sCfg.Bindable ~= false then
@@ -1792,6 +2342,148 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return SliderObj
     end
 
+    -- 10. DUAL-THUMB RANGE SLIDER (Min & Max Selection)
+    function API:AddRangeSlider(rCfg)
+        local Flag = rCfg.Flag
+        local Min, Max = rCfg.Min or 0, rCfg.Max or 100
+        local LowVal = math.clamp(rCfg.DefaultMin or Min, Min, Max)
+        local HighVal = math.clamp(rCfg.DefaultMax or Max, LowVal, Max)
+        local Callback = rCfg.Callback or function() end
+
+        if Cfg.SaveEnabled and Flag and type(Cfg.SavedData[Flag]) == "table" and #Cfg.SavedData[Flag] == 2 then
+            LowVal = math.clamp(tonumber(Cfg.SavedData[Flag][1]) or LowVal, Min, Max)
+            HighVal = math.clamp(tonumber(Cfg.SavedData[Flag][2]) or HighVal, LowVal, Max)
+        end
+
+        local Frame = Instance.new("Frame")
+        Frame.LayoutOrder = NextOrder()
+        Frame.Size = UDim2.new(1, 0, 0, 42)
+        Frame.BackgroundColor3 = Theme.Element
+        Frame.Parent = Container
+        Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 12)
+        RegisterSearchable(rCfg.Name, Frame)
+        AttachTooltip(Frame, rCfg.Tooltip)
+        BindTheme(Frame, "BackgroundColor3", "Element")
+
+        local Title = Instance.new("TextLabel")
+        Title.Size = UDim2.new(1, -85, 0, 20)
+        Title.Position = UDim2.new(0, 10, 0, 3)
+        Title.BackgroundTransparency = 1
+        Title.Text = rCfg.Name or "Range Slider"
+        Title.TextColor3 = Theme.Text
+        Title.Font = Enum.Font.GothamSemibold
+        Title.TextSize = 12
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.Parent = Frame
+        BindTheme(Title, "TextColor3", "Text")
+
+        local RangeLbl = Instance.new("TextLabel")
+        RangeLbl.Size = UDim2.new(0, 75, 0, 20)
+        RangeLbl.Position = UDim2.new(1, -85, 0, 3)
+        RangeLbl.BackgroundTransparency = 1
+        RangeLbl.Text = string.format("%d - %d", LowVal, HighVal)
+        RangeLbl.TextColor3 = Theme.Accent
+        RangeLbl.Font = Enum.Font.GothamBold
+        RangeLbl.TextSize = 11
+        RangeLbl.TextXAlignment = Enum.TextXAlignment.Right
+        RangeLbl.Parent = Frame
+        BindAccent(RangeLbl, "TextColor3")
+
+        local Track = Instance.new("TextButton")
+        Track.Size = UDim2.new(1, -20, 0, 5)
+        Track.Position = UDim2.new(0, 10, 0, 28)
+        Track.BackgroundColor3 = Theme.Background
+        Track.Text = ""
+        Track.AutoButtonColor = false
+        Track.Parent = Frame
+        Instance.new("UICorner", Track).CornerRadius = UDim.new(1, 0)
+        BindTheme(Track, "BackgroundColor3", "Background")
+
+        local Fill = Instance.new("Frame")
+        Fill.BackgroundColor3 = Color3.new(1, 1, 1)
+        Fill.Parent = Track
+        Instance.new("UICorner", Fill).CornerRadius = UDim.new(1, 0)
+        ApplyAccentGradient(Fill, 0)
+
+        local LowKnob = Instance.new("Frame")
+        LowKnob.Size = UDim2.new(0, 11, 0, 11)
+        LowKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+        LowKnob.BackgroundColor3 = Theme.Text
+        LowKnob.ZIndex = 4
+        LowKnob.Parent = Track
+        Instance.new("UICorner", LowKnob).CornerRadius = UDim.new(1, 0)
+
+        local HighKnob = Instance.new("Frame")
+        HighKnob.Size = UDim2.new(0, 11, 0, 11)
+        HighKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+        HighKnob.BackgroundColor3 = Theme.Text
+        HighKnob.ZIndex = 4
+        HighKnob.Parent = Track
+        Instance.new("UICorner", HighKnob).CornerRadius = UDim.new(1, 0)
+
+        local function RefreshRange(saveNow)
+            local p1 = (LowVal - Min) / (Max - Min)
+            local p2 = (HighVal - Min) / (Max - Min)
+            Fill.Position = UDim2.new(p1, 0, 0, 0)
+            Fill.Size = UDim2.new(math.max(0.01, p2 - p1), 0, 1, 0)
+            LowKnob.Position = UDim2.new(p1, 0, 0.5, 0)
+            HighKnob.Position = UDim2.new(p2, 0, 0.5, 0)
+            RangeLbl.Text = string.format("%d - %d", LowVal, HighVal)
+            if saveNow and Flag then
+                Cfg.SavedData[Flag] = {LowVal, HighVal}
+                WriteConfigFile()
+            end
+            task.spawn(Callback, LowVal, HighVal)
+        end
+
+        RefreshRange(false)
+
+        local activeThumb = nil
+        local function UpdateRangeInput(inp)
+            local pos = math.clamp((inp.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
+            local raw = math.floor(Min + (Max - Min) * pos + 0.5)
+            if activeThumb == "low" then
+                LowVal = math.clamp(raw, Min, HighVal)
+            elseif activeThumb == "high" then
+                HighVal = math.clamp(raw, LowVal, Max)
+            end
+            RefreshRange(false)
+        end
+
+        Track.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                local pos = math.clamp((inp.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
+                local p1 = (LowVal - Min) / (Max - Min)
+                local p2 = (HighVal - Min) / (Max - Min)
+                activeThumb = (math.abs(pos - p1) <= math.abs(pos - p2)) and "low" or "high"
+                UpdateRangeInput(inp)
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(inp)
+            if activeThumb and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+                UpdateRangeInput(inp)
+            end
+        end)
+        UserInputService.InputEnded:Connect(function(inp)
+            if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) and activeThumb then
+                activeThumb = nil
+                RefreshRange(true)
+            end
+        end)
+
+        local RangeObj = WrapElementControls(Frame, rCfg)
+        function RangeObj:Set(tbl, skipWrite)
+            if type(tbl) == "table" and #tbl == 2 then
+                LowVal = math.clamp(tbl[1], Min, Max)
+                HighVal = math.clamp(tbl[2], LowVal, Max)
+                RefreshRange(not skipWrite)
+            end
+        end
+        if Flag then Window.Flags[Flag] = RangeObj end
+        return RangeObj
+    end
+
+    -- 11. INPUT / TEXTBOX
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
@@ -1871,7 +2563,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         if Default ~= "" then task.spawn(Callback, Default, false) end
 
-        local InputObj = {}
+        local InputObj = WrapElementControls(InputFrame, iCfg)
         function InputObj:Set(val, skipWrite)
             Box.Text = tostring(val)
             if Flag and not skipWrite then Cfg.SavedData[Flag] = Box.Text WriteConfigFile() end
@@ -1881,6 +2573,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
+    -- 12. KEYBIND PICKER
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
@@ -1959,7 +2652,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             end
         end)
 
-        local KeyObj = {}
+        local KeyObj = WrapElementControls(KeyFrame, kCfg)
         function KeyObj:Set(newKey, skipWrite)
             if type(newKey) == "string" and Enum.KeyCode[newKey] then newKey = Enum.KeyCode[newKey] end
             CurrentKey = newKey
@@ -1970,11 +2663,13 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
+    -- 13. COLOR PICKER (HSV + HEX INPUT + RAINBOW MODE)
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
         local Callback = cCfg.Callback or function() end
         local Open = false
+        local RainbowMode = false
 
         if Cfg.SaveEnabled and Flag and type(Cfg.SavedData[Flag]) == "table" and #Cfg.SavedData[Flag] == 3 then
             local c = Cfg.SavedData[Flag]
@@ -2024,7 +2719,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         PStroke.Transparency = 0.6
 
         local SVBox = Instance.new("TextButton")
-        SVBox.Size = UDim2.new(1, -20, 0, 68)
+        SVBox.Size = UDim2.new(1, -20, 0, 66)
         SVBox.Position = UDim2.new(0, 10, 0, 36)
         SVBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
         SVBox.Text = ""
@@ -2062,7 +2757,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local HueBar = Instance.new("TextButton")
         HueBar.Size = UDim2.new(1, -20, 0, 12)
-        HueBar.Position = UDim2.new(0, 10, 0, 110)
+        HueBar.Position = UDim2.new(0, 10, 0, 108)
         HueBar.BackgroundColor3 = Color3.new(1, 1, 1)
         HueBar.Text = ""
         HueBar.AutoButtonColor = false
@@ -2088,18 +2783,71 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         HueKnob.Parent = HueBar
         Instance.new("UICorner", HueKnob).CornerRadius = UDim.new(1, 0)
 
-        local function ApplyColor(saveNow)
+        local HexBox = Instance.new("TextBox")
+        HexBox.Size = UDim2.new(0.52, -12, 0, 22)
+        HexBox.Position = UDim2.new(0, 10, 0, 126)
+        HexBox.BackgroundColor3 = Theme.Background
+        HexBox.Text = "#" .. CurrentColor:ToHex():upper()
+        HexBox.PlaceholderText = "#RRGGBB"
+        HexBox.TextColor3 = Theme.Text
+        HexBox.Font = Enum.Font.GothamBold
+        HexBox.TextSize = 10
+        HexBox.Parent = ColorFrame
+        Instance.new("UICorner", HexBox).CornerRadius = UDim.new(0, 8)
+
+        local RainbowBtn = Instance.new("TextButton")
+        RainbowBtn.Size = UDim2.new(0.48, -12, 0, 22)
+        RainbowBtn.Position = UDim2.new(0.52, 2, 0, 126)
+        RainbowBtn.BackgroundColor3 = Theme.Background
+        RainbowBtn.Text = "🌈 Rainbow: OFF"
+        RainbowBtn.TextColor3 = Theme.SubText
+        RainbowBtn.Font = Enum.Font.GothamBold
+        RainbowBtn.TextSize = 10
+        RainbowBtn.AutoButtonColor = false
+        RainbowBtn.Parent = ColorFrame
+        Instance.new("UICorner", RainbowBtn).CornerRadius = UDim.new(0, 8)
+
+        local function ApplyColor(saveNow, skipHexUpdate)
             CurrentColor = Color3.fromHSV(h, s, v)
             SVBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
             Preview.BackgroundColor3 = CurrentColor
             SVCursor.Position = UDim2.new(s, 0, 1 - v, 0)
             HueKnob.Position = UDim2.new(h, 0, 0.5, 0)
+            if not skipHexUpdate and not HexBox:IsFocused() then
+                HexBox.Text = "#" .. CurrentColor:ToHex():upper()
+            end
             if saveNow and Flag then
                 Cfg.SavedData[Flag] = {CurrentColor.R, CurrentColor.G, CurrentColor.B}
                 WriteConfigFile()
             end
             task.spawn(Callback, CurrentColor)
         end
+
+        HexBox.FocusLost:Connect(function()
+            local ok, parsed = pcall(function() return Color3.fromHex(HexBox.Text) end)
+            if ok and parsed then
+                h, s, v = parsed:ToHSV()
+                ApplyColor(true, false)
+            else
+                HexBox.Text = "#" .. CurrentColor:ToHex():upper()
+            end
+        end)
+
+        RainbowBtn.MouseButton1Click:Connect(function()
+            RainbowMode = not RainbowMode
+            RainbowBtn.Text = RainbowMode and "🌈 Rainbow: ON" or "🌈 Rainbow: OFF"
+            Tween(RainbowBtn, Tweens.Fast, {
+                BackgroundColor3 = RainbowMode and Theme.Accent or Theme.Background,
+                TextColor3 = RainbowMode and Theme.Text or Theme.SubText
+            })
+        end)
+
+        RunService.RenderStepped:Connect(function(dt)
+            if RainbowMode and ColorFrame.Parent then
+                h = (h + dt * 0.25) % 1
+                ApplyColor(false, false)
+            end
+        end)
 
         local dragSV, dragHue = false, false
         SVBox.InputBegan:Connect(function(inp)
@@ -2142,12 +2890,12 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             TriggerHaptic(0.2)
             TryxzLib:PlaySound("Click")
             Open = not Open
-            Tween(ColorFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and 130 or 32)})
+            Tween(ColorFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and 156 or 32)})
         end)
 
         task.spawn(Callback, CurrentColor)
 
-        local ColorObj = {}
+        local ColorObj = WrapElementControls(ColorFrame, cCfg)
         function ColorObj:Set(col, skipWrite)
             if type(col) == "table" and #col == 3 then col = Color3.new(col[1], col[2], col[3]) end
             h, s, v = col:ToHSV()
@@ -2157,13 +2905,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 12. DROPDOWN (Clean Option Icon Badge)
+    -- 14. DROPDOWN (With Searchable Option & Icon Badges)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
         local OptIcons = dCfg.OptionIcons or {}
         local Default = dCfg.Default or Options[1] or "Select"
         local Callback = dCfg.Callback or function() end
+        local Searchable = dCfg.Searchable == true or #Options > 7
         local hasIcon = dCfg.Icon ~= nil and tostring(dCfg.Icon) ~= ""
         local Open = false
 
@@ -2186,9 +2935,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Text = ""
         Header.Parent = DropFrame
 
-        if hasIcon then
-            CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3)
-        end
+        if hasIcon then CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3) end
 
         local titleX = hasIcon and 30 or 10
         local Title = Instance.new("TextLabel")
@@ -2230,88 +2977,187 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Arrow.ZIndex = 2
         Arrow.Parent = Header
 
-        local ListHolder = Instance.new("Frame")
-        ListHolder.Size = UDim2.new(1, -12, 0, 0)
-        ListHolder.Position = UDim2.new(0, 6, 0, 34)
+        local searchOffset = 0
+        local FilterBox = nil
+        if Searchable then
+            searchOffset = 26
+            FilterBox = Instance.new("TextBox")
+            FilterBox.Size = UDim2.new(1, -14, 0, 20)
+            FilterBox.Position = UDim2.new(0, 7, 0, 34)
+            FilterBox.BackgroundColor3 = Theme.Background
+            FilterBox.PlaceholderText = "🔍 Filter options..."
+            FilterBox.PlaceholderColor3 = Theme.SubText
+            FilterBox.Text = ""
+            FilterBox.TextColor3 = Theme.Text
+            FilterBox.Font = Enum.Font.Gotham
+            FilterBox.TextSize = 10
+            FilterBox.Parent = DropFrame
+            Instance.new("UICorner", FilterBox).CornerRadius = UDim.new(0, 8)
+        end
+
+        local ListHolder = Instance.new("ScrollingFrame")
+        ListHolder.Size = UDim2.new(1, -12, 0, 130)
+        ListHolder.Position = UDim2.new(0, 6, 0, 34 + searchOffset)
         ListHolder.BackgroundTransparency = 1
+        ListHolder.ScrollBarThickness = 2
+        ListHolder.ScrollBarImageColor3 = Theme.Accent
+        ListHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+        ListHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
         ListHolder.Parent = DropFrame
 
         local ListLayout = Instance.new("UIListLayout", ListHolder)
         ListLayout.Padding = UDim.new(0, 4)
         ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+        local VisibleCount = #Options
+        local function GetOpenHeight()
+            local rowsH = math.min(VisibleCount, 6) * 26
+            return 38 + searchOffset + math.max(26, rowsH)
+        end
+
         local function ToggleDrop()
             TriggerHaptic(0.2)
             TryxzLib:PlaySound("Click")
             Open = not Open
-            Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and (38 + (#Options * 26)) or 32)})
+            Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and GetOpenHeight() or 32)})
             Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
         end
 
         Header.MouseButton1Click:Connect(ToggleDrop)
 
-        for i, opt in ipairs(Options) do
-            local optIcon = OptIcons[opt] or OptIcons[tostring(opt)] or (type(opt) == "table" and opt.Icon)
-            local optLabel = type(opt) == "table" and tostring(opt.Text or opt.Name or opt.Value or "Option") or tostring(opt)
-            local optValue = type(opt) == "table" and (opt.Value or optLabel) or opt
-            local badge = BuildOptionIconBadge(ListHolder, optIcon, 8, -9, 4)
-
-            local OptBtn = Instance.new("TextButton")
-            OptBtn.LayoutOrder = i
-            OptBtn.Size = UDim2.new(1, 0, 0, 22)
-            OptBtn.BackgroundColor3 = Theme.Background
-            OptBtn.Text = ""
-            OptBtn.AutoButtonColor = false
-            OptBtn.Parent = ListHolder
-            Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
-            BindTheme(OptBtn, "BackgroundColor3", "Background")
-
-            if badge then
-                badge.Parent = OptBtn
-                badge.Position = UDim2.new(0, 7, 0.5, -9)
+        local OptEntries = {}
+        local function RebuildOptions(newOpts, newIcons)
+            for _, child in ipairs(ListHolder:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
             end
+            OptEntries = {}
+            Options = newOpts or Options
+            OptIcons = newIcons or OptIcons
+            VisibleCount = #Options
 
-            local OptTxt = Instance.new("TextLabel")
-            OptTxt.Size = UDim2.new(1, badge and -34 or -14, 1, 0)
-            OptTxt.Position = UDim2.new(0, badge and 30 or 10, 0, 0)
-            OptTxt.BackgroundTransparency = 1
-            OptTxt.Text = optLabel
-            OptTxt.TextColor3 = Theme.SubText
-            OptTxt.Font = Enum.Font.Gotham
-            OptTxt.TextSize = 11
-            OptTxt.TextXAlignment = Enum.TextXAlignment.Left
-            OptTxt.ZIndex = 3
-            OptTxt.Parent = OptBtn
+            for i, opt in ipairs(Options) do
+                local optIcon = OptIcons[opt] or OptIcons[tostring(opt)] or (type(opt) == "table" and opt.Icon)
+                local optLabel = type(opt) == "table" and tostring(opt.Text or opt.Name or opt.Value or "Option") or tostring(opt)
+                local optValue = type(opt) == "table" and (opt.Value or optLabel) or opt
 
-            OptBtn.MouseEnter:Connect(function()
-                Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
-                Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.Text})
-            end)
-            OptBtn.MouseLeave:Connect(function()
-                Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background})
-                Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.SubText})
-            end)
-            OptBtn.MouseButton1Click:Connect(function()
-                SelectedLbl.Text = optLabel
-                if Flag then Cfg.SavedData[Flag] = optValue WriteConfigFile() end
-                ToggleDrop()
-                task.spawn(Callback, optValue)
+                local OptBtn = Instance.new("TextButton")
+                OptBtn.LayoutOrder = i
+                OptBtn.Size = UDim2.new(1, 0, 0, 22)
+                OptBtn.BackgroundColor3 = Theme.Background
+                OptBtn.Text = ""
+                OptBtn.AutoButtonColor = false
+                OptBtn.Parent = ListHolder
+                Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 9)
+                BindTheme(OptBtn, "BackgroundColor3", "Background")
+
+                local badge = BuildOptionIconBadge(OptBtn, optIcon, 7, -9, 4)
+
+                local OptTxt = Instance.new("TextLabel")
+                OptTxt.Size = UDim2.new(1, badge and -34 or -14, 1, 0)
+                OptTxt.Position = UDim2.new(0, badge and 30 or 10, 0, 0)
+                OptTxt.BackgroundTransparency = 1
+                OptTxt.Text = optLabel
+                OptTxt.TextColor3 = Theme.SubText
+                OptTxt.Font = Enum.Font.Gotham
+                OptTxt.TextSize = 11
+                OptTxt.TextXAlignment = Enum.TextXAlignment.Left
+                OptTxt.ZIndex = 3
+                OptTxt.Parent = OptBtn
+
+                OptBtn.MouseEnter:Connect(function()
+                    Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
+                    Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.Text})
+                end)
+                OptBtn.MouseLeave:Connect(function()
+                    Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Theme.Background})
+                    Tween(OptTxt, Tweens.Fast, {TextColor3 = Theme.SubText})
+                end)
+                OptBtn.MouseButton1Click:Connect(function()
+                    SelectedLbl.Text = optLabel
+                    if Flag then Cfg.SavedData[Flag] = optValue WriteConfigFile() end
+                    ToggleDrop()
+                    task.spawn(Callback, optValue)
+                end)
+
+                table.insert(OptEntries, {Btn = OptBtn, Label = optLabel})
+            end
+            ListHolder.Size = UDim2.new(1, -12, 0, math.min(math.max(1, #Options), 6) * 26)
+        end
+
+        RebuildOptions(Options, OptIcons)
+
+        if FilterBox then
+            FilterBox:GetPropertyChangedSignal("Text"):Connect(function()
+                local q = string.lower(FilterBox.Text)
+                VisibleCount = 0
+                for _, item in ipairs(OptEntries) do
+                    local match = (q == "") or (string.find(string.lower(item.Label), q, 1, true) ~= nil)
+                    item.Btn.Visible = match
+                    if match then VisibleCount += 1 end
+                end
+                if Open then
+                    Tween(DropFrame, Tweens.Fast, {Size = UDim2.new(1, 0, 0, GetOpenHeight())})
+                end
             end)
         end
 
         if Cfg.SaveEnabled and Flag and Cfg.SavedData[Flag] ~= nil then task.spawn(Callback, Default) end
 
-        local DropObj = {}
+        local DropObj = WrapElementControls(DropFrame, dCfg)
         function DropObj:Set(val, skipWrite)
             SelectedLbl.Text = tostring(val)
             if Flag and not skipWrite then Cfg.SavedData[Flag] = val WriteConfigFile() end
             task.spawn(Callback, val)
         end
+        function DropObj:Refresh(newList, newIcons)
+            RebuildOptions(newList, newIcons)
+            if Open then
+                Tween(DropFrame, Tweens.Fast, {Size = UDim2.new(1, 0, 0, GetOpenHeight())})
+            end
+        end
         if Flag then Window.Flags[Flag] = DropObj end
         return DropObj
     end
 
-    -- 13. MULTI-DROPDOWN (Clean Option Icon Badge)
+    -- 15. PLAYER DROPDOWN (Auto-Syncs Connected Players + Avatars)
+    function API:AddPlayerDropdown(pCfg)
+        local excludeSelf = pCfg.ExcludeLocalPlayer == true
+        local function GatherPlayers()
+            local names, icons = {}, {}
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if not (excludeSelf and plr == LocalPlayer) then
+                    table.insert(names, plr.Name)
+                    icons[plr.Name] = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(plr.UserId) .. "&w=100&h=100"
+                end
+            end
+            if #names == 0 then table.insert(names, "No players available") end
+            return names, icons
+        end
+
+        local initNames, initIcons = GatherPlayers()
+        local drop = API:AddDropdown({
+            Name = pCfg.Name or "Select Player",
+            Icon = pCfg.Icon or "rbxassetid://10747373176",
+            Flag = pCfg.Flag,
+            Options = initNames,
+            OptionIcons = initIcons,
+            Default = initNames[1],
+            Searchable = true,
+            Tooltip = pCfg.Tooltip or "Auto-updated live server player list",
+            Callback = pCfg.Callback
+        })
+
+        local function RefreshList()
+            local n, ic = GatherPlayers()
+            drop:Refresh(n, ic)
+        end
+
+        Players.PlayerAdded:Connect(RefreshList)
+        Players.PlayerRemoving:Connect(function() task.defer(RefreshList) end)
+        return drop
+    end
+
+    -- 16. MULTI-DROPDOWN
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -2344,9 +3190,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Header.Text = ""
         Header.Parent = DropFrame
 
-        if hasIcon then
-            CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3)
-        end
+        if hasIcon then CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3) end
 
         local titleX = hasIcon and 30 or 10
         local Title = Instance.new("TextLabel")
@@ -2451,19 +3295,15 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 TriggerHaptic(0.25)
                 TryxzLib:PlaySound("Toggle")
                 Selected[opt] = not Selected[opt]
-                Tween(OptBtn, Tweens.Fast, {
-                    BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background
-                })
-                Tween(OptTxt, Tweens.Fast, {
-                    TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
-                })
+                Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background})
+                Tween(OptTxt, Tweens.Fast, {TextColor3 = Selected[opt] and Theme.Text or Theme.SubText})
                 UpdateSummary(true)
             end)
         end
 
         UpdateSummary(false)
 
-        local MultiObj = {}
+        local MultiObj = WrapElementControls(DropFrame, mCfg)
         function MultiObj:Set(listTbl, skipWrite)
             Selected = {}
             if type(listTbl) == "table" then
@@ -2478,11 +3318,135 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return MultiObj
     end
 
+    -- 17. EMBEDDED LOG CONSOLE / TERMINAL
+    function API:AddConsole(cCfg)
+        cCfg = cCfg or {}
+        local h = cCfg.Height or 130
+        local history = {}
+
+        local Box = Instance.new("Frame")
+        Box.LayoutOrder = NextOrder()
+        Box.Size = UDim2.new(1, 0, 0, h)
+        Box.BackgroundColor3 = Theme.Element
+        Box.Parent = Container
+        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 12)
+        RegisterSearchable(cCfg.Name or "Console", Box)
+        BindTheme(Box, "BackgroundColor3", "Element")
+
+        local TopRow = Instance.new("Frame")
+        TopRow.Size = UDim2.new(1, -16, 0, 24)
+        TopRow.Position = UDim2.new(0, 8, 0, 4)
+        TopRow.BackgroundTransparency = 1
+        TopRow.Parent = Box
+
+        local Title = Instance.new("TextLabel")
+        Title.Size = UDim2.new(0.6, 0, 1, 0)
+        Title.BackgroundTransparency = 1
+        Title.Text = " >_ " .. tostring(cCfg.Name or "Output Console")
+        Title.TextColor3 = Theme.Accent
+        Title.Font = Enum.Font.GothamBold
+        Title.TextSize = 11
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.Parent = TopRow
+        BindAccent(Title, "TextColor3")
+
+        local CopyBtn = Instance.new("TextButton")
+        CopyBtn.Size = UDim2.new(0, 44, 0, 18)
+        CopyBtn.Position = UDim2.new(1, -94, 0.5, -9)
+        CopyBtn.BackgroundColor3 = Theme.Background
+        CopyBtn.Text = "Copy"
+        CopyBtn.TextColor3 = Theme.Text
+        CopyBtn.Font = Enum.Font.GothamBold
+        CopyBtn.TextSize = 9
+        CopyBtn.AutoButtonColor = false
+        CopyBtn.Parent = TopRow
+        Instance.new("UICorner", CopyBtn).CornerRadius = UDim.new(1, 0)
+
+        local ClearBtn = Instance.new("TextButton")
+        ClearBtn.Size = UDim2.new(0, 44, 0, 18)
+        ClearBtn.Position = UDim2.new(1, -46, 0.5, -9)
+        ClearBtn.BackgroundColor3 = Theme.Error
+        ClearBtn.Text = "Clear"
+        ClearBtn.TextColor3 = Theme.Text
+        ClearBtn.Font = Enum.Font.GothamBold
+        ClearBtn.TextSize = 9
+        ClearBtn.AutoButtonColor = false
+        ClearBtn.Parent = TopRow
+        Instance.new("UICorner", ClearBtn).CornerRadius = UDim.new(1, 0)
+
+        local Scroll = Instance.new("ScrollingFrame")
+        Scroll.Size = UDim2.new(1, -14, 1, -32)
+        Scroll.Position = UDim2.new(0, 7, 0, 28)
+        Scroll.BackgroundColor3 = Theme.Background
+        Scroll.BorderSizePixel = 0
+        Scroll.ScrollBarThickness = 2
+        Scroll.ScrollBarImageColor3 = Theme.Accent
+        Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+        Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        Scroll.Parent = Box
+        Instance.new("UICorner", Scroll).CornerRadius = UDim.new(0, 8)
+        BindTheme(Scroll, "BackgroundColor3", "Background")
+
+        local SPad = Instance.new("UIPadding", Scroll)
+        SPad.PaddingTop, SPad.PaddingBottom = UDim.new(0, 5), UDim.new(0, 5)
+        SPad.PaddingLeft, SPad.PaddingRight = UDim.new(0, 7), UDim.new(0, 7)
+
+        local SList = Instance.new("UIListLayout", Scroll)
+        SList.Padding = UDim.new(0, 3)
+        SList.SortOrder = Enum.SortOrder.LayoutOrder
+
+        local LevelColors = {
+            Info = Theme.SubText,
+            Success = Theme.Success,
+            Warn = Theme.Warning,
+            Error = Theme.Error
+        }
+
+        local ConsoleObj = WrapElementControls(Box, cCfg)
+        function ConsoleObj:Log(msg, level)
+            level = level or "Info"
+            local lineStr = string.format("[%s] %s", os.date("%H:%M:%S"), tostring(msg))
+            table.insert(history, lineStr)
+
+            local entry = Instance.new("TextLabel")
+            entry.LayoutOrder = #history
+            entry.Size = UDim2.new(1, 0, 0, 0)
+            entry.AutomaticSize = Enum.AutomaticSize.Y
+            entry.BackgroundTransparency = 1
+            entry.Text = lineStr
+            entry.TextColor3 = LevelColors[level] or Theme.SubText
+            entry.Font = Enum.Font.Code
+            entry.TextSize = 10
+            entry.TextWrapped = true
+            entry.TextXAlignment = Enum.TextXAlignment.Left
+            entry.Parent = Scroll
+
+            task.defer(function()
+                Scroll.CanvasPosition = Vector2.new(0, Scroll.AbsoluteCanvasSize.Y)
+            end)
+        end
+
+        function ConsoleObj:Clear()
+            history = {}
+            for _, c in ipairs(Scroll:GetChildren()) do
+                if c:IsA("TextLabel") then c:Destroy() end
+            end
+        end
+
+        CopyBtn.MouseButton1Click:Connect(function()
+            if setclipboard then pcall(function() setclipboard(table.concat(history, "\n")) end) end
+            TryxzLib:Notify({Title = "Console Copied", Text = "Logs copied to clipboard.", Duration = 2})
+        end)
+        ClearBtn.MouseButton1Click:Connect(function() ConsoleObj:Clear() end)
+
+        return ConsoleObj
+    end
+
     return API
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW + DECORATED GEAR (⚙) PANEL
+-- CREATE MAIN WINDOW
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -2501,13 +3465,14 @@ function TryxzLib:CreateWindow(config)
         SavedKey = nil,
         SaveFolder = "TryxzLibConfigs",
         ActiveProfile = "default",
+        AutoLoadPlaceId = false,
         SaveFile = "",
         SavedData = {},
         HasExistingSave = false,
-        WinW = 505,
-        WinH = 315,
+        WinW = 515,
+        WinH = 322,
         TopH = 44,
-        SideW = 152
+        SideW = 156
     }
 
     local State = {
@@ -2516,6 +3481,8 @@ function TryxzLib:CreateWindow(config)
         Hidden = false,
         SettingsOpen = false
     }
+
+    if config.NotifPosition then DefaultNotifPosition = config.NotifPosition end
 
     if type(config.Blur) == "boolean" then
         BlurState.Enabled = config.Blur
@@ -2530,20 +3497,20 @@ function TryxzLib:CreateWindow(config)
         end
     end
 
-    if config.Theme and Themes[config.Theme] then
-        TryxzLib:SetTheme(config.Theme)
-    end
-    if config.Accent then
-        TryxzLib:SetAccent(config.Accent)
-    end
+    if config.Theme and Themes[config.Theme] then TryxzLib:SetTheme(config.Theme) end
+    if config.Accent then TryxzLib:SetAccent(config.Accent) end
 
     if type(config.SaveConfig) == "boolean" then
         Cfg.SaveEnabled = config.SaveConfig
     elseif type(config.SaveConfig) == "table" then
         Cfg.SaveEnabled = config.SaveConfig.Enabled ~= false
         Cfg.SaveKey = config.SaveConfig.SaveKey == true
+        Cfg.AutoLoadPlaceId = config.SaveConfig.AutoLoadPlaceId == true
         if config.SaveConfig.Folder then Cfg.SaveFolder = config.SaveConfig.Folder end
         if config.SaveConfig.DefaultProfile then Cfg.ActiveProfile = tostring(config.SaveConfig.DefaultProfile) end
+        if Cfg.AutoLoadPlaceId then
+            Cfg.ActiveProfile = "place_" .. tostring(game.PlaceId)
+        end
     end
 
     local BasePrefix = (type(config.SaveConfig) == "table" and config.SaveConfig.FileName) or tostring(Cfg.Title):gsub("[^%w_-]", "_")
@@ -2655,13 +3622,23 @@ function TryxzLib:CreateWindow(config)
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     BindTheme(MainStroke, "Color", "Divider")
 
+    -- Top Gradient Accent Rim
+    local TopAccentGlow = Instance.new("Frame")
+    TopAccentGlow.Size = UDim2.new(0.55, 0, 0, 2)
+    TopAccentGlow.Position = UDim2.new(0.225, 0, 0, 0)
+    TopAccentGlow.BackgroundColor3 = Color3.new(1, 1, 1)
+    TopAccentGlow.BorderSizePixel = 0
+    TopAccentGlow.ZIndex = 9
+    TopAccentGlow.Parent = Main
+    ApplyAccentGradient(TopAccentGlow, 0)
+
     local BottomDragBar = Instance.new("TextButton")
     BottomDragBar.Name = "BottomDragLine"
     BottomDragBar.Size = UDim2.new(0, 140, 0, 5)
     BottomDragBar.Position = UDim2.new(0.5, 0, 1, -6)
     BottomDragBar.AnchorPoint = Vector2.new(0.5, 0)
     BottomDragBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    BottomDragBar.BackgroundTransparency = 0.38
+    BottomDragBar.BackgroundTransparency = 0.35
     BottomDragBar.Text = ""
     BottomDragBar.AutoButtonColor = false
     BottomDragBar.ZIndex = 15
@@ -2669,10 +3646,10 @@ function TryxzLib:CreateWindow(config)
     Instance.new("UICorner", BottomDragBar).CornerRadius = UDim.new(1, 0)
 
     BottomDragBar.MouseEnter:Connect(function()
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 175, 0, 6), BackgroundTransparency = 0.12})
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 175, 0, 6), BackgroundTransparency = 0.1})
     end)
     BottomDragBar.MouseLeave:Connect(function()
-        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 140, 0, 5), BackgroundTransparency = 0.38})
+        Tween(BottomDragBar, Tweens.Fast, {Size = UDim2.new(0, 140, 0, 5), BackgroundTransparency = 0.35})
     end)
 
     MakeDraggable(BottomDragBar, WindowHolder, false)
@@ -2919,19 +3896,6 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    for _, btn in ipairs({MinBtn, SettingsBtn, CollapseUIBtn}) do
-        btn.MouseEnter:Connect(function()
-            if not (btn == SettingsBtn and State.SettingsOpen) then
-                Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
-            end
-        end)
-        btn.MouseLeave:Connect(function()
-            if not (btn == SettingsBtn and State.SettingsOpen) then
-                Tween(btn, Tweens.Fast, {BackgroundColor3 = Theme.Element})
-            end
-        end)
-    end
-
     local BodyContainer = Instance.new("Frame")
     BodyContainer.Size = UDim2.new(1, 0, 1, -Cfg.TopH)
     BodyContainer.Position = UDim2.new(0, 0, 0, Cfg.TopH)
@@ -3053,9 +4017,16 @@ function TryxzLib:CreateWindow(config)
     Instance.new("UICorner", PagesContainer).CornerRadius = UDim.new(0, 14)
     BindTheme(PagesContainer, "BackgroundColor3", "Background")
 
-    local Window = {Tabs = {}, TabOrder = 0, Flags = {}}
-    local PageTopOffset = 0
+    local Window = {Tabs = {}, TabOrder = 0, Flags = {}, VisibilityRules = {}}
+    function Window:RefreshVisibility()
+        for _, rule in ipairs(Window.VisibilityRules) do
+            if rule.Obj and rule.Obj.Parent then
+                rule.Obj.Visible = (rule.Cond() == true)
+            end
+        end
+    end
 
+    local PageTopOffset = 0
     if Cfg.SearchBar then
         PageTopOffset = 34
         local SearchHolder = Instance.new("Frame")
@@ -3115,7 +4086,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- DECORATED SETTINGS PAGE (⚙)
+    -- DECORATED SETTINGS PAGE (⚙) + CLIPBOARD EXPORT/IMPORT
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -3130,7 +4101,6 @@ function TryxzLib:CreateWindow(config)
     SettingsPage.Parent = PagesContainer
     Instance.new("UICorner", SettingsPage).CornerRadius = UDim.new(0, 14)
     BindTheme(SettingsPage, "BackgroundColor3", "Background")
-    BindAccent(SettingsPage, "ScrollBarImageColor3")
 
     local SettingsPadding = Instance.new("UIPadding", SettingsPage)
     SettingsPadding.PaddingTop, SettingsPadding.PaddingBottom = UDim.new(0, 10), UDim.new(0, 12)
@@ -3140,82 +4110,34 @@ function TryxzLib:CreateWindow(config)
     SettingsLayout.Padding = UDim.new(0, 8)
     SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    local function AddGearSectionHeader(order, titleText, badgeText)
-        local row = Instance.new("Frame")
-        row.LayoutOrder = order
-        row.Size = UDim2.new(1, 0, 0, 20)
-        row.BackgroundTransparency = 1
-        row.ZIndex = 11
-        row.Parent = SettingsPage
-
-        local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(0, 3, 0, 11)
-        bar.Position = UDim2.new(0, 2, 0.5, -5.5)
-        bar.BackgroundColor3 = Theme.Accent
-        bar.BorderSizePixel = 0
-        bar.ZIndex = 12
-        bar.Parent = row
-        Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
-        BindAccent(bar, "BackgroundColor3")
-
-        local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(0.7, 0, 1, 0)
-        lbl.Position = UDim2.new(0, 10, 0, 0)
-        lbl.BackgroundTransparency = 1
-        lbl.Text = string.upper(titleText)
-        lbl.TextColor3 = Theme.Text
-        lbl.Font = Enum.Font.GothamBlack
-        lbl.TextSize = 9
-        lbl.TextXAlignment = Enum.TextXAlignment.Left
-        lbl.ZIndex = 12
-        lbl.Parent = row
-        BindTheme(lbl, "TextColor3", "Text")
-
-        if badgeText then
-            local bLbl = Instance.new("TextLabel")
-            bLbl.Size = UDim2.new(0.3, -4, 1, 0)
-            bLbl.Position = UDim2.new(0.7, 0, 0, 0)
-            bLbl.BackgroundTransparency = 1
-            bLbl.Text = tostring(badgeText)
-            bLbl.TextColor3 = Theme.Accent
-            bLbl.Font = Enum.Font.GothamBold
-            bLbl.TextSize = 9
-            bLbl.TextXAlignment = Enum.TextXAlignment.Right
-            bLbl.ZIndex = 12
-            bLbl.Parent = row
-            BindAccent(bLbl, "TextColor3")
-        end
-    end
-
-    -- 1. Decorated Credits Banner Card
     local CreditsCard = Instance.new("Frame")
     CreditsCard.LayoutOrder = 1
-    CreditsCard.Size = UDim2.new(1, 0, 0, 64)
+    CreditsCard.Size = UDim2.new(1, 0, 0, 62)
     CreditsCard.BackgroundColor3 = Theme.Element
     CreditsCard.ZIndex = 11
     CreditsCard.Parent = SettingsPage
     Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 12)
     BindTheme(CreditsCard, "BackgroundColor3", "Element")
+
     local CStroke = Instance.new("UIStroke", CreditsCard)
     CStroke.Color = Theme.Accent
     CStroke.Thickness = 1.2
     BindAccent(CStroke, "Color")
 
-    local LeftAccentStrip = Instance.new("Frame")
-    LeftAccentStrip.Size = UDim2.new(0, 4, 1, -14)
-    LeftAccentStrip.Position = UDim2.new(0, 6, 0, 7)
-    LeftAccentStrip.BackgroundColor3 = Theme.Accent
-    LeftAccentStrip.BorderSizePixel = 0
-    LeftAccentStrip.ZIndex = 12
-    LeftAccentStrip.Parent = CreditsCard
-    Instance.new("UICorner", LeftAccentStrip).CornerRadius = UDim.new(1, 0)
-    BindAccent(LeftAccentStrip, "BackgroundColor3")
+    local LeftStrip = Instance.new("Frame")
+    LeftStrip.Size = UDim2.new(0, 4, 1, -14)
+    LeftStrip.Position = UDim2.new(0, 6, 0, 7)
+    LeftStrip.BackgroundColor3 = Color3.new(1, 1, 1)
+    LeftStrip.ZIndex = 12
+    LeftStrip.Parent = CreditsCard
+    Instance.new("UICorner", LeftStrip).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(LeftStrip, 90)
 
     local CTitle = Instance.new("TextLabel")
     CTitle.Size = UDim2.new(1, -24, 0, 18)
     CTitle.Position = UDim2.new(0, 16, 0, 7)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v3.9  •  by gthsc51"
+    CTitle.Text = "TryxzLib v4.0  •  by gthsc51"
     CTitle.TextColor3 = Theme.Accent
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 12
@@ -3228,7 +4150,7 @@ function TryxzLib:CreateWindow(config)
     CDesc.Size = UDim2.new(1, -24, 0, 28)
     CDesc.Position = UDim2.new(0, 16, 0, 25)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Drag the bottom white line or press [" .. Cfg.Keybind.Name .. "] to move/toggle.\nTap any keybind pill in Function Keybinds to rebind or clear."
+    CDesc.Text = "Gradient-accented UI suite. Drag bottom white bar or press [" .. Cfg.Keybind.Name .. "] to toggle.\nManage keybinds, themes, viewport scale, and clipboard profiles below."
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
     CDesc.TextSize = 10
@@ -3236,17 +4158,14 @@ function TryxzLib:CreateWindow(config)
     CDesc.TextXAlignment = Enum.TextXAlignment.Left
     CDesc.ZIndex = 12
     CDesc.Parent = CreditsCard
-    BindTheme(CDesc, "TextColor3", "SubText")
 
-    AddGearSectionHeader(2, "Keybinds & Controls", "BINDS")
-
-    -- 3. Function Keybinds Dropdown
+    -- Function Keybinds Dropdown
     local BindableEntries = {}
     local ListeningEntry = nil
     local KeybindDropOpen = false
 
     local KeybindDropCard = Instance.new("Frame")
-    KeybindDropCard.LayoutOrder = 3
+    KeybindDropCard.LayoutOrder = 2
     KeybindDropCard.Size = UDim2.new(1, 0, 0, 36)
     KeybindDropCard.BackgroundColor3 = Theme.Element
     KeybindDropCard.ClipsDescendants = true
@@ -3269,31 +4188,17 @@ function TryxzLib:CreateWindow(config)
     KDropHeader.ZIndex = 12
     KDropHeader.Parent = KeybindDropCard
 
-    local KDropIcon = Instance.new("TextLabel")
-    KDropIcon.Size = UDim2.new(0, 20, 0, 20)
-    KDropIcon.Position = UDim2.new(0, 10, 0.5, -10)
-    KDropIcon.BackgroundTransparency = 1
-    KDropIcon.Text = "⌨"
-    KDropIcon.TextColor3 = Theme.Accent
-    KDropIcon.Font = Enum.Font.GothamBold
-    KDropIcon.TextSize = 13
-    KDropIcon.ZIndex = 13
-    KDropIcon.Parent = KDropHeader
-    BindAccent(KDropIcon, "TextColor3")
-
     local KDropTitle = Instance.new("TextLabel")
-    KDropTitle.Size = UDim2.new(1, -116, 1, 0)
-    KDropTitle.Position = UDim2.new(0, 32, 0, 0)
+    KDropTitle.Size = UDim2.new(1, -96, 1, 0)
+    KDropTitle.Position = UDim2.new(0, 12, 0, 0)
     KDropTitle.BackgroundTransparency = 1
-    KDropTitle.Text = "Function Keybinds"
+    KDropTitle.Text = "⌨  Function Keybinds"
     KDropTitle.TextColor3 = Theme.Text
     KDropTitle.Font = Enum.Font.GothamBold
     KDropTitle.TextSize = 11
     KDropTitle.TextXAlignment = Enum.TextXAlignment.Left
-    KDropTitle.TextTruncate = Enum.TextTruncate.AtEnd
     KDropTitle.ZIndex = 13
     KDropTitle.Parent = KDropHeader
-    BindTheme(KDropTitle, "TextColor3", "Text")
 
     local KDropCount = Instance.new("TextLabel")
     KDropCount.Size = UDim2.new(0, 56, 1, 0)
@@ -3317,7 +4222,6 @@ function TryxzLib:CreateWindow(config)
     KDropArrow.TextSize = 12
     KDropArrow.ZIndex = 13
     KDropArrow.Parent = KDropHeader
-    BindAccent(KDropArrow, "TextColor3")
 
     local KListHolder = Instance.new("Frame")
     KListHolder.Size = UDim2.new(1, -16, 0, 0)
@@ -3347,20 +4251,7 @@ function TryxzLib:CreateWindow(config)
         Tween(KDropArrow, Tweens.Smooth, {Rotation = KeybindDropOpen and 180 or 0})
     end)
 
-    local EmptyBindLbl = Instance.new("TextLabel")
-    EmptyBindLbl.LayoutOrder = 0
-    EmptyBindLbl.Size = UDim2.new(1, 0, 0, 26)
-    EmptyBindLbl.BackgroundColor3 = Theme.Background
-    EmptyBindLbl.Text = "No bindable functions registered yet"
-    EmptyBindLbl.TextColor3 = Theme.SubText
-    EmptyBindLbl.Font = Enum.Font.Gotham
-    EmptyBindLbl.TextSize = 10
-    EmptyBindLbl.ZIndex = 13
-    EmptyBindLbl.Parent = KListHolder
-    Instance.new("UICorner", EmptyBindLbl).CornerRadius = UDim.new(0, 8)
-
     local function RegisterBindable(info)
-        EmptyBindLbl.Visible = false
         local idx = #BindableEntries + 1
         local savedKeyName = Cfg.SaveEnabled and Cfg.SavedData["_FnBinds"] and Cfg.SavedData["_FnBinds"][info.Id]
         local assignedKey = nil
@@ -3393,7 +4284,6 @@ function TryxzLib:CreateWindow(config)
         KindTag.ZIndex = 14
         KindTag.Parent = Row
         Instance.new("UICorner", KindTag).CornerRadius = UDim.new(0, 6)
-        BindAccent(KindTag, "TextColor3")
 
         local FnName = Instance.new("TextLabel")
         FnName.Size = UDim2.new(1, -124, 1, 0)
@@ -3421,14 +4311,7 @@ function TryxzLib:CreateWindow(config)
         KeyBadgeBtn.Parent = Row
         Instance.new("UICorner", KeyBadgeBtn).CornerRadius = UDim.new(1, 0)
 
-        local entry = {
-            Id = info.Id,
-            Name = info.Name,
-            Kind = info.Kind,
-            Key = assignedKey,
-            Trigger = info.Trigger,
-            Badge = KeyBadgeBtn
-        }
+        local entry = {Id = info.Id, Name = info.Name, Kind = info.Kind, Key = assignedKey, Trigger = info.Trigger, Badge = KeyBadgeBtn}
 
         function entry:SetKey(newKey, skipWrite)
             if newKey == nil or newKey == "None" then
@@ -3484,7 +4367,6 @@ function TryxzLib:CreateWindow(config)
             end
             return
         end
-
         if not gpe and input.UserInputType == Enum.UserInputType.Keyboard then
             for _, item in ipairs(BindableEntries) do
                 if item.Key and input.KeyCode == item.Key then
@@ -3494,28 +4376,19 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    AddGearSectionHeader(4, "Appearance & Themes", "STYLE")
-
-    -- 5. Segmented Diamond UI Scale Slider
+    -- Diamond UI Viewport Scale
     local ScaleCard = Instance.new("Frame")
-    ScaleCard.LayoutOrder = 5
-    ScaleCard.Size = UDim2.new(1, 0, 0, 56)
+    ScaleCard.LayoutOrder = 3
+    ScaleCard.Size = UDim2.new(1, 0, 0, 54)
     ScaleCard.BackgroundColor3 = Theme.GrayTranslucent
     ScaleCard.BackgroundTransparency = 0.45
     ScaleCard.ZIndex = 11
     ScaleCard.Parent = SettingsPage
     Instance.new("UICorner", ScaleCard).CornerRadius = UDim.new(0, 12)
-    BindTheme(ScaleCard, "BackgroundColor3", "GrayTranslucent")
-
-    local SCStroke = Instance.new("UIStroke", ScaleCard)
-    SCStroke.Color = Theme.Accent
-    SCStroke.Thickness = 1
-    SCStroke.Transparency = 0.55
-    BindAccent(SCStroke, "Color")
 
     local ScaleTitle = Instance.new("TextLabel")
     ScaleTitle.Size = UDim2.new(0.6, 0, 0, 18)
-    ScaleTitle.Position = UDim2.new(0, 12, 0, 6)
+    ScaleTitle.Position = UDim2.new(0, 12, 0, 5)
     ScaleTitle.BackgroundTransparency = 1
     ScaleTitle.Text = "UI Viewport Scale"
     ScaleTitle.TextColor3 = Theme.Text
@@ -3524,16 +4397,15 @@ function TryxzLib:CreateWindow(config)
     ScaleTitle.TextXAlignment = Enum.TextXAlignment.Left
     ScaleTitle.ZIndex = 12
     ScaleTitle.Parent = ScaleCard
-    BindTheme(ScaleTitle, "TextColor3", "Text")
 
     local ScaleBadge = Instance.new("Frame")
     ScaleBadge.Size = UDim2.new(0, 48, 0, 18)
-    ScaleBadge.Position = UDim2.new(1, -60, 0, 6)
-    ScaleBadge.BackgroundColor3 = Theme.Accent
+    ScaleBadge.Position = UDim2.new(1, -60, 0, 5)
+    ScaleBadge.BackgroundColor3 = Color3.new(1, 1, 1)
     ScaleBadge.ZIndex = 12
     ScaleBadge.Parent = ScaleCard
     Instance.new("UICorner", ScaleBadge).CornerRadius = UDim.new(1, 0)
-    BindAccent(ScaleBadge, "BackgroundColor3")
+    ApplyAccentGradient(ScaleBadge, 0)
 
     local ScaleValLbl = Instance.new("TextLabel")
     ScaleValLbl.Size = UDim2.new(1, 0, 1, 0)
@@ -3545,35 +4417,9 @@ function TryxzLib:CreateWindow(config)
     ScaleValLbl.ZIndex = 13
     ScaleValLbl.Parent = ScaleBadge
 
-    local MinusScaleBtn = Instance.new("TextButton")
-    MinusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
-    MinusScaleBtn.Position = UDim2.new(0, 10, 0, 29)
-    MinusScaleBtn.BackgroundColor3 = Theme.Background
-    MinusScaleBtn.Text = "-"
-    MinusScaleBtn.TextColor3 = Theme.Text
-    MinusScaleBtn.Font = Enum.Font.GothamBold
-    MinusScaleBtn.TextSize = 13
-    MinusScaleBtn.AutoButtonColor = false
-    MinusScaleBtn.ZIndex = 13
-    MinusScaleBtn.Parent = ScaleCard
-    Instance.new("UICorner", MinusScaleBtn).CornerRadius = UDim.new(1, 0)
-
-    local PlusScaleBtn = Instance.new("TextButton")
-    PlusScaleBtn.Size = UDim2.new(0, 20, 0, 20)
-    PlusScaleBtn.Position = UDim2.new(1, -30, 0, 29)
-    PlusScaleBtn.BackgroundColor3 = Theme.Background
-    PlusScaleBtn.Text = "+"
-    PlusScaleBtn.TextColor3 = Theme.Text
-    PlusScaleBtn.Font = Enum.Font.GothamBold
-    PlusScaleBtn.TextSize = 12
-    PlusScaleBtn.AutoButtonColor = false
-    PlusScaleBtn.ZIndex = 13
-    PlusScaleBtn.Parent = ScaleCard
-    Instance.new("UICorner", PlusScaleBtn).CornerRadius = UDim.new(1, 0)
-
     local ScaleTrack = Instance.new("TextButton")
-    ScaleTrack.Size = UDim2.new(1, -72, 0, 10)
-    ScaleTrack.Position = UDim2.new(0, 36, 0, 34)
+    ScaleTrack.Size = UDim2.new(1, -24, 0, 8)
+    ScaleTrack.Position = UDim2.new(0, 12, 0, 32)
     ScaleTrack.BackgroundColor3 = Theme.Background
     ScaleTrack.Text = ""
     ScaleTrack.AutoButtonColor = false
@@ -3581,29 +4427,16 @@ function TryxzLib:CreateWindow(config)
     ScaleTrack.Parent = ScaleCard
     Instance.new("UICorner", ScaleTrack).CornerRadius = UDim.new(1, 0)
 
-    for idx = 0, 4 do
-        local tickDot = Instance.new("Frame")
-        tickDot.Size = UDim2.new(0, 3, 0, 3)
-        tickDot.AnchorPoint = Vector2.new(0.5, 0.5)
-        tickDot.Position = UDim2.new(idx / 4, 0, 0.5, 0)
-        tickDot.BackgroundColor3 = Theme.SubText
-        tickDot.BackgroundTransparency = 0.4
-        tickDot.BorderSizePixel = 0
-        tickDot.ZIndex = 13
-        tickDot.Parent = ScaleTrack
-        Instance.new("UICorner", tickDot).CornerRadius = UDim.new(1, 0)
-    end
-
     local ScaleFill = Instance.new("Frame")
     ScaleFill.Size = UDim2.new((Cfg.UIScale - 0.75) / 0.60, 0, 1, 0)
-    ScaleFill.BackgroundColor3 = Theme.Accent
+    ScaleFill.BackgroundColor3 = Color3.new(1, 1, 1)
     ScaleFill.ZIndex = 13
     ScaleFill.Parent = ScaleTrack
     Instance.new("UICorner", ScaleFill).CornerRadius = UDim.new(1, 0)
-    BindAccent(ScaleFill, "BackgroundColor3")
+    ApplyAccentGradient(ScaleFill, 0)
 
     local DiamondKnob = Instance.new("Frame")
-    DiamondKnob.Size = UDim2.new(0, 14, 0, 14)
+    DiamondKnob.Size = UDim2.new(0, 13, 0, 13)
     DiamondKnob.AnchorPoint = Vector2.new(0.5, 0.5)
     DiamondKnob.Position = UDim2.new(1, 0, 0.5, 0)
     DiamondKnob.Rotation = 45
@@ -3612,72 +4445,45 @@ function TryxzLib:CreateWindow(config)
     DiamondKnob.Parent = ScaleFill
     Instance.new("UICorner", DiamondKnob).CornerRadius = UDim.new(0, 4)
 
-    local KnobStroke = Instance.new("UIStroke", DiamondKnob)
-    KnobStroke.Color = Theme.Accent
-    KnobStroke.Thickness = 2
-    BindAccent(KnobStroke, "Color")
-
-    local lastScaleStep = Cfg.UIScale
     local function ApplyNewUIScale(targetScale, saveNow)
         local clamped = math.clamp(math.floor(targetScale * 20 + 0.5) / 20, 0.75, 1.35)
-        if clamped ~= lastScaleStep then
-            lastScaleStep = clamped
-            TriggerHaptic(0.18)
-            TryxzLib:PlaySound("Hover", 0.2)
-        end
         Cfg.UIScale = clamped
         MainUIScale.Scale = clamped
         ScaleValLbl.Text = string.format("%.2fx", clamped)
-        local pct = (clamped - 0.75) / 0.60
-        Tween(ScaleFill, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Size = UDim2.new(pct, 0, 1, 0)})
+        Tween(ScaleFill, TweenInfo.new(0.08), {Size = UDim2.new((clamped - 0.75) / 0.60, 0, 1, 0)})
         if saveNow then WriteConfigFile() end
     end
 
-    MinusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale - 0.05, true) end)
-    PlusScaleBtn.MouseButton1Click:Connect(function() ApplyNewUIScale(Cfg.UIScale + 0.05, true) end)
-
     local draggingScale = false
-    local function UpdateScaleFromInput(inp)
-        local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
-        ApplyNewUIScale(0.75 + pos * 0.60, false)
-    end
-
     ScaleTrack.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
             draggingScale = true
-            Tween(DiamondKnob, Tweens.Bounce, {Size = UDim2.new(0, 17, 0, 17), Rotation = 135})
-            UpdateScaleFromInput(inp)
+            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
+            ApplyNewUIScale(0.75 + pos * 0.60, false)
         end
     end)
     UserInputService.InputChanged:Connect(function(inp)
         if draggingScale and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-            UpdateScaleFromInput(inp)
+            local pos = math.clamp((inp.Position.X - ScaleTrack.AbsolutePosition.X) / ScaleTrack.AbsoluteSize.X, 0, 1)
+            ApplyNewUIScale(0.75 + pos * 0.60, false)
         end
     end)
     UserInputService.InputEnded:Connect(function(inp)
         if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) and draggingScale then
             draggingScale = false
-            Tween(DiamondKnob, Tweens.Bounce, {Size = UDim2.new(0, 14, 0, 14), Rotation = 45})
             WriteConfigFile()
         end
     end)
 
-    -- 6. FULL MULTI-COLOR THEME PALETTE CARD
+    -- Theme Palette Selector
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.LayoutOrder = 6
-    ThemeCard.Size = UDim2.new(1, 0, 0, 52)
+    ThemeCard.LayoutOrder = 4
+    ThemeCard.Size = UDim2.new(1, 0, 0, 50)
     ThemeCard.BackgroundColor3 = Theme.GrayTranslucent
     ThemeCard.BackgroundTransparency = 0.5
     ThemeCard.ZIndex = 11
     ThemeCard.Parent = SettingsPage
     Instance.new("UICorner", ThemeCard).CornerRadius = UDim.new(0, 12)
-    BindTheme(ThemeCard, "BackgroundColor3", "GrayTranslucent")
-
-    local TCardStroke = Instance.new("UIStroke", ThemeCard)
-    TCardStroke.Color = Theme.Divider
-    TCardStroke.Thickness = 1
-    TCardStroke.Transparency = 0.4
-    BindTheme(TCardStroke, "Color", "Divider")
 
     local ThemeLbl = Instance.new("TextLabel")
     ThemeLbl.Size = UDim2.new(0.55, 0, 0, 16)
@@ -3690,7 +4496,6 @@ function TryxzLib:CreateWindow(config)
     ThemeLbl.TextXAlignment = Enum.TextXAlignment.Left
     ThemeLbl.ZIndex = 12
     ThemeLbl.Parent = ThemeCard
-    BindTheme(ThemeLbl, "TextColor3", "Text")
 
     local ActiveThemeLbl = Instance.new("TextLabel")
     ActiveThemeLbl.Size = UDim2.new(0.45, -14, 0, 16)
@@ -3707,7 +4512,7 @@ function TryxzLib:CreateWindow(config)
 
     local SwatchRow = Instance.new("Frame")
     SwatchRow.Size = UDim2.new(1, -24, 0, 22)
-    SwatchRow.Position = UDim2.new(0, 12, 0, 24)
+    SwatchRow.Position = UDim2.new(0, 12, 0, 23)
     SwatchRow.BackgroundTransparency = 1
     SwatchRow.ZIndex = 12
     SwatchRow.Parent = ThemeCard
@@ -3728,20 +4533,6 @@ function TryxzLib:CreateWindow(config)
         Instance.new("UICorner", DotBtn).CornerRadius = UDim.new(1, 0)
         AttachTooltip(DotBtn, tName)
 
-        local InnerBgDot = Instance.new("Frame")
-        InnerBgDot.Size = UDim2.new(0, 8, 0, 8)
-        InnerBgDot.Position = UDim2.new(0.5, 0, 0.5, 0)
-        InnerBgDot.AnchorPoint = Vector2.new(0.5, 0.5)
-        InnerBgDot.BackgroundColor3 = pal.Background
-        InnerBgDot.ZIndex = 14
-        InnerBgDot.Parent = DotBtn
-        Instance.new("UICorner", InnerBgDot).CornerRadius = UDim.new(1, 0)
-
-        local DStroke = Instance.new("UIStroke", DotBtn)
-        DStroke.Color = Theme.Text
-        DStroke.Thickness = 1.5
-        DStroke.Transparency = 0.6
-
         DotBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.25)
             TryxzLib:PlaySound("Click")
@@ -3751,163 +4542,16 @@ function TryxzLib:CreateWindow(config)
         end)
     end
 
-    AddGearSectionHeader(7, "Feedback, Blur & Audio", "SYSTEM")
-
-    -- 8, 9 & 10. Special Diamond Settings Toggles
-    local function CreateSpecialSettingsToggle(order, titleText, subText, initialState, onToggle)
-        local st = initialState
-        local Btn = Instance.new("TextButton")
-        Btn.LayoutOrder = order
-        Btn.Size = UDim2.new(1, 0, 0, 34)
-        Btn.BackgroundColor3 = Theme.GrayTranslucent
-        Btn.BackgroundTransparency = 0.45
-        Btn.Text = ""
-        Btn.AutoButtonColor = false
-        Btn.ZIndex = 11
-        Btn.Parent = SettingsPage
-        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 12)
-        BindTheme(Btn, "BackgroundColor3", "GrayTranslucent")
-
-        local Stroke = Instance.new("UIStroke", Btn)
-        Stroke.Color = st and Theme.Accent or Theme.Divider
-        Stroke.Thickness = 1
-        BindAccent(Stroke, "Color", function() return st end)
-
-        local Tbl = Instance.new("TextLabel")
-        Tbl.Size = UDim2.new(1, -55, 0, 15)
-        Tbl.Position = UDim2.new(0, 12, 0, 4)
-        Tbl.BackgroundTransparency = 1
-        Tbl.Text = titleText
-        Tbl.TextColor3 = Theme.Text
-        Tbl.Font = Enum.Font.GothamBold
-        Tbl.TextSize = 11
-        Tbl.TextXAlignment = Enum.TextXAlignment.Left
-        Tbl.ZIndex = 12
-        Tbl.Parent = Btn
-        BindTheme(Tbl, "TextColor3", "Text")
-
-        local Sub = Instance.new("TextLabel")
-        Sub.Size = UDim2.new(1, -55, 0, 12)
-        Sub.Position = UDim2.new(0, 12, 0, 18)
-        Sub.BackgroundTransparency = 1
-        Sub.Text = subText
-        Sub.TextColor3 = Theme.SubText
-        Sub.Font = Enum.Font.Gotham
-        Sub.TextSize = 9
-        Sub.TextXAlignment = Enum.TextXAlignment.Left
-        Sub.ZIndex = 12
-        Sub.Parent = Btn
-        BindTheme(Sub, "TextColor3", "SubText")
-
-        local Box = Instance.new("Frame")
-        Box.Size = UDim2.new(0, 18, 0, 18)
-        Box.Position = UDim2.new(1, -28, 0.5, -9)
-        Box.BackgroundColor3 = st and Theme.Accent or Theme.Background
-        Box.Rotation = st and 45 or 0
-        Box.ZIndex = 12
-        Box.Parent = Btn
-        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 5)
-        BindAccent(Box, "BackgroundColor3", function() return st end)
-
-        local Core = Instance.new("Frame")
-        Core.Size = st and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)
-        Core.Position = UDim2.new(0.5, 0, 0.5, 0)
-        Core.AnchorPoint = Vector2.new(0.5, 0.5)
-        Core.BackgroundColor3 = Theme.Text
-        Core.ZIndex = 13
-        Core.Parent = Box
-        Instance.new("UICorner", Core).CornerRadius = UDim.new(1, 0)
-
-        Btn.MouseButton1Click:Connect(function()
-            st = not st
-            onToggle(st)
-            WriteConfigFile()
-            Tween(Box, Tweens.Bounce, {BackgroundColor3 = st and Theme.Accent or Theme.Background, Rotation = st and 45 or 0})
-            Tween(Core, Tweens.Bounce, {Size = st and UDim2.new(0, 7, 0, 7) or UDim2.new(0, 0, 0, 0)})
-            Tween(Stroke, Tweens.Fast, {Color = st and Theme.Accent or Theme.Divider})
-        end)
-    end
-
-    CreateSpecialSettingsToggle(8, "Camera Glass Blur", "Blur background while UI window is open", BlurState.Enabled, function(val)
-        BlurState.Enabled = val
-        SetBlurActive(val and not State.Minimized and not State.Collapsed)
-        TriggerHaptic(0.25)
-        TryxzLib:PlaySound("Toggle")
-    end)
-
-    CreateSpecialSettingsToggle(9, "Haptic Feedback", "Tactile vibration pulse on UI interactions", Cfg.Haptics, function(val)
-        Cfg.Haptics = val
-        if val then TriggerHaptic(0.5) end
-        TryxzLib:PlaySound("Toggle")
-    end)
-
-    CreateSpecialSettingsToggle(10, "UI Sound Effects", "Play audio feedback on clicks and alerts", SoundState.Enabled, function(val)
-        SoundState.Enabled = val
-        TriggerHaptic(0.25)
-        if val then TryxzLib:PlaySound("Toggle") end
-    end)
-
-    -- 11. Sound Pack Selector
-    local SoundSelectBtn = Instance.new("TextButton")
-    SoundSelectBtn.LayoutOrder = 11
-    SoundSelectBtn.Size = UDim2.new(1, 0, 0, 32)
-    SoundSelectBtn.BackgroundColor3 = Theme.Element
-    SoundSelectBtn.Text = ""
-    SoundSelectBtn.AutoButtonColor = false
-    SoundSelectBtn.ZIndex = 11
-    SoundSelectBtn.Parent = SettingsPage
-    Instance.new("UICorner", SoundSelectBtn).CornerRadius = UDim.new(0, 12)
-    BindTheme(SoundSelectBtn, "BackgroundColor3", "Element")
-
-    local SndTitle = Instance.new("TextLabel")
-    SndTitle.Size = UDim2.new(0.55, 0, 1, 0)
-    SndTitle.Position = UDim2.new(0, 12, 0, 0)
-    SndTitle.BackgroundTransparency = 1
-    SndTitle.Text = "Sound Pack (Tap to switch)"
-    SndTitle.TextColor3 = Theme.Text
-    SndTitle.Font = Enum.Font.GothamSemibold
-    SndTitle.TextSize = 11
-    SndTitle.TextXAlignment = Enum.TextXAlignment.Left
-    SndTitle.ZIndex = 12
-    SndTitle.Parent = SoundSelectBtn
-    BindTheme(SndTitle, "TextColor3", "Text")
-
-    local SndCurrent = Instance.new("TextLabel")
-    SndCurrent.Size = UDim2.new(0.45, -14, 1, 0)
-    SndCurrent.Position = UDim2.new(0.55, 0, 0, 0)
-    SndCurrent.BackgroundTransparency = 1
-    SndCurrent.Text = SoundState.Preset
-    SndCurrent.TextColor3 = Theme.Accent
-    SndCurrent.Font = Enum.Font.GothamBold
-    SndCurrent.TextSize = 11
-    SndCurrent.TextXAlignment = Enum.TextXAlignment.Right
-    SndCurrent.ZIndex = 12
-    SndCurrent.Parent = SoundSelectBtn
-    BindAccent(SndCurrent, "TextColor3")
-
-    SoundSelectBtn.MouseButton1Click:Connect(function()
-        local idx = table.find(PresetOrder, SoundState.Preset) or 1
-        local nextPreset = PresetOrder[(idx % #PresetOrder) + 1]
-        TryxzLib:SetSoundPreset(nextPreset)
-        SndCurrent.Text = nextPreset
-        TriggerHaptic(0.25)
-        TryxzLib:PlaySound("Click")
-        WriteConfigFile()
-    end)
-
-    AddGearSectionHeader(12, "Profiles & Session", "DATA")
-
-    -- 13. Multi-Profile Config Manager Card
+    -- Multi-Profile & Clipboard Export/Import Card
     if Cfg.SaveEnabled then
         local ProfCard = Instance.new("Frame")
-        ProfCard.LayoutOrder = 13
-        ProfCard.Size = UDim2.new(1, 0, 0, 74)
+        ProfCard.LayoutOrder = 5
+        ProfCard.Size = UDim2.new(1, 0, 0, 98)
         ProfCard.BackgroundColor3 = Theme.GrayTranslucent
         ProfCard.BackgroundTransparency = 0.5
         ProfCard.ZIndex = 11
         ProfCard.Parent = SettingsPage
         Instance.new("UICorner", ProfCard).CornerRadius = UDim.new(0, 12)
-        BindTheme(ProfCard, "BackgroundColor3", "GrayTranslucent")
 
         local ProfTitle = Instance.new("TextLabel")
         ProfTitle.Size = UDim2.new(1, -20, 0, 16)
@@ -3925,15 +4569,38 @@ function TryxzLib:CreateWindow(config)
         ProfInput.Size = UDim2.new(1, -24, 0, 22)
         ProfInput.Position = UDim2.new(0, 12, 0, 23)
         ProfInput.BackgroundColor3 = Theme.Background
-        ProfInput.PlaceholderText = "Profile name (e.g. Legit, Rage, Farm)..."
+        ProfInput.PlaceholderText = "Profile name or paste JSON config to import..."
         ProfInput.PlaceholderColor3 = Theme.SubText
         ProfInput.Text = Cfg.ActiveProfile
         ProfInput.TextColor3 = Theme.Text
         ProfInput.Font = Enum.Font.Gotham
         ProfInput.TextSize = 10
+        ProfInput.ClearTextOnFocus = false
         ProfInput.ZIndex = 12
         ProfInput.Parent = ProfCard
         Instance.new("UICorner", ProfInput).CornerRadius = UDim.new(0, 8)
+
+        local function ApplyConfigTable(loaded)
+            for flagKey, flagObj in pairs(Window.Flags) do
+                if loaded[flagKey] ~= nil and flagObj.Set then
+                    flagObj:Set(loaded[flagKey], true)
+                end
+            end
+            if type(loaded["_FnBinds"]) == "table" then
+                for fnId, bindObj in pairs(Window.Keybinds or {}) do
+                    if loaded["_FnBinds"][fnId] ~= nil and bindObj.SetKey then
+                        bindObj:SetKey(loaded["_FnBinds"][fnId], true)
+                    end
+                end
+            end
+            if loaded["_ThemeName"] and Themes[loaded["_ThemeName"]] then
+                TryxzLib:SetTheme(loaded["_ThemeName"])
+                ActiveThemeLbl.Text = loaded["_ThemeName"]
+            end
+            if loaded["_UIScale"] ~= nil then
+                ApplyNewUIScale(tonumber(loaded["_UIScale"]) or 1, false)
+            end
+        end
 
         local SaveProfBtn = Instance.new("TextButton")
         SaveProfBtn.Size = UDim2.new(0.31, 0, 0, 20)
@@ -3947,7 +4614,6 @@ function TryxzLib:CreateWindow(config)
         SaveProfBtn.ZIndex = 12
         SaveProfBtn.Parent = ProfCard
         Instance.new("UICorner", SaveProfBtn).CornerRadius = UDim.new(1, 0)
-        BindAccent(SaveProfBtn, "BackgroundColor3")
 
         local LoadProfBtn = Instance.new("TextButton")
         LoadProfBtn.Size = UDim2.new(0.31, 0, 0, 20)
@@ -3975,14 +4641,39 @@ function TryxzLib:CreateWindow(config)
         DelProfBtn.Parent = ProfCard
         Instance.new("UICorner", DelProfBtn).CornerRadius = UDim.new(1, 0)
 
+        local ExportBtn = Instance.new("TextButton")
+        ExportBtn.Size = UDim2.new(0.48, -6, 0, 20)
+        ExportBtn.Position = UDim2.new(0, 12, 0, 73)
+        ExportBtn.BackgroundColor3 = Theme.Element
+        ExportBtn.Text = "📋 Export JSON"
+        ExportBtn.TextColor3 = Theme.Text
+        ExportBtn.Font = Enum.Font.GothamBold
+        ExportBtn.TextSize = 10
+        ExportBtn.AutoButtonColor = false
+        ExportBtn.ZIndex = 12
+        ExportBtn.Parent = ProfCard
+        Instance.new("UICorner", ExportBtn).CornerRadius = UDim.new(1, 0)
+
+        local ImportBtn = Instance.new("TextButton")
+        ImportBtn.Size = UDim2.new(0.48, -6, 0, 20)
+        ImportBtn.Position = UDim2.new(0.52, -6, 0, 73)
+        ImportBtn.BackgroundColor3 = Theme.Element
+        ImportBtn.Text = "📥 Import JSON"
+        ImportBtn.TextColor3 = Theme.Text
+        ImportBtn.Font = Enum.Font.GothamBold
+        ImportBtn.TextSize = 10
+        ImportBtn.AutoButtonColor = false
+        ImportBtn.ZIndex = 12
+        ImportBtn.Parent = ProfCard
+        Instance.new("UICorner", ImportBtn).CornerRadius = UDim.new(1, 0)
+
         SaveProfBtn.MouseButton1Click:Connect(function()
             local pName = ProfInput.Text ~= "" and ProfInput.Text or "default"
             Cfg.ActiveProfile = pName
             Cfg.SaveFile = GetProfilePath(pName)
             ProfTitle.Text = "Config Profile: " .. pName
             WriteConfigFile()
-            TriggerHaptic(0.3)
-            TryxzLib:Notify({Title = "Profile Saved", Text = "Saved profile '" .. pName .. "'.", Duration = 3})
+            TryxzLib:Notify({Title = "Profile Saved", Text = "Saved '" .. pName .. "'.", Duration = 3})
         end)
 
         LoadProfBtn.MouseButton1Click:Connect(function()
@@ -3993,56 +4684,45 @@ function TryxzLib:CreateWindow(config)
                 Cfg.SaveFile = GetProfilePath(pName)
                 Cfg.SavedData = loaded
                 ProfTitle.Text = "Config Profile: " .. pName
-                for flagKey, flagObj in pairs(Window.Flags) do
-                    if loaded[flagKey] ~= nil and flagObj.Set then
-                        flagObj:Set(loaded[flagKey], true)
-                    end
-                end
-                if type(loaded["_FnBinds"]) == "table" then
-                    for fnId, bindObj in pairs(Window.Keybinds or {}) do
-                        if loaded["_FnBinds"][fnId] ~= nil and bindObj.SetKey then
-                            bindObj:SetKey(loaded["_FnBinds"][fnId], true)
-                        end
-                    end
-                end
-                if loaded["_ThemeName"] and Themes[loaded["_ThemeName"]] then
-                    TryxzLib:SetTheme(loaded["_ThemeName"])
-                    ActiveThemeLbl.Text = loaded["_ThemeName"]
-                end
-                if type(loaded["_Accent"]) == "table" and #loaded["_Accent"] == 3 then
-                    TryxzLib:SetAccent(Color3.new(loaded["_Accent"][1], loaded["_Accent"][2], loaded["_Accent"][3]))
-                end
-                if loaded["_UIScale"] ~= nil then
-                    ApplyNewUIScale(tonumber(loaded["_UIScale"]) or 1, false)
-                end
-                TriggerHaptic(0.35)
-                TryxzLib:Notify({Title = "Profile Loaded", Text = "Loaded profile '" .. pName .. "'.", Duration = 3})
+                ApplyConfigTable(loaded)
+                TryxzLib:Notify({Title = "Profile Loaded", Text = "Loaded '" .. pName .. "'.", Duration = 3})
             else
-                TryxzLib:Notify({Title = "Not Found", Text = "Profile '" .. pName .. "' does not exist.", Duration = 3, Sound = "Error"})
+                TryxzLib:Notify({Title = "Not Found", Text = "Profile '" .. pName .. "' not found.", Duration = 3, Sound = "Error"})
             end
         end)
 
         DelProfBtn.MouseButton1Click:Connect(function()
             local pName = ProfInput.Text ~= "" and ProfInput.Text or "default"
-            TryxzLib:Dialog({
-                Title = "Delete Profile",
-                Content = "Delete saved profile '" .. pName .. "'?",
-                ConfirmText = "Delete",
-                CancelText = "Cancel",
-                OnConfirm = function()
-                    pcall(function()
-                        local path = GetProfilePath(pName)
-                        if delfile and isfile and isfile(path) then delfile(path) end
-                    end)
-                    TryxzLib:Notify({Title = "Deleted", Text = "Profile '" .. pName .. "' removed.", Duration = 3})
-                end
-            })
+            pcall(function()
+                local path = GetProfilePath(pName)
+                if delfile and isfile and isfile(path) then delfile(path) end
+            end)
+            TryxzLib:Notify({Title = "Deleted", Text = "Removed '" .. pName .. "'.", Duration = 2.5})
+        end)
+
+        ExportBtn.MouseButton1Click:Connect(function()
+            WriteConfigFile()
+            local jsonStr = HttpService:JSONEncode(Cfg.SavedData)
+            if setclipboard then pcall(function() setclipboard(jsonStr) end) end
+            TryxzLib:Notify({Title = "Exported", Text = "Config JSON copied to clipboard.", Duration = 3})
+        end)
+
+        ImportBtn.MouseButton1Click:Connect(function()
+            local ok, decoded = pcall(function() return HttpService:JSONDecode(ProfInput.Text) end)
+            if ok and type(decoded) == "table" then
+                Cfg.SavedData = decoded
+                ApplyConfigTable(decoded)
+                WriteConfigFile()
+                TryxzLib:Notify({Title = "Imported", Text = "Config applied from JSON text.", Duration = 3})
+            else
+                TryxzLib:Notify({Title = "Invalid JSON", Text = "Paste valid JSON into the profile box first.", Duration = 3, Sound = "Error"})
+            end
         end)
     end
 
-    -- 14. Unload / Destroy UI Button
+    -- Destroy UI Button
     local DestroyBtn = Instance.new("TextButton")
-    DestroyBtn.LayoutOrder = 14
+    DestroyBtn.LayoutOrder = 10
     DestroyBtn.Size = UDim2.new(1, 0, 0, 32)
     DestroyBtn.BackgroundColor3 = Theme.Error
     DestroyBtn.Text = "Unload / Destroy UI"
@@ -4054,8 +4734,6 @@ function TryxzLib:CreateWindow(config)
     DestroyBtn.Parent = SettingsPage
     Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(0, 12)
 
-    DestroyBtn.MouseEnter:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Theme.ErrorGlow}) end)
-    DestroyBtn.MouseLeave:Connect(function() Tween(DestroyBtn, Tweens.Fast, {BackgroundColor3 = Theme.Error}) end)
     DestroyBtn.MouseButton1Click:Connect(function()
         TryxzLib:Dialog({
             Title = "Unload TryxzLib",
@@ -4063,7 +4741,6 @@ function TryxzLib:CreateWindow(config)
             ConfirmText = "Unload",
             CancelText = "Stay",
             OnConfirm = function()
-                TriggerHaptic(0.4)
                 SetBlurActive(false)
                 if StatsConnection then StatsConnection:Disconnect() end
                 local t = Tween(WindowHolder, Tweens.Fast, {Size = UDim2.new(0, 0, 0, 0)})
@@ -4084,10 +4761,7 @@ function TryxzLib:CreateWindow(config)
     end)
 
     function Window:Save() WriteConfigFile() end
-
-    function Window:RegisterKeybind(bindInfo)
-        RegisterBindable(bindInfo)
-    end
+    function Window:RegisterKeybind(bindInfo) RegisterBindable(bindInfo) end
 
     function Window:CreateTab(name, icon)
         Window.TabOrder += 1
@@ -4115,16 +4789,32 @@ function TryxzLib:CreateWindow(config)
         Indicator.Size = UDim2.new(0, 3, 0, 0)
         Indicator.Position = UDim2.new(0, 2, 0.5, 0)
         Indicator.AnchorPoint = Vector2.new(0, 0.5)
-        Indicator.BackgroundColor3 = Theme.Accent
+        Indicator.BackgroundColor3 = Color3.new(1, 1, 1)
         Indicator.BorderSizePixel = 0
         Indicator.Parent = TabBtn
         Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
-        BindAccent(Indicator, "BackgroundColor3")
+        ApplyAccentGradient(Indicator, 90)
 
         if hasIcon then CreateIcon(TabBtn, icon, 14, UDim2.new(0, 10, 0.5, -7), 2) end
 
+        local TabBadge = Instance.new("TextLabel")
+        TabBadge.Size = UDim2.new(0, 0, 0, 14)
+        TabBadge.AutomaticSize = Enum.AutomaticSize.X
+        TabBadge.Position = UDim2.new(1, -6, 0.5, -7)
+        TabBadge.AnchorPoint = Vector2.new(1, 0)
+        TabBadge.BackgroundColor3 = Theme.Accent
+        TabBadge.Text = ""
+        TabBadge.TextColor3 = Theme.Text
+        TabBadge.Font = Enum.Font.GothamBlack
+        TabBadge.TextSize = 8
+        TabBadge.Visible = false
+        TabBadge.ZIndex = 3
+        TabBadge.Parent = TabBtn
+        Instance.new("UICorner", TabBadge).CornerRadius = UDim.new(1, 0)
+        BindAccent(TabBadge, "BackgroundColor3")
+
         local TabLbl = Instance.new("TextLabel")
-        TabLbl.Size = UDim2.new(1, hasIcon and -32 or -14, 1, 0)
+        TabLbl.Size = UDim2.new(1, hasIcon and -34 or -16, 1, 0)
         TabLbl.Position = UDim2.new(0, hasIcon and 28 or 10, 0, 0)
         TabLbl.BackgroundTransparency = 1
         TabLbl.Text = tabText
@@ -4184,15 +4874,6 @@ function TryxzLib:CreateWindow(config)
             Tween(Indicator, Tweens.Bounce, {Size = UDim2.new(0, 3, 0, isLongName and 22 or 14)})
         end
 
-        TabBtn.MouseEnter:Connect(function()
-            if not TabWrapper.Visible then
-                TryxzLib:PlaySound("Hover", 0.2)
-                Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.ElementHover})
-            end
-        end)
-        TabBtn.MouseLeave:Connect(function()
-            if not TabWrapper.Visible then Tween(TabBtn, Tweens.Fast, {BackgroundColor3 = Theme.Sidebar}) end
-        end)
         TabBtn.MouseButton1Click:Connect(function()
             TriggerHaptic(0.2)
             TryxzLib:PlaySound("Click")
@@ -4207,6 +4888,17 @@ function TryxzLib:CreateWindow(config)
         end
 
         local TabAPI = CreateElementFactory(DefaultPage, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
+
+        function TabAPI:SetBadge(badgeText)
+            if badgeText and tostring(badgeText) ~= "" then
+                TabBadge.Text = " " .. tostring(badgeText) .. " "
+                TabBadge.Visible = true
+                TabLbl.Size = UDim2.new(1, hasIcon and -62 or -44, 1, 0)
+            else
+                TabBadge.Visible = false
+                TabLbl.Size = UDim2.new(1, hasIcon and -34 or -16, 1, 0)
+            end
+        end
 
         local SubTabBar, SubTabs = nil, {}
         function TabAPI:AddSubTab(subName)
@@ -4300,4 +4992,3 @@ function TryxzLib:CreateWindow(config)
 end
 
 return TryxzLib
- 
