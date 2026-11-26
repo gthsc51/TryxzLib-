@@ -1,5 +1,6 @@
-```text
-        ,----,                                                   ,--,                       
+ ```text
+
+       ,----,                                                   ,--,                       
       ,/   .`|                                                ,---.'|                       
     ,`   .'  :                                                |   | :                       
   ;    ;     /                                                :   : |     ,--,     ,---,    
@@ -17,7 +18,7 @@
                         `--`                                                                
 ```
 
-# TryxzLib
+# TryxzLib (v3.7)
 
 A modern, modular, and fully animated User Interface library written in Luau for Roblox. Designed with smooth `TweenService` transitions, rounded aesthetics, multi-profile configuration saving, and a clean object-oriented API.
 
@@ -27,18 +28,22 @@ A modern, modular, and fully animated User Interface library written in Luau for
 
 ## Features
 
-- **Smooth Animations:** Every interaction—window transitions, tab switching, dropdown expansion, slider dragging, notifications, and modal dialogs—uses `TweenService` curves (`Quad`, `Quart`, `Back`, `Quint`).
+- **Smooth Animations & Bottom Drag Handle:** Every interaction uses `TweenService` curves (`Quad`, `Quart`, `Back`, `Quint`). Includes a top bar drag handle plus an animated, translucent white bottom drag bar locked directly beneath the window for effortless mobile and desktop repositioning.
 - **Modular & Lightweight:** Built with a decoupled component architecture to prevent Luau register/upvalue limits and keep frame rates stable.
-- **Floating Collapse Mode:** Collapse the main window into a draggable, screen-clamped floating `"UI"` pill button or minimize it cleanly to its top bar.
-- **Camera Glass Blur:** Optional animated `BlurEffect` that automatically enables when the interface is open and clears when minimized or collapsed.
-- **Key Verification Gate:** Optional access key modal with a custom note, info card, clipboard link button, glowing close button, and automatic key persistence (`SaveKey`).
-- **Multi-Profile Save System:** Automatically saves and restores toggles, sliders, inputs, keybinds, color pickers, dropdowns, accent themes, UI scale, and audio preferences across named JSON profiles.
+- **Floating Collapse & Minimize Modes:** Collapse the main window into a draggable, screen-clamped floating `"UI"` pill button or minimize it cleanly to its top bar (`-`).
+- **Camera Glass Blur:** Animated `BlurEffect` in `Lighting` that automatically enables when the interface is open and clears when minimized (`-`), collapsed (`UI`), hidden, or unloaded.
+- **Complete Key Verification Gate:**
+  - Dedicated `Note:` and `Info:` cards with automatic fallback messages (`"There is no note at this time."` / `"There is no information at this time."`).
+  - Glowing crimson `"X"` close button, clipboard `"Copy Key Link"` button, and automatic key persistence (`SaveKey`) inside `SaveConfig`.
+- **Adaptive Sidebar & Long Tab Names:** Automatically expands the sidebar width and wraps text cleanly when long tab titles are used.
+- **Multi-Profile Save System:** Automatically saves and restores toggles, sliders, inputs, keybinds, function binds, color pickers, dropdowns, accent themes, UI scale, blur state, and audio preferences across named JSON profiles.
 - **Live Customization (`⚙` Settings):**
-  - Real-time **Accent Theme Color** switcher.
-  - Segmented diamond **UI Viewport Scale** slider (`0.75x` – `1.35x`).
-  - Built-in & custom **Sound Packs** + **Haptic Feedback** controls.
-  - Built-in **Config Profile Manager** (Save, Load, Delete).
-- **Rich Component Suite:** Tabs, Horizontal Sub-Tabs, Sections, Dividers, Labels, Paragraphs, Progress Bars, Buttons (with optional Cooldowns), Toggles, Sliders, Text Inputs, Keybind Pickers, HSV Color Pickers, Dropdowns, Multi-Dropdowns, Tooltips, Notifications, and Confirmation Dialogs.
+  - **Function Keybinds Dropdown:** Automatically lists bindable Toggles, Sliders (`+KeyStep`), and Buttons so users can assign or clear hotkeys directly from `⚙`.
+  - **UI Viewport Scale:** Segmented stepper slider (`-` / `+` buttons + rotating diamond knob) from `0.75x` to `1.35x`.
+  - **Accent Theme Color:** Live theme switcher across the entire UI.
+  - **Camera Glass Blur, Haptic Feedback & Sound Packs:** Toggleable settings with built-in and custom audio presets.
+  - **Config Profile Manager:** Save, load, and delete multiple named profiles.
+- **Rich Component Suite:** Tabs, Horizontal Sub-Tabs, Sections, Dividers, Labels, Paragraphs, Progress Bars, Buttons (with optional Cooldowns), Toggles, Sliders, Text Inputs, Keybind Pickers, HSV Color Pickers, Dropdowns & Multi-Dropdowns (with header & per-option icons), Tooltips, Notifications, and Confirmation Dialogs.
 
 ---
 
@@ -57,7 +62,7 @@ local TryxzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gths
 ```lua
 local Window = TryxzLib:CreateWindow({
     Title = "TryxzHub",
-    Subtitle = "v3.2 | Interface Showcase",
+    Subtitle = "v3.7 | Interface Showcase",
     Icon = "rbxassetid://10734950309", -- Supports rbxassetid://, numeric IDs, or text
     Profile = true,                      -- Displays user avatar & display name in sidebar
     Stats = true,                        -- Displays live FPS & Ping pill in top bar
@@ -112,8 +117,8 @@ local Window = TryxzLib:CreateWindow({
 ## Tabs & Sub-Tabs
 
 ```lua
--- Create a main sidebar tab (icon is optional)
-local MainTab = Window:CreateTab("Main", "rbxassetid://10747373176")
+-- Create a main sidebar tab (supports short or long titles; icon is optional)
+local MainTab = Window:CreateTab("Main Tab", "rbxassetid://10747373176")
 
 -- Optional: Divide a tab into horizontal sub-tabs
 local GeneralSub = MainTab:AddSubTab("General")
@@ -163,6 +168,9 @@ Progress:Set(75, "75% Done")
 MainTab:AddButton({
     Name = "Run Action",
     Icon = "rbxassetid://10734933222", -- Optional
+    Flag = "RunActionBtn",               -- Optional identifier for Gear Keybinds
+    Keybind = Enum.KeyCode.R,            -- Optional default key in Gear Keybinds Dropdown
+    Bindable = true,                     -- Registers in Gear (⚙) Keybinds Dropdown (default: true)
     Sound = "CustomAlert",               -- Optional custom sound name or asset ID
     Cooldown = 2,                        -- Optional cooldown in seconds
     Tooltip = "Triggers an action with a 2s cooldown",
@@ -178,7 +186,9 @@ MainTab:AddButton({
 local FeatureToggle = MainTab:AddToggle({
     Name = "Enable Feature",
     Icon = "rbxassetid://10734950309", -- Optional
-    Flag = "FeatureToggleFlag",          -- Unique key for SaveConfig
+    Flag = "FeatureToggleFlag",          -- Unique key for SaveConfig & Gear Keybinds
+    Keybind = Enum.KeyCode.V,            -- Optional default key in Gear Keybinds Dropdown
+    Bindable = true,                     -- Registers in Gear (⚙) Keybinds Dropdown (default: true)
     Default = false,
     Tooltip = "Toggles the feature on or off",
     Callback = function(state)
@@ -199,6 +209,9 @@ local SpeedSlider = MainTab:AddSlider({
     Min = 16,
     Max = 250,
     Default = 16,
+    KeyStep = 25,                        -- Step increment when triggered via Gear Keybinds
+    Keybind = Enum.KeyCode.B,            -- Optional default key in Gear Keybinds Dropdown
+    Bindable = true,                     -- Registers in Gear (⚙) Keybinds Dropdown (default: true)
     Tooltip = "Adjust movement speed",
     Callback = function(value)
         print("Slider value:", value)
@@ -232,7 +245,7 @@ local NameInput = MainTab:AddInput({
 local Bind = MainTab:AddKeybind({
     Name = "Quick Toggle Key",
     Flag = "QuickBindFlag",
-    Default = Enum.KeyCode.V,
+    Default = Enum.KeyCode.G,
     Tooltip = "Click badge to rebind key",
     Callback = function(key)
         print("Key pressed:", key.Name)
@@ -254,15 +267,21 @@ local Picker = MainTab:AddColorPicker({
 })
 ```
 
-### Dropdown & Multi-Dropdown
+### Dropdown & Multi-Dropdown (With Icons)
 
 ```lua
 -- Single Selection
 MainTab:AddDropdown({
-    Name = "Select Mode",
-    Flag = "ModeDropdownFlag",
-    Options = {"Option A", "Option B", "Option C"},
-    Default = "Option A",
+    Name = "Target Hitbox",
+    Icon = "rbxassetid://10723356507", -- Optional header icon
+    Flag = "HitboxDropdownFlag",
+    Options = {"Head", "HumanoidRootPart", "Torso"},
+    OptionIcons = {                      -- Optional per-option icons
+        ["Head"] = "rbxassetid://10747373176",
+        ["HumanoidRootPart"] = "rbxassetid://10734950309",
+        ["Torso"] = "rbxassetid://10709790948"
+    },
+    Default = "HumanoidRootPart",
     Tooltip = "Choose one option",
     Callback = function(selected)
         print("Selected:", selected)
@@ -271,9 +290,16 @@ MainTab:AddDropdown({
 
 -- Multiple Selection
 MainTab:AddMultiDropdown({
-    Name = "Select Overlays",
+    Name = "Active Overlays",
+    Icon = "rbxassetid://10734933222", -- Optional header icon
     Flag = "OverlaysMultiFlag",
     Options = {"Boxes", "Names", "Distance", "Tracers"},
+    OptionIcons = {                      -- Optional per-option icons
+        ["Boxes"] = "rbxassetid://10723356507",
+        ["Names"] = "rbxassetid://10747373176",
+        ["Distance"] = "rbxassetid://10734950309",
+        ["Tracers"] = "rbxassetid://10734933222"
+    },
     Default = {"Names", "Distance"},
     Tooltip = "Select multiple options",
     Callback = function(selectedList)
@@ -310,6 +336,17 @@ TryxzLib:Dialog({
     end
 })
 
+-- Register a custom function inside the Gear (⚙) Keybinds Dropdown
+Window:RegisterKeybind({
+    Id = "CustomFnBind",
+    Name = "Custom Action",
+    Kind = "Custom",
+    DefaultKey = Enum.KeyCode.K,
+    Trigger = function()
+        print("Triggered from Gear Keybinds!")
+    end
+})
+
 -- Dynamic Theme & Audio Helpers
 TryxzLib:SetAccent(Color3.fromRGB(56, 152, 255))
 TryxzLib:SetSoundPreset("Mechanical")
@@ -321,4 +358,4 @@ TryxzLib:PlaySound("Beep")
 
 ## License
 
-This project is open-source and maintained by **gthsc51**. Credit is appreciated when using or modifying **TryxzLib** in your projects.
+This project is open-source and maintained by **gthsc51**. Credit is appreciated when using or modifying **TryxzLib** in your projects. 
