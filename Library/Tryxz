@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v4.3 by gthsc51
-    Futuristic Sci-Fi HUD Edition: Ordered Cyber Settings Menu, Particle Canvas, Holo Scanlines & Reactive Pulse Aura
+    TryxzLib v4.4 by gthsc51
+    Futuristic Sci-Fi HUD Edition: Fixed High-Contrast Dialogs, Glowing Architect Credits Label & Holo Effects
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -272,7 +272,7 @@ local function AttachShimmer(parentFrame, intervalSec)
     shimmer.Position = UDim2.new(-0.45, 0, -0.4, 0)
     shimmer.Rotation = 18
     shimmer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    shimmer.BackgroundTransparency = 0.91
+    shimmer.BackgroundTransparency = 0.89
     shimmer.BorderSizePixel = 0
     shimmer.ZIndex = clipper.ZIndex
     shimmer.Parent = clipper
@@ -1046,7 +1046,9 @@ function TryxzLib:Notify(config)
     task.delay(Duration, DismissNotif)
 end
 
--- Modal Confirmation Dialog
+-- ==========================================
+-- MODAL CONFIRMATION DIALOG (FIXED HIGH-CONTRAST CONFIRM TEXT + HOLO DESIGN)
+-- ==========================================
 function TryxzLib:Dialog(config)
     config = config or {}
     local Title = config.Title or "Confirm Action"
@@ -1067,30 +1069,40 @@ function TryxzLib:Dialog(config)
     Tween(Overlay, Tweens.Fast, {BackgroundTransparency = 0.45})
 
     local Card = Instance.new("Frame")
-    Card.Size = UDim2.new(0, 310, 0, 0)
+    Card.Size = UDim2.new(0, 320, 0, 0)
     Card.AutomaticSize = Enum.AutomaticSize.Y
     Card.AnchorPoint = Vector2.new(0.5, 0.5)
     Card.Position = UDim2.new(0.5, 0, 0.5, 0)
     Card.BackgroundColor3 = Theme.Sidebar
     Card.BorderSizePixel = 0
+    Card.ClipsDescendants = true
     Card.ZIndex = 51
     Card.Parent = Overlay
     Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 18)
 
     local CStroke = Instance.new("UIStroke", Card)
     CStroke.Color = Color3.new(1, 1, 1)
-    CStroke.Thickness = 1.4
+    CStroke.Thickness = 1.5
     ApplyAccentGradient(CStroke, 45, true)
+
+    AttachHoloGrid(Card)
 
     local Scale = Instance.new("UIScale", Card)
     Scale.Scale = 0
     Tween(Scale, Tweens.Bounce, {Scale = 1})
 
-    local Pad = Instance.new("UIPadding", Card)
+    local Inner = Instance.new("Frame")
+    Inner.Size = UDim2.new(1, 0, 0, 0)
+    Inner.AutomaticSize = Enum.AutomaticSize.Y
+    Inner.BackgroundTransparency = 1
+    Inner.ZIndex = 53
+    Inner.Parent = Card
+
+    local Pad = Instance.new("UIPadding", Inner)
     Pad.PaddingTop, Pad.PaddingBottom = UDim.new(0, 16), UDim.new(0, 16)
     Pad.PaddingLeft, Pad.PaddingRight = UDim.new(0, 18), UDim.new(0, 18)
 
-    local List = Instance.new("UIListLayout", Card)
+    local List = Instance.new("UIListLayout", Inner)
     List.Padding = UDim.new(0, 10)
     List.SortOrder = Enum.SortOrder.LayoutOrder
 
@@ -1098,11 +1110,11 @@ function TryxzLib:Dialog(config)
     HeaderRow.LayoutOrder = 1
     HeaderRow.Size = UDim2.new(1, 0, 0, 22)
     HeaderRow.BackgroundTransparency = 1
-    HeaderRow.ZIndex = 52
-    HeaderRow.Parent = Card
+    HeaderRow.ZIndex = 54
+    HeaderRow.Parent = Inner
 
     local hasIcon = config.Icon ~= nil and tostring(config.Icon) ~= ""
-    if hasIcon then CreateIcon(HeaderRow, config.Icon, 18, UDim2.new(0, 0, 0.5, -9), 53) end
+    if hasIcon then CreateIcon(HeaderRow, config.Icon, 18, UDim2.new(0, 0, 0.5, -9), 55, Theme.Accent) end
 
     local TitleLbl = Instance.new("TextLabel")
     TitleLbl.Size = UDim2.new(1, hasIcon and -26 or 0, 1, 0)
@@ -1113,11 +1125,20 @@ function TryxzLib:Dialog(config)
     TitleLbl.Font = Enum.Font.GothamBold
     TitleLbl.TextSize = 14
     TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLbl.ZIndex = 53
+    TitleLbl.ZIndex = 55
     TitleLbl.Parent = HeaderRow
 
+    local SepLine = Instance.new("Frame")
+    SepLine.LayoutOrder = 2
+    SepLine.Size = UDim2.new(1, 0, 0, 1)
+    SepLine.BackgroundColor3 = Theme.Divider
+    SepLine.BackgroundTransparency = 0.4
+    SepLine.BorderSizePixel = 0
+    SepLine.ZIndex = 54
+    SepLine.Parent = Inner
+
     local BodyLbl = Instance.new("TextLabel")
-    BodyLbl.LayoutOrder = 2
+    BodyLbl.LayoutOrder = 3
     BodyLbl.Size = UDim2.new(1, 0, 0, 0)
     BodyLbl.AutomaticSize = Enum.AutomaticSize.Y
     BodyLbl.BackgroundTransparency = 1
@@ -1127,43 +1148,73 @@ function TryxzLib:Dialog(config)
     BodyLbl.TextSize = 11
     BodyLbl.TextWrapped = true
     BodyLbl.TextXAlignment = Enum.TextXAlignment.Left
-    BodyLbl.ZIndex = 52
-    BodyLbl.Parent = Card
+    BodyLbl.ZIndex = 54
+    BodyLbl.Parent = Inner
 
     local BtnRow = Instance.new("Frame")
-    BtnRow.LayoutOrder = 3
-    BtnRow.Size = UDim2.new(1, 0, 0, 32)
+    BtnRow.LayoutOrder = 4
+    BtnRow.Size = UDim2.new(1, 0, 0, 34)
     BtnRow.BackgroundTransparency = 1
-    BtnRow.ZIndex = 52
-    BtnRow.Parent = Card
+    BtnRow.ZIndex = 54
+    BtnRow.Parent = Inner
 
     local CancelBtn = Instance.new("TextButton")
     CancelBtn.Size = UDim2.new(0.48, 0, 1, 0)
     CancelBtn.BackgroundColor3 = Theme.Element
-    CancelBtn.Text = CancelText
-    CancelBtn.TextColor3 = Theme.SubText
-    CancelBtn.Font = Enum.Font.GothamSemibold
-    CancelBtn.TextSize = 12
+    CancelBtn.Text = ""
     CancelBtn.AutoButtonColor = false
     CancelBtn.ClipsDescendants = true
-    CancelBtn.ZIndex = 53
+    CancelBtn.ZIndex = 55
     CancelBtn.Parent = BtnRow
     Instance.new("UICorner", CancelBtn).CornerRadius = UDim.new(1, 0)
 
+    local CancelStroke = Instance.new("UIStroke", CancelBtn)
+    CancelStroke.Color = Theme.Divider
+    CancelStroke.Thickness = 1
+
+    local CancelLbl = Instance.new("TextLabel")
+    CancelLbl.Size = UDim2.new(1, 0, 1, 0)
+    CancelLbl.BackgroundTransparency = 1
+    CancelLbl.Text = CancelText
+    CancelLbl.TextColor3 = Theme.Text
+    CancelLbl.Font = Enum.Font.GothamSemibold
+    CancelLbl.TextSize = 12
+    CancelLbl.ZIndex = 56
+    CancelLbl.Parent = CancelBtn
+
+    -- Confirm Button with Separate Gradient Background Frame so Text is 100% Crisp & Visible
     local ConfirmBtn = Instance.new("TextButton")
     ConfirmBtn.Size = UDim2.new(0.48, 0, 1, 0)
     ConfirmBtn.Position = UDim2.new(0.52, 0, 0, 0)
-    ConfirmBtn.BackgroundColor3 = Color3.new(1, 1, 1)
-    ConfirmBtn.Text = ConfirmText
-    ConfirmBtn.TextColor3 = Theme.Text
-    ConfirmBtn.Font = Enum.Font.GothamBold
-    ConfirmBtn.TextSize = 12
+    ConfirmBtn.BackgroundTransparency = 1
+    ConfirmBtn.Text = ""
     ConfirmBtn.AutoButtonColor = false
     ConfirmBtn.ClipsDescendants = true
-    ConfirmBtn.ZIndex = 53
+    ConfirmBtn.ZIndex = 55
     ConfirmBtn.Parent = BtnRow
     Instance.new("UICorner", ConfirmBtn).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(ConfirmBtn, 0)
+
+    local ConfirmBg = Instance.new("Frame")
+    ConfirmBg.Size = UDim2.new(1, 0, 1, 0)
+    ConfirmBg.BackgroundColor3 = Color3.new(1, 1, 1)
+    ConfirmBg.BorderSizePixel = 0
+    ConfirmBg.ZIndex = 55
+    ConfirmBg.Parent = ConfirmBtn
+    Instance.new("UICorner", ConfirmBg).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(ConfirmBg, 0)
+    AttachShimmer(ConfirmBg, 2.8)
+
+    local ConfirmLbl = Instance.new("TextLabel")
+    ConfirmLbl.Size = UDim2.new(1, 0, 1, 0)
+    ConfirmLbl.BackgroundTransparency = 1
+    ConfirmLbl.Text = ConfirmText
+    ConfirmLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ConfirmLbl.TextStrokeColor3 = Color3.fromRGB(10, 10, 16)
+    ConfirmLbl.TextStrokeTransparency = 0.65
+    ConfirmLbl.Font = Enum.Font.GothamBold
+    ConfirmLbl.TextSize = 12
+    ConfirmLbl.ZIndex = 58
+    ConfirmLbl.Parent = ConfirmBtn
 
     local function CloseDialog(cb)
         TryxzLib:PlaySound("Click")
@@ -1193,7 +1244,7 @@ local function CheckKeyValid(KeyConfig, entered)
 end
 
 -- ==========================================
--- KEY SYSTEM
+-- KEY SYSTEM (CRISP BUTTON TEXT + COMPACT LAYOUT)
 -- ==========================================
 local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OnSuccess)
     SetBlurActive(true)
@@ -1430,15 +1481,23 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     local AccessBtn = Instance.new("TextButton")
     AccessBtn.LayoutOrder = 6
     AccessBtn.Size = UDim2.new(1, 0, 0, 34)
-    AccessBtn.BackgroundColor3 = Color3.new(1, 1, 1)
+    AccessBtn.BackgroundTransparency = 1
     AccessBtn.Text = ""
     AccessBtn.AutoButtonColor = false
     AccessBtn.ClipsDescendants = true
     AccessBtn.ZIndex = 13
     AccessBtn.Parent = KInner
     Instance.new("UICorner", AccessBtn).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(AccessBtn, 0)
-    AttachShimmer(AccessBtn, 3.2)
+
+    local AccessBg = Instance.new("Frame")
+    AccessBg.Size = UDim2.new(1, 0, 1, 0)
+    AccessBg.BackgroundColor3 = Color3.new(1, 1, 1)
+    AccessBg.BorderSizePixel = 0
+    AccessBg.ZIndex = 13
+    AccessBg.Parent = AccessBtn
+    Instance.new("UICorner", AccessBg).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(AccessBg, 0)
+    AttachShimmer(AccessBg, 3.2)
 
     local KBtnText = KeyConfig.ButtonText or "Unlock Access"
     local AccLbl = Instance.new("TextLabel")
@@ -1446,10 +1505,12 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccLbl.Position = UDim2.new(0, 14, 0, 0)
     AccLbl.BackgroundTransparency = 1
     AccLbl.Text = KBtnText
-    AccLbl.TextColor3 = Theme.Text
+    AccLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    AccLbl.TextStrokeColor3 = Color3.fromRGB(10, 10, 16)
+    AccLbl.TextStrokeTransparency = 0.65
     AccLbl.Font = Enum.Font.GothamBold
     AccLbl.TextSize = 12
-    AccLbl.ZIndex = 14
+    AccLbl.ZIndex = 16
     AccLbl.Parent = AccessBtn
 
     local AccBadge = Instance.new("Frame")
@@ -1457,7 +1518,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccBadge.Position = UDim2.new(1, -29, 0.5, -11)
     AccBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     AccBadge.BackgroundTransparency = 0.85
-    AccBadge.ZIndex = 14
+    AccBadge.ZIndex = 15
     AccBadge.Parent = AccessBtn
     Instance.new("UICorner", AccBadge).CornerRadius = UDim.new(1, 0)
 
@@ -1465,10 +1526,10 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
     AccArrow.Size = UDim2.new(1, 0, 1, 0)
     AccArrow.BackgroundTransparency = 1
     AccArrow.Text = "→"
-    AccArrow.TextColor3 = Theme.Text
+    AccArrow.TextColor3 = Color3.fromRGB(255, 255, 255)
     AccArrow.Font = Enum.Font.GothamBold
     AccArrow.TextSize = 13
-    AccArrow.ZIndex = 15
+    AccArrow.ZIndex = 16
     AccArrow.Parent = AccBadge
 
     if KeyConfig.GetKeyLink and tostring(KeyConfig.GetKeyLink) ~= "" then
@@ -2045,7 +2106,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return WrapElementControls(Btn, bCfg)
     end
 
-    -- 7. MULTI-BUTTON ROW
+    -- 7. MULTI-BUTTON ROW (Crisp Text over Gradient)
     function API:AddButtonRow(buttonsList)
         buttonsList = buttonsList or {}
         local count = math.clamp(#buttonsList, 1, 4)
@@ -2066,6 +2127,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             SubBtn.Size = UDim2.new(wScale, wOffset, 1, 0)
             SubBtn.Position = UDim2.new(wScale * (idx - 1), xOffset, 0, 0)
             SubBtn.BackgroundColor3 = bCfg.Accent and Color3.new(1, 1, 1) or Theme.Element
+            SubBtn.BackgroundTransparency = bCfg.Accent and 1 or 0
             SubBtn.Text = ""
             SubBtn.AutoButtonColor = false
             SubBtn.ClipsDescendants = true
@@ -2075,11 +2137,18 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             AttachTooltip(SubBtn, bCfg.Tooltip)
 
             if bCfg.Accent then
-                ApplyAccentGradient(SubBtn, 0)
+                local Bg = Instance.new("Frame")
+                Bg.Size = UDim2.new(1, 0, 1, 0)
+                Bg.BackgroundColor3 = Color3.new(1, 1, 1)
+                Bg.BorderSizePixel = 0
+                Bg.ZIndex = 2
+                Bg.Parent = SubBtn
+                Instance.new("UICorner", Bg).CornerRadius = UDim.new(0, 11)
+                ApplyAccentGradient(Bg, 0)
             end
 
             if hasIcon then
-                CreateIcon(SubBtn, bCfg.Icon, 13, UDim2.new(0, 8, 0.5, -6.5), 3)
+                CreateIcon(SubBtn, bCfg.Icon, 13, UDim2.new(0, 8, 0.5, -6.5), 4)
             end
 
             local Lbl = Instance.new("TextLabel")
@@ -2087,12 +2156,12 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             Lbl.Position = UDim2.new(0, hasIcon and 24 or 5, 0, 0)
             Lbl.BackgroundTransparency = 1
             Lbl.Text = tostring(bCfg.Name or "Action")
-            Lbl.TextColor3 = Theme.Text
+            Lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
             Lbl.Font = Enum.Font.GothamBold
             Lbl.TextSize = 11
             Lbl.TextXAlignment = hasIcon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
             Lbl.TextTruncate = Enum.TextTruncate.AtEnd
-            Lbl.ZIndex = 3
+            Lbl.ZIndex = 5
             Lbl.Parent = SubBtn
 
             SubBtn.MouseButton1Click:Connect(function()
@@ -3446,7 +3515,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW + ORDERED SCI-FI SETTINGS GEAR (⚙)
+-- CREATE MAIN WINDOW + SPECIAL GLOWING CREDITS LABEL IN GEAR (⚙)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -4137,7 +4206,7 @@ function TryxzLib:CreateWindow(config)
     end
 
     -- ==========================================
-    -- ORDERED & FUTURISTIC SCI-FI GEAR (⚙) SETTINGS MENU
+    -- ORDERED SCI-FI GEAR (⚙) SETTINGS MENU + SPECIAL GLOWING ARCHITECT CREDITS LABEL
     -- ==========================================
     local SettingsPage = Instance.new("ScrollingFrame")
     SettingsPage.Size = UDim2.new(1, 0, 1, 0)
@@ -4227,74 +4296,126 @@ function TryxzLib:CreateWindow(config)
         end
     end
 
-    -- 1. CORE SYSTEM BANNER CARD
-    local CreditsCard = Instance.new("Frame")
-    CreditsCard.LayoutOrder = 1
-    CreditsCard.Size = UDim2.new(1, 0, 0, 62)
-    CreditsCard.BackgroundColor3 = Theme.Element
-    CreditsCard.ClipsDescendants = true
-    CreditsCard.ZIndex = 11
-    CreditsCard.Parent = SettingsPage
-    Instance.new("UICorner", CreditsCard).CornerRadius = UDim.new(0, 12)
-    BindTheme(CreditsCard, "BackgroundColor3", "Element")
-    AttachShimmer(CreditsCard, 4.2)
+    -- 1. SPECIAL GLOWING HOLOGRAPHIC ARCHITECT CREDITS LABEL
+    local ArchitectCreditsCard = Instance.new("Frame")
+    ArchitectCreditsCard.Name = "ArchitectCreditsCard"
+    ArchitectCreditsCard.LayoutOrder = 1
+    ArchitectCreditsCard.Size = UDim2.new(1, 0, 0, 74)
+    ArchitectCreditsCard.BackgroundColor3 = Theme.Element
+    ArchitectCreditsCard.ClipsDescendants = true
+    ArchitectCreditsCard.ZIndex = 11
+    ArchitectCreditsCard.Parent = SettingsPage
+    Instance.new("UICorner", ArchitectCreditsCard).CornerRadius = UDim.new(0, 14)
+    BindTheme(ArchitectCreditsCard, "BackgroundColor3", "Element")
 
-    local CStroke = Instance.new("UIStroke", CreditsCard)
+    -- Animated Dual-Gradient Border + Internal Particles + Shimmer
+    local CStroke = Instance.new("UIStroke", ArchitectCreditsCard)
     CStroke.Color = Color3.new(1, 1, 1)
-    CStroke.Thickness = 1.4
-    ApplyAccentGradient(CStroke, 0, true)
+    CStroke.Thickness = 1.6
+    ApplyAccentGradient(CStroke, 45, true)
 
-    local LeftStrip = Instance.new("Frame")
-    LeftStrip.Size = UDim2.new(0, 4, 1, -14)
-    LeftStrip.Position = UDim2.new(0, 6, 0, 7)
-    LeftStrip.BackgroundColor3 = Color3.new(1, 1, 1)
-    LeftStrip.ZIndex = 12
-    LeftStrip.Parent = CreditsCard
-    Instance.new("UICorner", LeftStrip).CornerRadius = UDim.new(1, 0)
-    ApplyAccentGradient(LeftStrip, 90)
+    AttachParticleCanvas(ArchitectCreditsCard, 10)
+    AttachShimmer(ArchitectCreditsCard, 3.0)
 
-    local StatusBadge = Instance.new("TextLabel")
-    StatusBadge.Size = UDim2.new(0, 56, 0, 16)
-    StatusBadge.Position = UDim2.new(1, -66, 0, 8)
-    StatusBadge.BackgroundColor3 = Theme.Background
-    StatusBadge.Text = "● ONLINE"
-    StatusBadge.TextColor3 = Theme.Success
-    StatusBadge.Font = Enum.Font.GothamBlack
-    StatusBadge.TextSize = 8
-    StatusBadge.ZIndex = 12
-    StatusBadge.Parent = CreditsCard
-    Instance.new("UICorner", StatusBadge).CornerRadius = UDim.new(1, 0)
+    -- Top Glowing Gradient Crown Bar
+    local TopCrownBar = Instance.new("Frame")
+    TopCrownBar.Size = UDim2.new(0.75, 0, 0, 2)
+    TopCrownBar.Position = UDim2.new(0.125, 0, 0, 0)
+    TopCrownBar.BackgroundColor3 = Color3.new(1, 1, 1)
+    TopCrownBar.BorderSizePixel = 0
+    TopCrownBar.ZIndex = 14
+    TopCrownBar.Parent = ArchitectCreditsCard
+    ApplyAccentGradient(TopCrownBar, 0)
+
+    -- Left Glowing Emblem Badge
+    local EmblemBadge = Instance.new("Frame")
+    EmblemBadge.Size = UDim2.new(0, 42, 0, 42)
+    EmblemBadge.Position = UDim2.new(0, 12, 0.5, -21)
+    EmblemBadge.BackgroundColor3 = Theme.Background
+    EmblemBadge.ZIndex = 13
+    EmblemBadge.Parent = ArchitectCreditsCard
+    Instance.new("UICorner", EmblemBadge).CornerRadius = UDim.new(0, 12)
+
+    local EmblemStroke = Instance.new("UIStroke", EmblemBadge)
+    EmblemStroke.Color = Color3.new(1, 1, 1)
+    EmblemStroke.Thickness = 1.4
+    ApplyAccentGradient(EmblemStroke, 0, true)
+
+    local EmblemStar = Instance.new("TextLabel")
+    EmblemStar.Size = UDim2.new(1, 0, 1, 0)
+    EmblemStar.BackgroundTransparency = 1
+    EmblemStar.Text = "✦"
+    EmblemStar.TextColor3 = Theme.Accent
+    EmblemStar.Font = Enum.Font.GothamBlack
+    EmblemStar.TextSize = 20
+    EmblemStar.ZIndex = 14
+    EmblemStar.Parent = EmblemBadge
+    BindAccent(EmblemStar, "TextColor3")
+
+    -- Top-Right Architect Role Pill
+    local RolePill = Instance.new("Frame")
+    RolePill.Size = UDim2.new(0, 78, 0, 16)
+    RolePill.Position = UDim2.new(1, -88, 0, 10)
+    RolePill.BackgroundColor3 = Color3.new(1, 1, 1)
+    RolePill.ZIndex = 13
+    RolePill.Parent = ArchitectCreditsCard
+    Instance.new("UICorner", RolePill).CornerRadius = UDim.new(1, 0)
+    ApplyAccentGradient(RolePill, 0)
+
+    local RoleLbl = Instance.new("TextLabel")
+    RoleLbl.Size = UDim2.new(1, 0, 1, 0)
+    RoleLbl.BackgroundTransparency = 1
+    RoleLbl.Text = "★ CREATOR"
+    RoleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    RoleLbl.TextStrokeColor3 = Color3.fromRGB(10, 10, 16)
+    RoleLbl.TextStrokeTransparency = 0.65
+    RoleLbl.Font = Enum.Font.GothamBlack
+    RoleLbl.TextSize = 8
+    RoleLbl.ZIndex = 14
+    RoleLbl.Parent = RolePill
 
     local CTitle = Instance.new("TextLabel")
-    CTitle.Size = UDim2.new(1, -88, 0, 18)
-    CTitle.Position = UDim2.new(0, 16, 0, 7)
+    CTitle.Size = UDim2.new(1, -155, 0, 18)
+    CTitle.Position = UDim2.new(0, 62, 0, 9)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v4.3  •  CORE HUD"
-    CTitle.TextColor3 = Theme.Accent
-    CTitle.Font = Enum.Font.GothamBold
-    CTitle.TextSize = 12
+    CTitle.Text = "TryxzLib v4.4"
+    CTitle.TextColor3 = Theme.Text
+    CTitle.Font = Enum.Font.GothamBlack
+    CTitle.TextSize = 13
     CTitle.TextXAlignment = Enum.TextXAlignment.Left
-    CTitle.ZIndex = 12
-    CTitle.Parent = CreditsCard
-    BindAccent(CTitle, "TextColor3")
+    CTitle.ZIndex = 13
+    CTitle.Parent = ArchitectCreditsCard
+    BindTheme(CTitle, "TextColor3", "Text")
+
+    local AuthorGlowLbl = Instance.new("TextLabel")
+    AuthorGlowLbl.Size = UDim2.new(1, -72, 0, 15)
+    AuthorGlowLbl.Position = UDim2.new(0, 62, 0, 27)
+    AuthorGlowLbl.BackgroundTransparency = 1
+    AuthorGlowLbl.Text = "Crafted & Engineered by gthsc51"
+    AuthorGlowLbl.TextColor3 = Theme.Accent
+    AuthorGlowLbl.Font = Enum.Font.GothamBold
+    AuthorGlowLbl.TextSize = 10
+    AuthorGlowLbl.TextXAlignment = Enum.TextXAlignment.Left
+    AuthorGlowLbl.ZIndex = 13
+    AuthorGlowLbl.Parent = ArchitectCreditsCard
+    BindAccent(AuthorGlowLbl, "TextColor3")
 
     local CDesc = Instance.new("TextLabel")
-    CDesc.Size = UDim2.new(1, -24, 0, 28)
-    CDesc.Position = UDim2.new(0, 16, 0, 25)
+    CDesc.Size = UDim2.new(1, -72, 0, 22)
+    CDesc.Position = UDim2.new(0, 62, 0, 43)
     CDesc.BackgroundTransparency = 1
-    CDesc.Text = "Created by gthsc51  |  Toggle Key: [" .. Cfg.Keybind.Name .. "]\nConfigure themes, viewport scale, keybinds, audio & profiles below."
+    CDesc.Text = "Toggle HUD: [" .. Cfg.Keybind.Name .. "]  •  github.com/gthsc51/TryxzLib-"
     CDesc.TextColor3 = Theme.SubText
     CDesc.Font = Enum.Font.Gotham
-    CDesc.TextSize = 10
+    CDesc.TextSize = 9
     CDesc.TextWrapped = true
     CDesc.TextXAlignment = Enum.TextXAlignment.Left
-    CDesc.ZIndex = 12
-    CDesc.Parent = CreditsCard
+    CDesc.ZIndex = 13
+    CDesc.Parent = ArchitectCreditsCard
 
     -- SECTION 01: VISUALS & THEMES
     AddSciFiGearHeader(2, "01", "Visuals & Themes")
 
-    -- Theme Palette Selector Card
     local ThemeCard = Instance.new("Frame")
     ThemeCard.LayoutOrder = 3
     ThemeCard.Size = UDim2.new(1, 0, 0, 52)
@@ -4429,7 +4550,7 @@ function TryxzLib:CreateWindow(config)
     ScaleValLbl.Size = UDim2.new(1, 0, 1, 0)
     ScaleValLbl.BackgroundTransparency = 1
     ScaleValLbl.Text = string.format("%.2fx", Cfg.UIScale)
-    ScaleValLbl.TextColor3 = Theme.Text
+    ScaleValLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     ScaleValLbl.Font = Enum.Font.GothamBlack
     ScaleValLbl.TextSize = 10
     ScaleValLbl.ZIndex = 13
@@ -4912,7 +5033,7 @@ function TryxzLib:CreateWindow(config)
         WriteConfigFile()
     end)
 
-    -- SECTION 04: CONFIG PROFILES & SESSION (Clean Local Profiles Only)
+    -- SECTION 04: PROFILES & SESSION
     AddSciFiGearHeader(12, "04", "Profiles & Session")
 
     if Cfg.SaveEnabled then
