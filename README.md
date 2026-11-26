@@ -19,81 +19,72 @@
                         `--`                                                                
 ```
 
-# TryxzLib v3.9
+# TryxzLib v4.5 | by gthsc51 
 
-### A Modular, Animated & Theme-Driven Luau UI Library for Roblox Executors
+### Futuristic Sci-Fi HUD & Modular Luau UI Library for Roblox Executors
 
-[![Version](https://img.shields.io/badge/Version-v3.9-7355FF?style=for-the-badge&logo=lua&logoColor=white)](https://github.com/gthsc51/TryxzLib-)
+[![Version](https://img.shields.io/badge/Version-v4.5-7355FF?style=for-the-badge&logo=lua&logoColor=white)](https://github.com/gthsc51/TryxzLib-)
 [![Language](https://img.shields.io/badge/Language-Luau-3898FF?style=for-the-badge)](https://luau-lang.org/)
-[![Author](https://img.shields.io/badge/Author-gthsc51-2ECC71?style=for-the-badge&logo=github&logoColor=white)](https://github.com/gthsc51)
-[![Platform](https://img.shields.io/badge/Platform-Executor%20Ready-EC5FB9?style=for-the-badge)](https://github.com/gthsc51/TryxzLib-)
+[![Author](https://img.shields.io/badge/Architect-gthsc51-FFD741?style=for-the-badge&logo=github&logoColor=black)](https://github.com/gthsc51)
+[![Status](https://img.shields.io/badge/HUD-Sci--Fi%20Core-2ECC71?style=for-the-badge)](https://github.com/gthsc51/TryxzLib-)
 
 ---
 
-![Cyberpunk Workspace Banner](https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1400&q=80)
+![Futuristic Sci-Fi HUD Banner](https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1400&q=80)
 
 </div>
 
-> **TryxzLib v3.9** is engineered for smooth performance, visual polish, and clean script organization. It separates structural layout elements (**Sections**, **Dividers**, **Labels**, and **Paragraphs**) from interactive controls, introduces **6 full color themes** plus custom theme support, renders clean icon badges inside **Dropdowns** and **Multi-Dropdowns**, includes a translucent white bottom drag bar, and provides a richly decorated **Settings (`⚙`)** panel with function keybinds, sound packs, diamond viewport scaling, and multi-profile configuration saving.
+> **TryxzLib v4.5** is a high-visual-impact, futuristic Sci-Fi HUD UI library engineered in Luau for Roblox executors. It features **dual-gradient rotating neon borders**, an **ambient particle constellation canvas**, **holographic scanlines with vertical laser sweeps**, **cyber-decode text animations**, **click ripple waves**, a **sound & FPS reactive pulse aura**, an ordered **4-section Gear (`⚙`) Settings Menu** with a **glowing gold Architect Credits card**, and a rich suite of interactive and structural components.
 
 ---
 
-## Color Themes
+## Dual-Gradient Color Themes
 
-Every built-in theme updates the entire UI color palette dynamically—including background, sidebar, elements, hover states, dividers, text hierarchy, and accent colors.
+Every built-in theme dynamically updates the entire HUD palette—including dual-tone gradients (`Accent` $\rightarrow$ `AccentSecondary`), borders, particles, scanlines, cards, and typography.
 
-| Theme Name | Accent | Background | Sidebar | Element | Vibe |
+| Theme Name | Primary Accent | Secondary Glow | Background | Sidebar | Aesthetic |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Obsidian** | `#7355FF` | `#101014` | `#16161C` | `#1E1E26` | Deep dark with violet glow |
-| **Crimson Night** | `#EB445A` | `#140E10` | `#1C1216` | `#26181D` | Charcoal shadow with crimson highlights |
-| **Abyss Ocean** | `#3898FF` | `#0D121A` | `#121924` | `#192230` | Midnight navy with ocean blue |
-| **Emerald Forest** | `#2ECC71` | `#0D1612` | `#121E18` | `#182820` | Dark woodland with emerald green |
-| **Solar Amber** | `#F5B22D` | `#16130E` | `#1E1A13` | `#282319` | Warm graphite with golden amber |
-| **Sakura Dusk** | `#EC5FB9` | `#160F18` | `#1E1421` | `#281B2C` | Twilight plum with neon rose |
+| **Obsidian** | `#7355FF` | `#B96EFF` | `#0D0D12` | `#13131A` | Deep void dark with electric violet |
+| **Crimson Night** | `#EE4158` | `#FF825A` | `#120C0E` | `#1A1014` | Charcoal shadow with crimson plasma |
+| **Abyss Ocean** | `#3498FF` | `#32E6EE` | `#0B1018` | `#101722` | Midnight trench with cyan-blue neon |
+| **Emerald Forest** | `#2CD073` | `#73F2A0` | `#0B1410` | `#101C16` | Dark bio-grid with emerald mint |
+| **Solar Amber** | `#F8B42A` | `#FF763A` | `#14110C` | `#1C1811` | Warm obsidian with solar gold |
+| **Sakura Dusk** | `#F05CBC` | `#A566FF` | `#140D16` | `#1C121F` | Twilight plum with neon magenta |
 
 ---
 
-## Features & Architecture
+## Visual Engine & Architecture
 
-![Modular UI Architecture](https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=80)
+![Modular Sci-Fi Architecture](https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=80)
 
-### Structural Hierarchy Elements
-- **Sections (`AddSection`):** Clean section headers featuring a vertical accent pill, optional icon, bold uppercase typography, and a fading divider line on the right.
-- **Dividers (`AddDivider`):** Fading gradient horizontal lines with a glowing diamond center node or an optional centered label badge.
-- **Labels (`AddLabel`):** Dedicated status cards with an accent stripe on the left and a status icon for live readouts (`Label:Set(...)`).
-- **Paragraphs (`AddParagraph`):** Structured info cards with a titled header, optional icon, internal separator line, and wrapped body text.
+### Futuristic HUD Effects
+* **Particle Constellation Canvas (`ParticleCanvas`):** Subtle floating luminous micro-particles drifting inside the main window and key system modal.
+* **Holographic Scanlines & Laser Sweep (`HoloGrid`):** Fine HUD horizontal grid lines paired with a continuous vertical scanning laser beam.
+* **Cyber-Decode Text (`ScrambleText`):** Rapid glyph-decoding animation when switching tabs, rendering sections, or launching the window.
+* **Click Ripple Waves (`SpawnRipple`):** Expanding translucent ripples originating from the exact tap/click coordinates on buttons and tabs.
+* **Reactive Pulse Aura (`PulseAura`):** Outer ambient glow behind the window that breathes with live FPS and pulses whenever UI audio cues trigger.
+* **Diagonal Shimmer Sweeps (`AttachShimmer`):** Periodic light beams across the topbar, primary action buttons, and credits card.
 
-### Window, Navigation & Dragging
-- **Long Tab Name Support:** Automatically adapts tab row sizing and sidebar width so long tab titles remain clear and readable.
-- **Horizontal Sub-Tabs (`AddSubTab`):** Organizes complex tabs into clean sub-pages with pill-style tab buttons.
-- **Live Element Search (`SearchBar`):** Filters matching controls across tabs in real time.
-- **Live Stats Pill (`Stats`):** Displays real-time **FPS** and **Ping (`ms`)** in the top bar.
-- **Bottom Translucent White Drag Bar & Topbar Drag:** Move the UI smoothly from the topbar or the translucent white bar underneath the window.
-- **Minimize (`-`), Floating Collapse (`UI`), Toggle Key & Unload:** Minimize to topbar, collapse into a draggable floating `UI` pill, toggle visibility via keybind (e.g., `RightControl`), or unload cleanly.
-- **Camera Glass Blur (`Blur`):** Smoothly blurs the camera while the window is open and clears when minimized, collapsed, or closed.
+### Structural & Interactive Controls
+* **Layout Hierarchy:** `AddSection` (with accent pill & gradient trail), `AddDivider` (with glowing diamond node or centered label), `AddLabel` (live status card), and `AddParagraph` (structured info card).
+* **Navigation:** Long tab name auto-scaling, glowing tab badges (`Tab:SetBadge("v4.5")`), horizontal sub-tabs (`AddSubTab`), live element `SearchBar`, real-time FPS/Ping pill, floating `UI` collapse pill, minimize `-`, and a translucent white bottom drag bar.
+* **Interactive Controls:**
+  * `AddButton` (with icons, custom sound IDs, and timed `Cooldown` progress bar) & `AddButtonRow` (2–4 compact buttons in one row)
+  * `AddToggle` (with `Flag` saving and bindable `Keybind`)
+  * `AddSlider` & `AddRangeSlider` (dual-thumb `Min`/`Max` range selector)
+  * `AddInput` (text & `Numeric` modes) & `AddKeybind`
+  * `AddColorPicker` (HSV picker + editable `#HEX` input + automatic `Rainbow` mode)
+  * `AddProgressBar` (animated bar with percentage or custom text)
+  * `AddDropdown`, `AddMultiDropdown`, and `AddPlayerDropdown` (auto-syncing live server players with avatar thumbnails and search filtering)
+  * `AddConsole` (embedded terminal with timestamps, color-coded log levels, auto-scroll, and `Clear`)
+  * **Control Modifiers:** `Element:SetLocked(true, "Reason")` and dynamic `VisibleIf = function() ... end`.
 
-### Interactive Controls
-- **Buttons (`AddButton`):** Supports icons, custom sound IDs/presets, hover animations, and timed `Cooldown` progress overlays.
-- **Toggles (`AddToggle`):** Animated switch with `Flag` saving, optional default `Keybind`, tooltips, and programmatic `:Set(state)`.
-- **Sliders (`AddSlider`):** Smooth draggable track with live value label, `KeyStep` increments, `Flag` saving, and `:Set(value)`.
-- **Text Inputs (`AddInput`):** Supports placeholders, numeric-only mode (`Numeric = true`), `ClearOnFocus`, `Flag` saving, and `:Set(text)`.
-- **Keybind Pickers (`AddKeybind`):** Interactive key capture badge with `Flag` persistence.
-- **HSV Color Pickers (`AddColorPicker`):** Expandable Saturation/Value box and Hue bar with live color preview and `Flag` saving.
-- **Progress Bars (`AddProgressBar`):** Animated progress bar with percentage or custom suffix text (`:Set(val, customText)`).
-- **Dropdowns & Multi-Dropdowns (`AddDropdown`, `AddMultiDropdown`):** Smooth expand/collapse animations, clean icon badges (`Icon` and `OptionIcons`), single or multi-selection, and `Flag` persistence.
-
-### Decorated Gear (`⚙`) Settings Panel
-- **Function Keybinds Dropdown:** Lists registered bindable functions (`Toggle`, `Slider`, `Button`, etc.) inside the gear menu so users can assign, rebind, or clear keys with instant `UserInputService` execution and profile saving.
-- **UI Viewport Scale:** Segmented slider with a rotating diamond knob and `0.75x`–`1.35x` scaling.
-- **UI Theme Palette:** Interactive swatches to switch full themes immediately, plus **Camera Glass Blur**, **Haptic Feedback**, and **UI Sound Effects** toggles.
-- **Sound Packs & Custom Audio:** Built-in presets (`Soft Pop`, `Mechanical`, `Bubble`, `Cyber`), custom sound packs (`Packs`), and named custom sounds (`Custom`).
-- **Multi-Profile Config System (`SaveConfig`):** Save, load, and delete named JSON profiles (`Save`, `Load`, `Delete`), plus optional persistent key storage (`SaveKey`).
-
-### Key System (`KeySystem`)
-- Draggable verification card with a glowing red `X` close button.
-- Dedicated **`Note:`** section (defaults to `"There is no note at this time."` when empty/omitted).
-- Dedicated **`Info:`** paragraph section (defaults to `"There is no information at this time."` when omitted).
-- **`Copy Key Link`** button (`GetKeyLink`) with clipboard support and notification feedback.
+### Ordered Sci-Fi Gear (`⚙`) Settings Menu
+* **Glowing Gold Architect Credits Card:** Dedicated holographic card with animated gold gradient borders, golden particles, and creator badge for **`gthsc51`**.
+* **`01 // VISUALS & THEMES`:** Neural Theme Matrix swatches + HUD Viewport Scale (`0.75x`–`1.35x`) with `-`/`+` buttons and diamond knob.
+* **`02 // KEYBINDS MATRIX`:** Expandable Function Keybinds list to bind, rebind, or clear keys for script toggles, sliders, and buttons.
+* **`03 // SYSTEM & AUDIO`:** Diamond toggles for Camera Glass Blur, Haptic Feedback, UI Sound Effects, and cyclic Sound Pack switcher (`Soft Pop`, `Mechanical`, `Bubble`, `Cyber`).
+* **`04 // PROFILES & SESSION`:** Local multi-profile JSON manager (`Save`, `Load`, `Delete`) and `Unload / Destroy UI`.
 
 ---
 
@@ -104,49 +95,32 @@ local TryxzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gths
 
 local Window = TryxzLib:CreateWindow({
     Title = "TryxzHub",
-    Subtitle = "v3.9 | Full Showcase",
+    Subtitle = "v4.5 | Sci-Fi HUD",
     Icon = "rbxassetid://10734950309",
     Theme = "Obsidian",
+    NotifPosition = "BottomRight",
     Profile = true,
     Stats = true,
     SearchBar = true,
     Haptics = true,
-    Blur = {
-        Enabled = true,
-        Size = 14
-    },
+    Blur = { Enabled = true, Size = 14 },
     SaveConfig = {
         Enabled = true,
         SaveKey = false,
+        AutoLoadPlaceId = false,
         DefaultProfile = "default",
         Folder = "TryxzLibConfigs",
         FileName = "TryxzHub_Config"
     },
-    Sounds = {
-        Enabled = true,
-        Preset = "Soft Pop",
-        Volume = 0.45,
-        Custom = {
-            ["AlertSound"] = "rbxassetid://4590657391"
-        },
-        Packs = {
-            ["Retro Arcade"] = {
-                Click = "rbxassetid://12221967",
-                Hover = "rbxassetid://12221976",
-                Toggle = "rbxassetid://12221967",
-                Notify = "rbxassetid://12222030"
-            }
-        }
-    },
     ToggleKey = Enum.KeyCode.RightControl,
     KeySystem = {
-        Enabled = false,
+        Enabled = true,
         Title = "TryxzHub Key System",
         Icon = "rbxassetid://10723407389",
-        Note = "Enter your access key below or copy the link.",
+        Note = "Use key tryxz123 or copy the link below.",
         Info = {
             Title = "Access Info",
-            Content = "Keys are verified automatically when SaveKey is enabled."
+            Content = "Enter your key to unlock the Sci-Fi HUD."
         },
         Keys = {"tryxz123"},
         ButtonText = "Verify & Enter",
@@ -160,157 +134,109 @@ local Window = TryxzLib:CreateWindow({
 ## API Reference
 
 <details>
-<summary><strong>Tabs, Sub-Tabs & Structural Elements</strong></summary>
+<summary><strong>Tabs, Badges, Sub-Tabs & Structural Elements</strong></summary>
 
 ```lua
-local MainTab = Window:CreateTab("Main Controls", "rbxassetid://10747373176")
-local SubTab = MainTab:AddSubTab("General")
+local MainTab = Window:CreateTab("General", "rbxassetid://10747373176")
+MainTab:SetBadge("NEW")
 
-SubTab:AddSection("Player Status", "rbxassetid://10734950309")
+local SubA = MainTab:AddSubTab("Controls")
 
-local StatusLabel = SubTab:AddLabel("Status: Idle", "ℹ")
-StatusLabel:Set("Status: Active")
+SubA:AddSection("Player Telemetry", "rbxassetid://10734950309")
 
-SubTab:AddParagraph({
-    Title = "Overview",
+local StatusLbl = SubA:AddLabel("Status: Ready")
+StatusLbl:Set("Status: Active")
+
+SubA:AddParagraph({
+    Title = "System Notice",
     Icon = "rbxassetid://10723407389",
-    Content = "Configure movement, visuals, and keybinds from this tab."
+    Content = "Structured card with internal separator."
 })
 
-SubTab:AddDivider("Actions")
+SubA:AddDivider("Actions")
 ```
 
 </details>
 
 <details>
-<summary><strong>Buttons, Toggles, Sliders, Inputs, Keybinds, ColorPickers & ProgressBars</strong></summary>
+<summary><strong>Interactive Controls, RangeSlider, PlayerDropdown & Console</strong></summary>
 
 ```lua
-SubTab:AddProgressBar({
-    Name = "Stamina",
-    Max = 100,
-    Default = 50,
-    Tooltip = "Live progress bar"
+local SelectedPlr = ""
+SubA:AddPlayerDropdown({
+    Name = "Target Player",
+    Flag = "TargetPlrDrop",
+    Callback = function(name)
+        SelectedPlr = name
+    end
 })
 
-SubTab:AddButton({
-    Name = "Run Action",
+SubA:AddButtonRow({
+    { Name = "Teleport", Icon = "rbxassetid://10734950309", Accent = true, Callback = function() end },
+    { Name = "Alert", Icon = "rbxassetid://10723407389", Callback = function()
+        TryxzLib:Banner({ Text = "Target: " .. SelectedPlr, Duration = 3 })
+    end }
+})
+
+local ShowRange = false
+SubA:AddToggle({
+    Name = "Enable Random Delay",
+    Flag = "DelayToggle",
+    Keybind = Enum.KeyCode.V,
+    Default = false,
+    Callback = function(v) ShowRange = v end
+})
+
+SubA:AddRangeSlider({
+    Name = "Delay Range (ms)",
+    Flag = "DelayRange",
+    Min = 50,
+    Max = 1000,
+    DefaultMin = 150,
+    DefaultMax = 450,
+    VisibleIf = function() return ShowRange end,
+    Callback = function(low, high)
+        print("Delay:", low, high)
+    end
+})
+
+SubA:AddColorPicker({
+    Name = "Highlight Color",
+    Flag = "ColorFlag",
+    Default = Color3.fromRGB(115, 85, 255),
+    Callback = function(col) end
+})
+
+local Console = SubA:AddConsole({ Name = "Terminal", Height = 130 })
+Console:Log("System initialized.", "Success")
+```
+
+</details>
+
+<details>
+<summary><strong>Dialogs, Interactive Notifications & Global Methods</strong></summary>
+
+```lua
+TryxzLib:Dialog({
+    Title = "Confirm Action",
     Icon = "rbxassetid://10734933222",
-    Cooldown = 2,
-    Keybind = Enum.KeyCode.R,
-    Tooltip = "Executes action with a 2s cooldown",
-    Callback = function()
+    Content = "Proceed with this operation?",
+    ConfirmText = "Confirm",
+    CancelText = "Cancel",
+    OnConfirm = function()
         TryxzLib:Notify({
-            Title = "Executed",
-            Text = "Action triggered successfully.",
-            Duration = 3
+            Title = "Confirmed",
+            Text = "Action executed.",
+            Duration = 4,
+            Actions = {
+                { Text = "OK", Callback = function() end }
+            }
         })
     end
 })
 
-SubTab:AddToggle({
-    Name = "Enable Speed",
-    Icon = "rbxassetid://10734950309",
-    Flag = "SpeedToggle",
-    Keybind = Enum.KeyCode.V,
-    Default = false,
-    Callback = function(state)
-        print("Speed enabled:", state)
-    end
-})
-
-SubTab:AddSlider({
-    Name = "WalkSpeed",
-    Flag = "WalkSpeedSlider",
-    Min = 16,
-    Max = 250,
-    Default = 16,
-    KeyStep = 20,
-    Keybind = Enum.KeyCode.B,
-    Callback = function(value)
-        print("WalkSpeed:", value)
-    end
-})
-
-SubTab:AddInput({
-    Name = "Player Filter",
-    Flag = "FilterInput",
-    Placeholder = "Enter name...",
-    Numeric = false,
-    ClearOnFocus = false,
-    Callback = function(text, enterPressed)
-        print("Input:", text, enterPressed)
-    end
-})
-
-SubTab:AddKeybind({
-    Name = "Quick Keybind",
-    Flag = "QuickKeybind",
-    Default = Enum.KeyCode.G,
-    Callback = function(key)
-        print("Pressed key:", key.Name)
-    end
-})
-
-SubTab:AddColorPicker({
-    Name = "Accent Color",
-    Flag = "AccentColorPicker",
-    Default = Color3.fromRGB(115, 85, 255),
-    Callback = function(color)
-        TryxzLib:SetAccent(color)
-    end
-})
-```
-
-</details>
-
-<details>
-<summary><strong>Dropdowns, Multi-Dropdowns, Dialogs & Global Helpers</strong></summary>
-
-```lua
-SubTab:AddDropdown({
-    Name = "Select Theme",
-    Icon = "rbxassetid://10734950309",
-    Flag = "ThemeSelector",
-    Options = { "Obsidian", "Crimson Night", "Abyss Ocean", "Emerald Forest", "Solar Amber", "Sakura Dusk" },
-    OptionIcons = {
-        ["Obsidian"] = "💜",
-        ["Crimson Night"] = "❤️",
-        ["Abyss Ocean"] = "💙",
-        ["Emerald Forest"] = "💚",
-        ["Solar Amber"] = "💛",
-        ["Sakura Dusk"] = "🩷"
-    },
-    Default = "Obsidian",
-    Callback = function(selectedTheme)
-        TryxzLib:SetTheme(selectedTheme)
-    end
-})
-
-SubTab:AddMultiDropdown({
-    Name = "Active Features",
-    Icon = "rbxassetid://10734933222",
-    Flag = "ActiveFeaturesMulti",
-    Options = { "ESP", "Tracers", "Radar" },
-    Default = { "ESP" },
-    Callback = function(selectedList)
-        print("Selected:", table.concat(selectedList, ", "))
-    end
-})
-
-TryxzLib:Dialog({
-    Title = "Confirm Reset",
-    Icon = "rbxassetid://10734933222",
-    Content = "Reset current settings to default?",
-    ConfirmText = "Confirm",
-    CancelText = "Cancel",
-    OnConfirm = function()
-        print("Confirmed")
-    end
-})
-
 TryxzLib:SetTheme("Abyss Ocean")
-TryxzLib:SetSoundPreset("Mechanical")
+TryxzLib:SetSoundPreset("Cyber")
 TryxzLib:RegisterSound("CustomPing", "rbxassetid://6895079853")
 TryxzLib:PlaySound("CustomPing")
 ```
@@ -321,4 +247,4 @@ TryxzLib:PlaySound("CustomPing")
 
 ## Credits
 
-Created and maintained by **[gthsc51](https://github.com/gthsc51)**. 
+Crafted and engineered by **[gthsc51](https://github.com/gthsc51)**. 
