@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v5.0 by gthsc51
-    Apex Sci-Fi HUD Edition: Overhauled Notifications, Banners, Toggles, Sliders, Labels, Paragraphs, Buttons & Gold Architect Card
+    TryxzLib v5.1 by gthsc51
+    Apex Sci-Fi HUD Edition: Complete Overhaul of Every Single UI Component
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -867,7 +867,7 @@ local function AttachTooltip(guiObj, text)
 end
 
 -- ==========================================
--- OVERHAULED TOP BANNER ALERT (v5.0)
+-- TOP BANNER ALERT
 -- ==========================================
 function TryxzLib:Banner(bCfg)
     bCfg = bCfg or {}
@@ -939,7 +939,7 @@ function TryxzLib:Banner(bCfg)
 end
 
 -- ==========================================
--- OVERHAULED NOTIFICATION SYSTEM (v5.0)
+-- NOTIFICATION SYSTEM
 -- ==========================================
 local NotifHolders = {}
 local ActiveNotifById = {}
@@ -1020,7 +1020,6 @@ function TryxzLib:Notify(config)
 
     AttachShimmer(NotifFrame, 3.0)
 
-    -- Left Glowing Icon Orb
     local IconOrb = Instance.new("Frame")
     IconOrb.Size = UDim2.new(0, 28, 0, 28)
     IconOrb.Position = UDim2.new(0, 10, 0, 10)
@@ -1715,7 +1714,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- OVERHAULED ELEMENT FACTORY (v5.0)
+-- OVERHAULED ELEMENT FACTORY (ALL COMPONENTS v5.1)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -1776,7 +1775,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         }
     end
 
-    -- 1. SECTION (Cyber Node + Scramble Text + Gradient Line)
+    -- 1. SECTION
     function API:AddSection(text, icon)
         local secText = type(text) == "table" and (text.Title or text.Name or "Section") or tostring(text or "Section")
         local secIcon = type(text) == "table" and text.Icon or icon
@@ -1898,7 +1897,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Tween(Line, Tweens.Elastic, {Size = UDim2.new(0.96, 0, 0, 1)})
     end
 
-    -- 3. OVERHAULED LABEL (Telemetry Card + Icon Badge + Live Pill)
+    -- 3. LABEL
     function API:AddLabel(text, icon)
         local lblText = type(text) == "table" and (text.Text or "Label") or tostring(text or "Label")
         local lblIcon = type(text) == "table" and text.Icon or icon or "rbxassetid://10723407389"
@@ -1969,7 +1968,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return LabelObj
     end
 
-    -- 4. OVERHAULED PARAGRAPH (Structured Sci-Fi Intel Card)
+    -- 4. PARAGRAPH
     function API:AddParagraph(pCfg)
         local hasIcon = pCfg.Icon ~= nil and tostring(pCfg.Icon) ~= ""
 
@@ -2065,7 +2064,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ParaObj
     end
 
-    -- 5. OVERHAULED PROGRESS BAR
+    -- 5. PROGRESS BAR
     function API:AddProgressBar(bCfg)
         local MaxVal = bCfg.Max or 100
         local CurVal = math.clamp(bCfg.Default or 0, 0, MaxVal)
@@ -2141,7 +2140,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return BarObj
     end
 
-    -- 6. OVERHAULED BUTTON (Hover Shimmer + Glowing Badge + Ripple)
+    -- 6. BUTTON
     function API:AddButton(bCfg)
         local Callback = bCfg.Callback or function() end
         local CooldownTime = bCfg.Cooldown or 0
@@ -2348,7 +2347,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return RowFrame
     end
 
-    -- 8. OVERHAULED TOGGLE (Capsule Switch + Elastic Stretch Knob + Glowing Core)
+    -- 8. TOGGLE
     function API:AddToggle(tCfg)
         local Flag = tCfg.Flag
         local StateVal = tCfg.Default or false
@@ -2447,7 +2446,6 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 Color = StateVal and Theme.Accent or Theme.Divider,
                 Transparency = StateVal and 0.2 or 0.55
             })
-            -- Elastic stretch animation on Knob
             Tween(Knob, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 18, 0, 14)})
             task.delay(0.09, function()
                 if Knob and Knob.Parent then
@@ -2488,7 +2486,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ToggleObj
     end
 
-    -- 9. OVERHAULED SLIDER (Value Pill + Ringed Glowing Thumb)
+    -- 9. SLIDER
     function API:AddSlider(sCfg)
         local Flag = sCfg.Flag
         local Min, Max = sCfg.Min or 0, sCfg.Max or 100
@@ -2796,13 +2794,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return RangeObj
     end
 
-    -- 11. INPUT / TEXTBOX
+    -- 11. OVERHAULED INPUT / TEXTBOX (Icon Badge + Numeric Tag + Focus Glow)
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
         local Placeholder = iCfg.Placeholder or "Type here..."
         local Numeric = iCfg.Numeric or false
         local Callback = iCfg.Callback or function() end
+        local hasIcon = iCfg.Icon ~= nil and tostring(iCfg.Icon) ~= ""
 
         if Cfg.SaveEnabled and Flag and Cfg.SavedData[Flag] ~= nil then
             Default = tostring(Cfg.SavedData[Flag])
@@ -2810,58 +2809,94 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         local InputFrame = Instance.new("Frame")
         InputFrame.LayoutOrder = NextOrder()
-        InputFrame.Size = UDim2.new(1, 0, 0, 34)
+        InputFrame.Size = UDim2.new(1, 0, 0, 36)
         InputFrame.BackgroundColor3 = Theme.Element
+        InputFrame.ClipsDescendants = true
         InputFrame.Parent = Container
         Instance.new("UICorner", InputFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(iCfg.Name, InputFrame)
         AttachTooltip(InputFrame, iCfg.Tooltip)
         BindTheme(InputFrame, "BackgroundColor3", "Element")
 
+        local IStroke = Instance.new("UIStroke", InputFrame)
+        IStroke.Color = Theme.Divider
+        IStroke.Thickness = 1
+        IStroke.Transparency = 0.5
+
+        if hasIcon then
+            local IconPill = Instance.new("Frame")
+            IconPill.Size = UDim2.new(0, 22, 0, 22)
+            IconPill.Position = UDim2.new(0, 8, 0.5, -11)
+            IconPill.BackgroundColor3 = Theme.Background
+            IconPill.Parent = InputFrame
+            Instance.new("UICorner", IconPill).CornerRadius = UDim.new(0, 7)
+            BindTheme(IconPill, "BackgroundColor3", "Background")
+            CreateIcon(IconPill, iCfg.Icon, 13, UDim2.new(0.5, -6.5, 0.5, -6.5), 3, Theme.Accent)
+        end
+
+        local titleX = hasIcon and 36 or 12
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(0.48, 0, 1, 0)
-        Title.Position = UDim2.new(0, 11, 0, 0)
+        Title.Size = UDim2.new(0.46, -titleX, 1, 0)
+        Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = iCfg.Name or "Input"
         Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamSemibold
         Title.TextSize = 12
         Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.TextTruncate = Enum.TextTruncate.AtEnd
         Title.Parent = InputFrame
         BindTheme(Title, "TextColor3", "Text")
 
         local BoxHolder = Instance.new("Frame")
-        BoxHolder.Size = UDim2.new(0.48, -10, 0, 22)
-        BoxHolder.Position = UDim2.new(0.52, 0, 0.5, -11)
+        BoxHolder.Size = UDim2.new(0.52, -10, 0, 24)
+        BoxHolder.Position = UDim2.new(0.48, 0, 0.5, -12)
         BoxHolder.BackgroundColor3 = Theme.Background
         BoxHolder.Parent = InputFrame
-        Instance.new("UICorner", BoxHolder).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", BoxHolder).CornerRadius = UDim.new(0, 9)
         BindTheme(BoxHolder, "BackgroundColor3", "Background")
 
         local BStroke = Instance.new("UIStroke", BoxHolder)
         BStroke.Color = Theme.Divider
         BStroke.Thickness = 1
 
+        local boxRightPad = Numeric and 36 or 10
+        if Numeric then
+            local NumTag = Instance.new("TextLabel")
+            NumTag.Size = UDim2.new(0, 26, 0, 14)
+            NumTag.Position = UDim2.new(1, -30, 0.5, -7)
+            NumTag.BackgroundColor3 = Theme.Element
+            NumTag.Text = "123"
+            NumTag.TextColor3 = Theme.Accent
+            NumTag.Font = Enum.Font.Code
+            NumTag.TextSize = 8
+            NumTag.Parent = BoxHolder
+            Instance.new("UICorner", NumTag).CornerRadius = UDim.new(1, 0)
+        end
+
         local Box = Instance.new("TextBox")
-        Box.Size = UDim2.new(1, -12, 1, 0)
-        Box.Position = UDim2.new(0, 6, 0, 0)
+        Box.Size = UDim2.new(1, -(boxRightPad + 6), 1, 0)
+        Box.Position = UDim2.new(0, 8, 0, 0)
         Box.BackgroundTransparency = 1
         Box.Text = Default
         Box.PlaceholderText = Placeholder
         Box.PlaceholderColor3 = Theme.SubText
         Box.TextColor3 = Theme.Text
-        Box.Font = Enum.Font.Gotham
+        Box.Font = Enum.Font.GothamSemibold
         Box.TextSize = 11
+        Box.TextXAlignment = Enum.TextXAlignment.Left
         Box.ClearTextOnFocus = iCfg.ClearOnFocus or false
         Box.Parent = BoxHolder
 
         Box.Focused:Connect(function()
             TryxzLib:PlaySound("Hover", 0.2)
             Tween(BStroke, Tweens.Fast, {Color = Theme.Accent})
+            Tween(IStroke, Tweens.Fast, {Color = Theme.Accent, Transparency = 0.25})
         end)
 
         Box.FocusLost:Connect(function(enterPressed)
             Tween(BStroke, Tweens.Fast, {Color = Theme.Divider})
+            Tween(IStroke, Tweens.Fast, {Color = Theme.Divider, Transparency = 0.5})
             local txt = Box.Text
             if Numeric then
                 local num = tonumber(txt)
@@ -2869,6 +2904,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                 Box.Text = txt
             end
             if Flag then Cfg.SavedData[Flag] = txt WriteConfigFile() end
+            TriggerSingleShimmer(InputFrame)
             TriggerHaptic(0.2)
             TryxzLib:PlaySound("Click")
             task.spawn(Callback, txt, enterPressed)
@@ -2886,12 +2922,13 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
-    -- 12. KEYBIND PICKER
+    -- 12. OVERHAULED KEYBIND PICKER (Mechanical Keycap Badge + Pulse)
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
         local Callback = kCfg.Callback or function() end
         local Listening = false
+        local hasIcon = kCfg.Icon ~= nil and tostring(kCfg.Icon) ~= ""
 
         if Cfg.SaveEnabled and Flag and Cfg.SavedData[Flag] ~= nil then
             local savedName = tostring(Cfg.SavedData[Flag])
@@ -2904,15 +2941,32 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         KeyFrame.LayoutOrder = NextOrder()
         KeyFrame.Size = UDim2.new(1, 0, 0, 34)
         KeyFrame.BackgroundColor3 = Theme.Element
+        KeyFrame.ClipsDescendants = true
         KeyFrame.Parent = Container
         Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
         RegisterSearchable(kCfg.Name, KeyFrame)
         AttachTooltip(KeyFrame, kCfg.Tooltip)
         BindTheme(KeyFrame, "BackgroundColor3", "Element")
 
+        local KStroke = Instance.new("UIStroke", KeyFrame)
+        KStroke.Color = Theme.Divider
+        KStroke.Thickness = 1
+        KStroke.Transparency = 0.5
+
+        if hasIcon then
+            local IconPill = Instance.new("Frame")
+            IconPill.Size = UDim2.new(0, 22, 0, 22)
+            IconPill.Position = UDim2.new(0, 8, 0.5, -11)
+            IconPill.BackgroundColor3 = Theme.Background
+            IconPill.Parent = KeyFrame
+            Instance.new("UICorner", IconPill).CornerRadius = UDim.new(0, 7)
+            BindTheme(IconPill, "BackgroundColor3", "Background")
+            CreateIcon(IconPill, kCfg.Icon, 13, UDim2.new(0.5, -6.5, 0.5, -6.5), 3, Theme.Accent)
+        end
+
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(1, -95, 1, 0)
-        Title.Position = UDim2.new(0, 11, 0, 0)
+        Title.Size = UDim2.new(1, hasIcon and -122 or -100, 1, 0)
+        Title.Position = UDim2.new(0, hasIcon and 36 or 12, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = kCfg.Name or "Keybind"
         Title.TextColor3 = Theme.Text
@@ -2923,8 +2977,8 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BindTheme(Title, "TextColor3", "Text")
 
         local BindBtn = Instance.new("TextButton")
-        BindBtn.Size = UDim2.new(0, 76, 0, 20)
-        BindBtn.Position = UDim2.new(1, -86, 0.5, -10)
+        BindBtn.Size = UDim2.new(0, 82, 0, 22)
+        BindBtn.Position = UDim2.new(1, -90, 0.5, -11)
         BindBtn.BackgroundColor3 = Theme.Background
         BindBtn.Text = CurrentKey.Name
         BindBtn.TextColor3 = Theme.Accent
@@ -2932,20 +2986,23 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BindBtn.TextSize = 10
         BindBtn.AutoButtonColor = false
         BindBtn.Parent = KeyFrame
-        Instance.new("UICorner", BindBtn).CornerRadius = UDim.new(1, 0)
+        Instance.new("UICorner", BindBtn).CornerRadius = UDim.new(0, 8)
         BindAccent(BindBtn, "TextColor3")
         BindTheme(BindBtn, "BackgroundColor3", "Background")
 
         local BStroke = Instance.new("UIStroke", BindBtn)
-        BStroke.Color = Theme.Divider
-        BStroke.Thickness = 1
+        BStroke.Color = Theme.Accent
+        BStroke.Thickness = 1.1
+        BStroke.Transparency = 0.45
+        BindAccent(BStroke, "Color")
 
         BindBtn.MouseButton1Click:Connect(function()
             Listening = true
             TriggerHaptic(0.25)
             TryxzLib:PlaySound("Click")
-            BindBtn.Text = "..."
-            Tween(BStroke, Tweens.Fast, {Color = Theme.Accent})
+            BindBtn.Text = "[ PRESS KEY ]"
+            BindBtn.TextColor3 = Theme.Success
+            Tween(BStroke, Tweens.Fast, {Color = Theme.Success, Transparency = 0.1})
         end)
 
         UserInputService.InputBegan:Connect(function(input, gpe)
@@ -2954,13 +3011,15 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
                     Listening = false
                     CurrentKey = input.KeyCode
                     BindBtn.Text = CurrentKey.Name
-                    Tween(BStroke, Tweens.Fast, {Color = Theme.Divider})
+                    BindBtn.TextColor3 = Theme.Accent
+                    Tween(BStroke, Tweens.Fast, {Color = Theme.Accent, Transparency = 0.45})
                     TriggerHaptic(0.3)
                     TryxzLib:PlaySound("Toggle")
                     if Flag then Cfg.SavedData[Flag] = CurrentKey.Name WriteConfigFile() end
                 end
             elseif not gpe and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == CurrentKey then
                 TriggerHaptic(0.2)
+                TriggerSingleShimmer(KeyFrame)
                 task.spawn(Callback, CurrentKey)
             end
         end)
@@ -2976,13 +3035,14 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
-    -- 13. COLOR PICKER (HSV + HEX + RAINBOW)
+    -- 13. OVERHAULED COLOR PICKER (HSV + HEX + GRADIENT RAINBOW BUTTON)
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
         local Callback = cCfg.Callback or function() end
         local Open = false
         local RainbowMode = false
+        local hasIcon = cCfg.Icon ~= nil and tostring(cCfg.Icon) ~= ""
 
         if Cfg.SaveEnabled and Flag and type(Cfg.SavedData[Flag]) == "table" and #Cfg.SavedData[Flag] == 3 then
             local c = Cfg.SavedData[Flag]
@@ -3002,15 +3062,31 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         AttachTooltip(ColorFrame, cCfg.Tooltip)
         BindTheme(ColorFrame, "BackgroundColor3", "Element")
 
+        local CStroke = Instance.new("UIStroke", ColorFrame)
+        CStroke.Color = Theme.Divider
+        CStroke.Thickness = 1
+        CStroke.Transparency = 0.5
+
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 34)
         Header.BackgroundTransparency = 1
         Header.Text = ""
         Header.Parent = ColorFrame
 
+        if hasIcon then
+            local IconPill = Instance.new("Frame")
+            IconPill.Size = UDim2.new(0, 22, 0, 22)
+            IconPill.Position = UDim2.new(0, 8, 0.5, -11)
+            IconPill.BackgroundColor3 = Theme.Background
+            IconPill.Parent = Header
+            Instance.new("UICorner", IconPill).CornerRadius = UDim.new(0, 7)
+            BindTheme(IconPill, "BackgroundColor3", "Background")
+            CreateIcon(IconPill, cCfg.Icon, 13, UDim2.new(0.5, -6.5, 0.5, -6.5), 3, Theme.Accent)
+        end
+
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(1, -60, 1, 0)
-        Title.Position = UDim2.new(0, 11, 0, 0)
+        Title.Size = UDim2.new(1, hasIcon and -88 or -66, 1, 0)
+        Title.Position = UDim2.new(0, hasIcon and 36 or 12, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = cCfg.Name or "Color Picker"
         Title.TextColor3 = Theme.Text
@@ -3021,31 +3097,31 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         BindTheme(Title, "TextColor3", "Text")
 
         local Preview = Instance.new("Frame")
-        Preview.Size = UDim2.new(0, 28, 0, 17)
-        Preview.Position = UDim2.new(1, -38, 0.5, -8.5)
+        Preview.Size = UDim2.new(0, 34, 0, 18)
+        Preview.Position = UDim2.new(1, -44, 0.5, -9)
         Preview.BackgroundColor3 = CurrentColor
         Preview.Parent = Header
         Instance.new("UICorner", Preview).CornerRadius = UDim.new(1, 0)
         local PStroke = Instance.new("UIStroke", Preview)
-        PStroke.Color = Theme.Text
-        PStroke.Thickness = 1.2
-        PStroke.Transparency = 0.5
+        PStroke.Color = Color3.fromRGB(255, 255, 255)
+        PStroke.Thickness = 1.3
+        PStroke.Transparency = 0.35
 
         local SVBox = Instance.new("TextButton")
-        SVBox.Size = UDim2.new(1, -20, 0, 66)
+        SVBox.Size = UDim2.new(1, -20, 0, 68)
         SVBox.Position = UDim2.new(0, 10, 0, 38)
         SVBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
         SVBox.Text = ""
         SVBox.AutoButtonColor = false
         SVBox.Parent = ColorFrame
-        Instance.new("UICorner", SVBox).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", SVBox).CornerRadius = UDim.new(0, 9)
 
         local SatLayer = Instance.new("Frame")
         SatLayer.Size = UDim2.new(1, 0, 1, 0)
         SatLayer.BackgroundColor3 = Color3.new(1, 1, 1)
         SatLayer.BorderSizePixel = 0
         SatLayer.Parent = SVBox
-        Instance.new("UICorner", SatLayer).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", SatLayer).CornerRadius = UDim.new(0, 9)
         local SatGrad = Instance.new("UIGradient", SatLayer)
         SatGrad.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}
 
@@ -3054,23 +3130,26 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         ValLayer.BackgroundColor3 = Color3.new(0, 0, 0)
         ValLayer.BorderSizePixel = 0
         ValLayer.Parent = SVBox
-        Instance.new("UICorner", ValLayer).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", ValLayer).CornerRadius = UDim.new(0, 9)
         local ValGrad = Instance.new("UIGradient", ValLayer)
         ValGrad.Rotation = 90
         ValGrad.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0)}
 
         local SVCursor = Instance.new("Frame")
-        SVCursor.Size = UDim2.new(0, 10, 0, 10)
+        SVCursor.Size = UDim2.new(0, 11, 0, 11)
         SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
         SVCursor.Position = UDim2.new(s, 0, 1 - v, 0)
         SVCursor.BackgroundColor3 = Color3.new(1, 1, 1)
         SVCursor.ZIndex = 4
         SVCursor.Parent = SVBox
         Instance.new("UICorner", SVCursor).CornerRadius = UDim.new(1, 0)
+        local CurRing = Instance.new("UIStroke", SVCursor)
+        CurRing.Color = Color3.fromRGB(15, 15, 20)
+        CurRing.Thickness = 1.5
 
         local HueBar = Instance.new("TextButton")
         HueBar.Size = UDim2.new(1, -20, 0, 12)
-        HueBar.Position = UDim2.new(0, 10, 0, 110)
+        HueBar.Position = UDim2.new(0, 10, 0, 112)
         HueBar.BackgroundColor3 = Color3.new(1, 1, 1)
         HueBar.Text = ""
         HueBar.AutoButtonColor = false
@@ -3089,7 +3168,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         }
 
         local HueKnob = Instance.new("Frame")
-        HueKnob.Size = UDim2.new(0, 6, 1, 2)
+        HueKnob.Size = UDim2.new(0, 7, 1, 4)
         HueKnob.AnchorPoint = Vector2.new(0.5, 0.5)
         HueKnob.Position = UDim2.new(h, 0, 0.5, 0)
         HueKnob.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -3097,20 +3176,23 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", HueKnob).CornerRadius = UDim.new(1, 0)
 
         local HexBox = Instance.new("TextBox")
-        HexBox.Size = UDim2.new(0.52, -12, 0, 22)
-        HexBox.Position = UDim2.new(0, 10, 0, 128)
+        HexBox.Size = UDim2.new(0.48, -12, 0, 23)
+        HexBox.Position = UDim2.new(0, 10, 0, 130)
         HexBox.BackgroundColor3 = Theme.Background
         HexBox.Text = "#" .. CurrentColor:ToHex():upper()
         HexBox.PlaceholderText = "#RRGGBB"
         HexBox.TextColor3 = Theme.Text
-        HexBox.Font = Enum.Font.GothamBold
+        HexBox.Font = Enum.Font.Code
         HexBox.TextSize = 10
         HexBox.Parent = ColorFrame
         Instance.new("UICorner", HexBox).CornerRadius = UDim.new(0, 8)
+        local HexStroke = Instance.new("UIStroke", HexBox)
+        HexStroke.Color = Theme.Divider
+        HexStroke.Thickness = 1
 
         local RainbowBtn = Instance.new("TextButton")
-        RainbowBtn.Size = UDim2.new(0.48, -12, 0, 22)
-        RainbowBtn.Position = UDim2.new(0.52, 2, 0, 128)
+        RainbowBtn.Size = UDim2.new(0.52, -12, 0, 23)
+        RainbowBtn.Position = UDim2.new(0.48, 2, 0, 130)
         RainbowBtn.BackgroundColor3 = Theme.Background
         RainbowBtn.Text = "Rainbow: OFF"
         RainbowBtn.TextColor3 = Theme.SubText
@@ -3136,7 +3218,9 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             task.spawn(Callback, CurrentColor)
         end
 
+        HexBox.Focused:Connect(function() Tween(HexStroke, Tweens.Fast, {Color = Theme.Accent}) end)
         HexBox.FocusLost:Connect(function()
+            Tween(HexStroke, Tweens.Fast, {Color = Theme.Divider})
             local ok, parsed = pcall(function() return Color3.fromHex(HexBox.Text) end)
             if ok and parsed then
                 h, s, v = parsed:ToHSV()
@@ -3151,7 +3235,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             RainbowBtn.Text = RainbowMode and "Rainbow: ON" or "Rainbow: OFF"
             Tween(RainbowBtn, Tweens.Fast, {
                 BackgroundColor3 = RainbowMode and Theme.Accent or Theme.Background,
-                TextColor3 = RainbowMode and Theme.Text or Theme.SubText
+                TextColor3 = RainbowMode and Color3.fromRGB(255, 255, 255) or Theme.SubText
             })
         end)
 
@@ -3203,7 +3287,8 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             TriggerHaptic(0.2)
             TryxzLib:PlaySound("Click")
             Open = not Open
-            Tween(ColorFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and 158 or 34)})
+            Tween(ColorFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and 160 or 34)})
+            Tween(CStroke, Tweens.Fast, {Color = Open and Theme.Accent or Theme.Divider, Transparency = Open and 0.2 or 0.5})
         end)
 
         task.spawn(Callback, CurrentColor)
@@ -3218,7 +3303,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 14. DROPDOWN
+    -- 14. OVERHAULED DROPDOWN (Selected Pill + Glowing Border + Icon Badges)
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -3242,17 +3327,32 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         AttachTooltip(DropFrame, dCfg.Tooltip)
         BindTheme(DropFrame, "BackgroundColor3", "Element")
 
+        local DStroke = Instance.new("UIStroke", DropFrame)
+        DStroke.Color = Theme.Divider
+        DStroke.Thickness = 1
+        DStroke.Transparency = 0.5
+
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 34)
         Header.BackgroundTransparency = 1
         Header.Text = ""
         Header.Parent = DropFrame
 
-        if hasIcon then CreateIcon(Header, dCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3) end
+        if hasIcon then
+            local IconPill = Instance.new("Frame")
+            IconPill.Size = UDim2.new(0, 22, 0, 22)
+            IconPill.Position = UDim2.new(0, 8, 0.5, -11)
+            IconPill.BackgroundColor3 = Theme.Background
+            IconPill.ZIndex = 3
+            IconPill.Parent = Header
+            Instance.new("UICorner", IconPill).CornerRadius = UDim.new(0, 7)
+            BindTheme(IconPill, "BackgroundColor3", "Background")
+            CreateIcon(IconPill, dCfg.Icon, 13, UDim2.new(0.5, -6.5, 0.5, -6.5), 4, Theme.Accent)
+        end
 
-        local titleX = hasIcon and 30 or 11
+        local titleX = hasIcon and 36 or 12
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(0.46, -titleX, 1, 0)
+        Title.Size = UDim2.new(0.45, -titleX, 1, 0)
         Title.Position = UDim2.new(0, titleX, 0, 0)
         Title.BackgroundTransparency = 1
         Title.Text = tostring(dCfg.Name or "Dropdown")
@@ -3265,18 +3365,27 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.Parent = Header
         BindTheme(Title, "TextColor3", "Text")
 
+        local SelectedPill = Instance.new("Frame")
+        SelectedPill.Size = UDim2.new(0.55, -32, 0, 20)
+        SelectedPill.Position = UDim2.new(0.45, 0, 0.5, -10)
+        SelectedPill.BackgroundColor3 = Theme.Background
+        SelectedPill.ZIndex = 2
+        SelectedPill.Parent = Header
+        Instance.new("UICorner", SelectedPill).CornerRadius = UDim.new(1, 0)
+        BindTheme(SelectedPill, "BackgroundColor3", "Background")
+
         local SelectedLbl = Instance.new("TextLabel")
-        SelectedLbl.Size = UDim2.new(0.54, -28, 1, 0)
-        SelectedLbl.Position = UDim2.new(0.46, 0, 0, 0)
+        SelectedLbl.Size = UDim2.new(1, -14, 1, 0)
+        SelectedLbl.Position = UDim2.new(0, 7, 0, 0)
         SelectedLbl.BackgroundTransparency = 1
         SelectedLbl.Text = tostring(Default)
         SelectedLbl.TextColor3 = Theme.Accent
-        SelectedLbl.Font = Enum.Font.Gotham
-        SelectedLbl.TextSize = 11
-        SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
+        SelectedLbl.Font = Enum.Font.GothamBold
+        SelectedLbl.TextSize = 10
+        SelectedLbl.TextXAlignment = Enum.TextXAlignment.Center
         SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
-        SelectedLbl.ZIndex = 2
-        SelectedLbl.Parent = Header
+        SelectedLbl.ZIndex = 3
+        SelectedLbl.Parent = SelectedPill
         BindAccent(SelectedLbl, "TextColor3")
 
         local Arrow = Instance.new("TextLabel")
@@ -3284,11 +3393,12 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Arrow.Position = UDim2.new(1, -24, 0.5, -9)
         Arrow.BackgroundTransparency = 1
         Arrow.Text = "▼"
-        Arrow.TextColor3 = Theme.SubText
+        Arrow.TextColor3 = Theme.Accent
         Arrow.Font = Enum.Font.GothamBold
         Arrow.TextSize = 9
         Arrow.ZIndex = 2
         Arrow.Parent = Header
+        BindAccent(Arrow, "TextColor3")
 
         local searchOffset = 0
         local FilterBox = nil
@@ -3333,6 +3443,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             TryxzLib:PlaySound("Click")
             Open = not Open
             Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and GetOpenHeight() or 34)})
+            Tween(DStroke, Tweens.Fast, {Color = Open and Theme.Accent or Theme.Divider, Transparency = Open and 0.2 or 0.5})
             Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
         end
 
@@ -3472,7 +3583,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return drop
     end
 
-    -- 16. MULTI-DROPDOWN
+    -- 16. OVERHAULED MULTI-DROPDOWN (Selected Pill + Active Check Indicators)
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -3499,15 +3610,30 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         AttachTooltip(DropFrame, mCfg.Tooltip)
         BindTheme(DropFrame, "BackgroundColor3", "Element")
 
+        local MStroke = Instance.new("UIStroke", DropFrame)
+        MStroke.Color = Theme.Divider
+        MStroke.Thickness = 1
+        MStroke.Transparency = 0.5
+
         local Header = Instance.new("TextButton")
         Header.Size = UDim2.new(1, 0, 0, 34)
         Header.BackgroundTransparency = 1
         Header.Text = ""
         Header.Parent = DropFrame
 
-        if hasIcon then CreateIcon(Header, mCfg.Icon, 15, UDim2.new(0, 10, 0.5, -7.5), 3) end
+        if hasIcon then
+            local IconPill = Instance.new("Frame")
+            IconPill.Size = UDim2.new(0, 22, 0, 22)
+            IconPill.Position = UDim2.new(0, 8, 0.5, -11)
+            IconPill.BackgroundColor3 = Theme.Background
+            IconPill.ZIndex = 3
+            IconPill.Parent = Header
+            Instance.new("UICorner", IconPill).CornerRadius = UDim.new(0, 7)
+            BindTheme(IconPill, "BackgroundColor3", "Background")
+            CreateIcon(IconPill, mCfg.Icon, 13, UDim2.new(0.5, -6.5, 0.5, -6.5), 4, Theme.Accent)
+        end
 
-        local titleX = hasIcon and 30 or 11
+        local titleX = hasIcon and 36 or 12
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(0.42, -titleX, 1, 0)
         Title.Position = UDim2.new(0, titleX, 0, 0)
@@ -3522,18 +3648,27 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Title.Parent = Header
         BindTheme(Title, "TextColor3", "Text")
 
+        local SelectedPill = Instance.new("Frame")
+        SelectedPill.Size = UDim2.new(0.58, -32, 0, 20)
+        SelectedPill.Position = UDim2.new(0.42, 0, 0.5, -10)
+        SelectedPill.BackgroundColor3 = Theme.Background
+        SelectedPill.ZIndex = 2
+        SelectedPill.Parent = Header
+        Instance.new("UICorner", SelectedPill).CornerRadius = UDim.new(1, 0)
+        BindTheme(SelectedPill, "BackgroundColor3", "Background")
+
         local SelectedLbl = Instance.new("TextLabel")
-        SelectedLbl.Size = UDim2.new(0.58, -28, 1, 0)
-        SelectedLbl.Position = UDim2.new(0.42, 0, 0, 0)
+        SelectedLbl.Size = UDim2.new(1, -14, 1, 0)
+        SelectedLbl.Position = UDim2.new(0, 7, 0, 0)
         SelectedLbl.BackgroundTransparency = 1
         SelectedLbl.Text = "None"
         SelectedLbl.TextColor3 = Theme.Accent
-        SelectedLbl.Font = Enum.Font.Gotham
-        SelectedLbl.TextSize = 11
-        SelectedLbl.TextXAlignment = Enum.TextXAlignment.Right
+        SelectedLbl.Font = Enum.Font.GothamBold
+        SelectedLbl.TextSize = 10
+        SelectedLbl.TextXAlignment = Enum.TextXAlignment.Center
         SelectedLbl.TextTruncate = Enum.TextTruncate.AtEnd
-        SelectedLbl.ZIndex = 2
-        SelectedLbl.Parent = Header
+        SelectedLbl.ZIndex = 3
+        SelectedLbl.Parent = SelectedPill
         BindAccent(SelectedLbl, "TextColor3")
 
         local Arrow = Instance.new("TextLabel")
@@ -3541,11 +3676,12 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Arrow.Position = UDim2.new(1, -24, 0.5, -9)
         Arrow.BackgroundTransparency = 1
         Arrow.Text = "▼"
-        Arrow.TextColor3 = Theme.SubText
+        Arrow.TextColor3 = Theme.Accent
         Arrow.Font = Enum.Font.GothamBold
         Arrow.TextSize = 9
         Arrow.ZIndex = 2
         Arrow.Parent = Header
+        BindAccent(Arrow, "TextColor3")
 
         local ListHolder = Instance.new("Frame")
         ListHolder.Size = UDim2.new(1, -12, 0, 0)
@@ -3572,6 +3708,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             TryxzLib:PlaySound("Click")
             Open = not Open
             Tween(DropFrame, Tweens.Smooth, {Size = UDim2.new(1, 0, 0, Open and (40 + (#Options * 26)) or 34)})
+            Tween(MStroke, Tweens.Fast, {Color = Open and Theme.Accent or Theme.Divider, Transparency = Open and 0.2 or 0.5})
             Tween(Arrow, Tweens.Smooth, {Rotation = Open and 180 or 0})
         end)
 
@@ -3596,24 +3733,36 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             local badge = BuildOptionIconBadge(OptBtn, optIcon, 7, -9, 4)
 
             local OptTxt = Instance.new("TextLabel")
-            OptTxt.Size = UDim2.new(1, badge and -34 or -14, 1, 0)
+            OptTxt.Size = UDim2.new(1, badge and -52 or -32, 1, 0)
             OptTxt.Position = UDim2.new(0, badge and 30 or 10, 0, 0)
             OptTxt.BackgroundTransparency = 1
             OptTxt.Text = optLabel
-            OptTxt.TextColor3 = Selected[opt] and Theme.Text or Theme.SubText
-            OptTxt.Font = Enum.Font.Gotham
+            OptTxt.TextColor3 = Selected[opt] and Color3.fromRGB(255, 255, 255) or Theme.SubText
+            OptTxt.Font = Enum.Font.GothamSemibold
             OptTxt.TextSize = 11
             OptTxt.TextXAlignment = Enum.TextXAlignment.Left
             OptTxt.ZIndex = 3
             OptTxt.Parent = OptBtn
+
+            local CheckDot = Instance.new("TextLabel")
+            CheckDot.Size = UDim2.new(0, 18, 1, 0)
+            CheckDot.Position = UDim2.new(1, -22, 0, 0)
+            CheckDot.BackgroundTransparency = 1
+            CheckDot.Text = Selected[opt] and "✓" or ""
+            CheckDot.TextColor3 = Color3.fromRGB(255, 255, 255)
+            CheckDot.Font = Enum.Font.GothamBlack
+            CheckDot.TextSize = 11
+            CheckDot.ZIndex = 3
+            CheckDot.Parent = OptBtn
 
             OptBtn.MouseButton1Click:Connect(function()
                 SpawnRipple(OptBtn)
                 TriggerHaptic(0.25)
                 TryxzLib:PlaySound("Toggle")
                 Selected[opt] = not Selected[opt]
+                CheckDot.Text = Selected[opt] and "✓" or ""
                 Tween(OptBtn, Tweens.Fast, {BackgroundColor3 = Selected[opt] and Theme.Accent or Theme.Background})
-                Tween(OptTxt, Tweens.Fast, {TextColor3 = Selected[opt] and Theme.Text or Theme.SubText})
+                Tween(OptTxt, Tweens.Fast, {TextColor3 = Selected[opt] and Color3.fromRGB(255, 255, 255) or Theme.SubText})
                 UpdateSummary(true)
             end)
         end
@@ -3635,10 +3784,10 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return MultiObj
     end
 
-    -- 17. EMBEDDED LOG CONSOLE
+    -- 17. OVERHAULED EMBEDDED LOG CONSOLE (Live Counter + Level Stripes)
     function API:AddConsole(cCfg)
         cCfg = cCfg or {}
-        local h = cCfg.Height or 130
+        local h = cCfg.Height or 136
         local history = {}
 
         local Box = Instance.new("Frame")
@@ -3650,29 +3799,54 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         RegisterSearchable(cCfg.Name or "Console", Box)
         BindTheme(Box, "BackgroundColor3", "Element")
 
+        local CStroke = Instance.new("UIStroke", Box)
+        CStroke.Color = Theme.Divider
+        CStroke.Thickness = 1
+        CStroke.Transparency = 0.45
+
         local TopRow = Instance.new("Frame")
-        TopRow.Size = UDim2.new(1, -16, 0, 24)
+        TopRow.Size = UDim2.new(1, -16, 0, 26)
         TopRow.Position = UDim2.new(0, 8, 0, 4)
         TopRow.BackgroundTransparency = 1
         TopRow.Parent = Box
 
+        local LiveDot = Instance.new("Frame")
+        LiveDot.Size = UDim2.new(0, 7, 0, 7)
+        LiveDot.Position = UDim2.new(0, 4, 0.5, -3.5)
+        LiveDot.BackgroundColor3 = Theme.Success
+        LiveDot.Parent = TopRow
+        Instance.new("UICorner", LiveDot).CornerRadius = UDim.new(1, 0)
+
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(0.6, 0, 1, 0)
+        Title.Size = UDim2.new(0.55, -16, 1, 0)
+        Title.Position = UDim2.new(0, 16, 0, 0)
         Title.BackgroundTransparency = 1
-        Title.Text = " >_ " .. tostring(cCfg.Name or "Output Console")
-        Title.TextColor3 = Theme.Accent
+        Title.Text = tostring(cCfg.Name or "Output Console")
+        Title.TextColor3 = Theme.Text
         Title.Font = Enum.Font.GothamBold
         Title.TextSize = 11
         Title.TextXAlignment = Enum.TextXAlignment.Left
         Title.Parent = TopRow
-        BindAccent(Title, "TextColor3")
+        BindTheme(Title, "TextColor3", "Text")
+
+        local CountLbl = Instance.new("TextLabel")
+        CountLbl.Size = UDim2.new(0, 48, 0, 18)
+        CountLbl.Position = UDim2.new(1, -102, 0.5, -9)
+        CountLbl.BackgroundColor3 = Theme.Background
+        CountLbl.Text = "0 logs"
+        CountLbl.TextColor3 = Theme.Accent
+        CountLbl.Font = Enum.Font.Code
+        CountLbl.TextSize = 9
+        CountLbl.Parent = TopRow
+        Instance.new("UICorner", CountLbl).CornerRadius = UDim.new(1, 0)
+        BindAccent(CountLbl, "TextColor3")
 
         local ClearBtn = Instance.new("TextButton")
         ClearBtn.Size = UDim2.new(0, 48, 0, 18)
         ClearBtn.Position = UDim2.new(1, -50, 0.5, -9)
         ClearBtn.BackgroundColor3 = Theme.Error
         ClearBtn.Text = "Clear"
-        ClearBtn.TextColor3 = Theme.Text
+        ClearBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         ClearBtn.Font = Enum.Font.GothamBold
         ClearBtn.TextSize = 9
         ClearBtn.AutoButtonColor = false
@@ -3680,8 +3854,8 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         Instance.new("UICorner", ClearBtn).CornerRadius = UDim.new(1, 0)
 
         local Scroll = Instance.new("ScrollingFrame")
-        Scroll.Size = UDim2.new(1, -14, 1, -32)
-        Scroll.Position = UDim2.new(0, 7, 0, 28)
+        Scroll.Size = UDim2.new(1, -14, 1, -34)
+        Scroll.Position = UDim2.new(0, 7, 0, 30)
         Scroll.BackgroundColor3 = Theme.Background
         Scroll.BorderSizePixel = 0
         Scroll.ScrollBarThickness = 2
@@ -3697,7 +3871,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         SPad.PaddingLeft, SPad.PaddingRight = UDim.new(0, 7), UDim.new(0, 7)
 
         local SList = Instance.new("UIListLayout", Scroll)
-        SList.Padding = UDim.new(0, 3)
+        SList.Padding = UDim.new(0, 4)
         SList.SortOrder = Enum.SortOrder.LayoutOrder
 
         local LevelColors = {
@@ -3712,10 +3886,28 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             level = level or "Info"
             local lineStr = string.format("[%s] %s", os.date("%H:%M:%S"), tostring(msg))
             table.insert(history, lineStr)
+            CountLbl.Text = tostring(#history) .. " logs"
+
+            local row = Instance.new("Frame")
+            row.LayoutOrder = #history
+            row.Size = UDim2.new(1, 0, 0, 16)
+            row.AutomaticSize = Enum.AutomaticSize.Y
+            row.BackgroundColor3 = Theme.Element
+            row.BackgroundTransparency = 0.65
+            row.Parent = Scroll
+            Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+
+            local stripe = Instance.new("Frame")
+            stripe.Size = UDim2.new(0, 3, 1, -4)
+            stripe.Position = UDim2.new(0, 3, 0, 2)
+            stripe.BackgroundColor3 = LevelColors[level] or Theme.SubText
+            stripe.BorderSizePixel = 0
+            stripe.Parent = row
+            Instance.new("UICorner", stripe).CornerRadius = UDim.new(1, 0)
 
             local entry = Instance.new("TextLabel")
-            entry.LayoutOrder = #history
-            entry.Size = UDim2.new(1, 0, 0, 0)
+            entry.Size = UDim2.new(1, -12, 0, 0)
+            entry.Position = UDim2.new(0, 9, 0, 2)
             entry.AutomaticSize = Enum.AutomaticSize.Y
             entry.BackgroundTransparency = 1
             entry.Text = lineStr
@@ -3724,7 +3916,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
             entry.TextSize = 10
             entry.TextWrapped = true
             entry.TextXAlignment = Enum.TextXAlignment.Left
-            entry.Parent = Scroll
+            entry.Parent = row
 
             task.defer(function()
                 Scroll.CanvasPosition = Vector2.new(0, Scroll.AbsoluteCanvasSize.Y)
@@ -3733,8 +3925,9 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 
         function ConsoleObj:Clear()
             history = {}
+            CountLbl.Text = "0 logs"
             for _, c in ipairs(Scroll:GetChildren()) do
-                if c:IsA("TextLabel") then c:Destroy() end
+                if c:IsA("Frame") then c:Destroy() end
             end
         end
 
@@ -4629,7 +4822,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -155, 0, 17)
     CTitle.Position = UDim2.new(0, 64, 0, 8)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v5.0"
+    CTitle.Text = "TryxzLib v5.1"
     CTitle.TextColor3 = Theme.Text
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 12
@@ -5628,7 +5821,7 @@ function TryxzLib:CreateWindow(config)
             if not SubTabBar then
                 DefaultPage.Visible = false
                 SubTabBar = Instance.new("ScrollingFrame")
-                SubTabBar.Size = UDim2.new(1, -20, 0, 26)
+                SubTabBar.Size = UDim2.new(1, -20, 0, 28)
                 SubTabBar.Position = UDim2.new(0, 10, 0, 6)
                 SubTabBar.BackgroundColor3 = Theme.Element
                 SubTabBar.ScrollBarThickness = 0
@@ -5637,6 +5830,11 @@ function TryxzLib:CreateWindow(config)
                 SubTabBar.Parent = TabWrapper
                 Instance.new("UICorner", SubTabBar).CornerRadius = UDim.new(1, 0)
                 BindTheme(SubTabBar, "BackgroundColor3", "Element")
+
+                local SubBarStroke = Instance.new("UIStroke", SubTabBar)
+                SubBarStroke.Color = Theme.Divider
+                SubBarStroke.Thickness = 1
+                SubBarStroke.Transparency = 0.5
 
                 local SBarPad = Instance.new("UIPadding", SubTabBar)
                 SBarPad.PaddingTop, SBarPad.PaddingBottom = UDim.new(0, 3), UDim.new(0, 3)
@@ -5661,11 +5859,11 @@ function TryxzLib:CreateWindow(config)
             Instance.new("UICorner", SubBtn).CornerRadius = UDim.new(1, 0)
 
             local SubBtnPad = Instance.new("UIPadding", SubBtn)
-            SubBtnPad.PaddingLeft, SubBtnPad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+            SubBtnPad.PaddingLeft, SubBtnPad.PaddingRight = UDim.new(0, 11), UDim.new(0, 11)
 
             local SubPage = Instance.new("ScrollingFrame")
-            SubPage.Size = UDim2.new(1, 0, 1, -36)
-            SubPage.Position = UDim2.new(0, 0, 0, 36)
+            SubPage.Size = UDim2.new(1, 0, 1, -38)
+            SubPage.Position = UDim2.new(0, 0, 0, 38)
             SubPage.BackgroundTransparency = 1
             SubPage.ScrollBarThickness = 2
             SubPage.ScrollBarImageColor3 = Theme.Accent
@@ -5694,7 +5892,7 @@ function TryxzLib:CreateWindow(config)
                 end
                 subEntry.Active = true
                 SubPage.Visible = true
-                Tween(SubBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent, TextColor3 = Theme.Text})
+                Tween(SubBtn, Tweens.Fast, {BackgroundColor3 = Theme.Accent, TextColor3 = Color3.fromRGB(255, 255, 255)})
             end
 
             SubBtn.MouseButton1Click:Connect(function()
