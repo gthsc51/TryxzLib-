@@ -1,6 +1,6 @@
 --[[
-    TryxzLib v5.1 by gthsc51
-    Apex Sci-Fi HUD Edition: Complete Overhaul of Every Single UI Component
+    TryxzLib v5.2 by gthsc51
+    Apex Sci-Fi HUD Edition: Mandatory Glowing Gold Startup Splash Screen (Ping & Asset-Sync Aware) + Full Overhaul
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -759,6 +759,245 @@ pcall(function()
 end)
 if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+-- ==========================================
+-- MANDATORY GLOWING GOLD STARTUP INTRO SCREEN
+-- (Ping-Adaptive + Randomized Duration up to 9s + 100% Game & Character Sync)
+-- ==========================================
+local function GetCurrentPingMs()
+    local ping = 60
+    pcall(function()
+        ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
+    end)
+    return math.max(1, ping)
+end
+
+local function RunMandatoryGoldStartupIntro(onFinished)
+    task.spawn(function()
+        SetBlurActive(true)
+        TryxzLib:PlaySound("Notify", 0.5)
+
+        local GoldBright = Color3.fromRGB(255, 215, 65)
+        local GoldDeep = Color3.fromRGB(255, 165, 25)
+        local GoldShine = Color3.fromRGB(255, 248, 185)
+
+        local Overlay = Instance.new("Frame")
+        Overlay.Name = "TryxzGoldStartupIntro"
+        Overlay.Size = UDim2.new(1, 0, 1, 0)
+        Overlay.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+        Overlay.BackgroundTransparency = 1
+        Overlay.ZIndex = 90
+        Overlay.Parent = ScreenGui
+        Tween(Overlay, Tweens.Smooth, {BackgroundTransparency = 0.25})
+
+        AttachParticleCanvas(Overlay, 24, GoldBright, GoldShine)
+
+        local CenterBox = Instance.new("Frame")
+        CenterBox.Size = UDim2.new(0, 380, 0, 175)
+        CenterBox.AnchorPoint = Vector2.new(0.5, 0.5)
+        CenterBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+        CenterBox.BackgroundColor3 = Color3.fromRGB(16, 15, 20)
+        CenterBox.BackgroundTransparency = 0.12
+        CenterBox.ClipsDescendants = true
+        CenterBox.ZIndex = 91
+        CenterBox.Parent = Overlay
+        Instance.new("UICorner", CenterBox).CornerRadius = UDim.new(0, 20)
+
+        local BoxStroke = Instance.new("UIStroke", CenterBox)
+        BoxStroke.Color = Color3.new(1, 1, 1)
+        BoxStroke.Thickness = 1.8
+        local BoxStrokeGrad = Instance.new("UIGradient", BoxStroke)
+        BoxStrokeGrad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, GoldBright),
+            ColorSequenceKeypoint.new(0.5, GoldShine),
+            ColorSequenceKeypoint.new(1, GoldDeep)
+        }
+        table.insert(AnimatedGradientBorders, BoxStrokeGrad)
+
+        AttachShimmer(CenterBox, 2.0)
+
+        local IntroScale = Instance.new("UIScale", CenterBox)
+        IntroScale.Scale = 0
+        Tween(IntroScale, Tweens.Bounce, {Scale = 1})
+
+        -- Top Crown Line
+        local TopGoldBar = Instance.new("Frame")
+        TopGoldBar.Size = UDim2.new(0.7, 0, 0, 2)
+        TopGoldBar.Position = UDim2.new(0.15, 0, 0, 0)
+        TopGoldBar.BackgroundColor3 = Color3.new(1, 1, 1)
+        TopGoldBar.BorderSizePixel = 0
+        TopGoldBar.ZIndex = 93
+        TopGoldBar.Parent = CenterBox
+        local TopBarGrad = Instance.new("UIGradient", TopGoldBar)
+        TopBarGrad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, GoldDeep),
+            ColorSequenceKeypoint.new(0.5, GoldShine),
+            ColorSequenceKeypoint.new(1, GoldDeep)
+        }
+
+        -- Glowing Gold Main Title: "TryxzLibrary"
+        local MainBrandLbl = Instance.new("TextLabel")
+        MainBrandLbl.Size = UDim2.new(1, -24, 0, 38)
+        MainBrandLbl.Position = UDim2.new(0, 12, 0, 22)
+        MainBrandLbl.BackgroundTransparency = 1
+        MainBrandLbl.Text = "TryxzLibrary"
+        MainBrandLbl.TextColor3 = Color3.new(1, 1, 1)
+        MainBrandLbl.TextStrokeColor3 = Color3.fromRGB(185, 115, 0)
+        MainBrandLbl.TextStrokeTransparency = 0.35
+        MainBrandLbl.Font = Enum.Font.GothamBlack
+        MainBrandLbl.TextSize = 30
+        MainBrandLbl.ZIndex = 93
+        MainBrandLbl.Parent = CenterBox
+
+        local BrandGrad = Instance.new("UIGradient", MainBrandLbl)
+        BrandGrad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, GoldBright),
+            ColorSequenceKeypoint.new(0.45, GoldShine),
+            ColorSequenceKeypoint.new(1, GoldDeep)
+        }
+        table.insert(AnimatedGradientBorders, BrandGrad)
+        ScrambleText(MainBrandLbl, "TryxzLibrary", 0.45)
+
+        -- Glowing Gold Subtitle: "by gthsc51"
+        local AuthorLbl = Instance.new("TextLabel")
+        AuthorLbl.Size = UDim2.new(1, -24, 0, 22)
+        AuthorLbl.Position = UDim2.new(0, 12, 0, 62)
+        AuthorLbl.BackgroundTransparency = 1
+        AuthorLbl.Text = "by gthsc51"
+        AuthorLbl.TextColor3 = Color3.new(1, 1, 1)
+        AuthorLbl.TextStrokeColor3 = Color3.fromRGB(155, 95, 0)
+        AuthorLbl.TextStrokeTransparency = 0.45
+        AuthorLbl.Font = Enum.Font.GothamBold
+        AuthorLbl.TextSize = 16
+        AuthorLbl.ZIndex = 93
+        AuthorLbl.Parent = CenterBox
+
+        local AuthGrad = Instance.new("UIGradient", AuthorLbl)
+        AuthGrad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, GoldShine),
+            ColorSequenceKeypoint.new(0.5, GoldBright),
+            ColorSequenceKeypoint.new(1, GoldDeep)
+        }
+        table.insert(AnimatedGradientBorders, AuthGrad)
+
+        -- Extra Info & Telemetry Status Label
+        local InfoStatusLbl = Instance.new("TextLabel")
+        InfoStatusLbl.Size = UDim2.new(1, -32, 0, 28)
+        InfoStatusLbl.Position = UDim2.new(0, 16, 0, 90)
+        InfoStatusLbl.BackgroundTransparency = 1
+        InfoStatusLbl.Text = "Verifying game environment & character assets..."
+        InfoStatusLbl.TextColor3 = Color3.fromRGB(245, 226, 165)
+        InfoStatusLbl.Font = Enum.Font.GothamSemibold
+        InfoStatusLbl.TextSize = 10
+        InfoStatusLbl.TextWrapped = true
+        InfoStatusLbl.ZIndex = 93
+        InfoStatusLbl.Parent = CenterBox
+
+        -- Gold Progress Bar Track
+        local ProgTrack = Instance.new("Frame")
+        ProgTrack.Size = UDim2.new(1, -48, 0, 7)
+        ProgTrack.Position = UDim2.new(0, 24, 0, 130)
+        ProgTrack.BackgroundColor3 = Color3.fromRGB(28, 25, 20)
+        ProgTrack.ClipsDescendants = true
+        ProgTrack.ZIndex = 93
+        ProgTrack.Parent = CenterBox
+        Instance.new("UICorner", ProgTrack).CornerRadius = UDim.new(1, 0)
+
+        local ProgFill = Instance.new("Frame")
+        ProgFill.Size = UDim2.new(0, 0, 1, 0)
+        ProgFill.BackgroundColor3 = Color3.new(1, 1, 1)
+        ProgFill.ZIndex = 94
+        ProgFill.Parent = ProgTrack
+        Instance.new("UICorner", ProgFill).CornerRadius = UDim.new(1, 0)
+        local ProgGrad = Instance.new("UIGradient", ProgFill)
+        ProgGrad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, GoldDeep),
+            ColorSequenceKeypoint.new(0.5, GoldShine),
+            ColorSequenceKeypoint.new(1, GoldBright)
+        }
+
+        local PctLbl = Instance.new("TextLabel")
+        PctLbl.Size = UDim2.new(1, -48, 0, 16)
+        PctLbl.Position = UDim2.new(0, 24, 0, 142)
+        PctLbl.BackgroundTransparency = 1
+        PctLbl.Text = "0%  •  Initializing"
+        PctLbl.TextColor3 = GoldBright
+        PctLbl.Font = Enum.Font.Code
+        PctLbl.TextSize = 10
+        PctLbl.ZIndex = 93
+        PctLbl.Parent = CenterBox
+
+        -- Compute Ping-Adaptive + Randomized Duration (Capped at 9.0s)
+        local presets = {1.5, 2.0, 2.5, 2.9, 3.5, 5.0}
+        local baseRand = presets[math.random(1, #presets)]
+        local pingMs = GetCurrentPingMs()
+        local pingFactor = math.clamp(pingMs / 110, 0.65, 2.2)
+        local totalDuration = math.clamp(baseRand * pingFactor, 1.5, 9.0)
+
+        local startTime = tick()
+        local gameReady = false
+        local charReady = false
+
+        while true do
+            local elapsed = tick() - startTime
+            if not game:IsLoaded() then
+                gameReady = false
+            else
+                gameReady = true
+            end
+
+            local plr = Players.LocalPlayer
+            local char = plr and plr.Character
+            if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
+                charReady = true
+            else
+                charReady = false
+            end
+
+            local timeRatio = math.clamp(elapsed / totalDuration, 0, 1)
+            local assetsReady = gameReady and charReady
+            local displayPct = assetsReady and timeRatio or math.min(timeRatio, 0.92)
+
+            local currentPing = GetCurrentPingMs()
+            local stageText = "Loading World..."
+            if not gameReady then
+                stageText = "Waiting for Game DataModel..."
+            elseif not charReady then
+                stageText = "Syncing Character & Humanoid..."
+            elseif displayPct < 0.98 then
+                stageText = "Optimizing Sci-Fi HUD & Shaders..."
+            else
+                stageText = "100% Ready!"
+            end
+
+            InfoStatusLbl.Text = string.format("Apex Luau UI Engine  •  Ping: %d ms  •  Target: %.1fs", currentPing, totalDuration)
+            PctLbl.Text = string.format("%d%%  •  %s", math.floor(displayPct * 100), stageText)
+            Tween(ProgFill, TweenInfo.new(0.08), {Size = UDim2.new(displayPct, 0, 1, 0)})
+
+            if elapsed >= totalDuration and assetsReady then
+                break
+            end
+            if elapsed >= 9.0 then
+                break
+            end
+            task.wait(0.05)
+        end
+
+        PctLbl.Text = "100%  •  All Assets Loaded"
+        Tween(ProgFill, TweenInfo.new(0.12), {Size = UDim2.new(1, 0, 1, 0)})
+        TryxzLib:PlaySound("Success", 0.45)
+        task.wait(0.35)
+
+        Tween(Overlay, Tweens.Fast, {BackgroundTransparency = 1})
+        local closeT = Tween(IntroScale, Tweens.Smooth, {Scale = 0})
+        closeT.Completed:Wait()
+        Overlay:Destroy()
+
+        if onFinished then
+            onFinished()
+        end
+    end)
 end
 
 -- Draggable Utility
@@ -1714,7 +1953,7 @@ local function BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, On
 end
 
 -- ==========================================
--- OVERHAULED ELEMENT FACTORY (ALL COMPONENTS v5.1)
+-- ELEMENT FACTORY (ALL COMPONENTS v5.2)
 -- ==========================================
 local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, WriteConfigFile, RegisterSearchable, RegisterBindable)
     local API = {}
@@ -2794,7 +3033,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return RangeObj
     end
 
-    -- 11. OVERHAULED INPUT / TEXTBOX (Icon Badge + Numeric Tag + Focus Glow)
+    -- 11. INPUT / TEXTBOX
     function API:AddInput(iCfg)
         local Flag = iCfg.Flag
         local Default = tostring(iCfg.Default or "")
@@ -2922,7 +3161,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return InputObj
     end
 
-    -- 12. OVERHAULED KEYBIND PICKER (Mechanical Keycap Badge + Pulse)
+    -- 12. KEYBIND PICKER
     function API:AddKeybind(kCfg)
         local Flag = kCfg.Flag
         local CurrentKey = kCfg.Default or Enum.KeyCode.F
@@ -3035,7 +3274,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return KeyObj
     end
 
-    -- 13. OVERHAULED COLOR PICKER (HSV + HEX + GRADIENT RAINBOW BUTTON)
+    -- 13. COLOR PICKER
     function API:AddColorPicker(cCfg)
         local Flag = cCfg.Flag
         local CurrentColor = cCfg.Default or Theme.Accent
@@ -3303,7 +3542,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return ColorObj
     end
 
-    -- 14. OVERHAULED DROPDOWN (Selected Pill + Glowing Border + Icon Badges)
+    -- 14. DROPDOWN
     function API:AddDropdown(dCfg)
         local Flag = dCfg.Flag
         local Options = dCfg.Options or {}
@@ -3583,7 +3822,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return drop
     end
 
-    -- 16. OVERHAULED MULTI-DROPDOWN (Selected Pill + Active Check Indicators)
+    -- 16. MULTI-DROPDOWN
     function API:AddMultiDropdown(mCfg)
         local Flag = mCfg.Flag
         local Options = mCfg.Options or {}
@@ -3784,7 +4023,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
         return MultiObj
     end
 
-    -- 17. OVERHAULED EMBEDDED LOG CONSOLE (Live Counter + Level Stripes)
+    -- 17. EMBEDDED LOG CONSOLE
     function API:AddConsole(cCfg)
         cCfg = cCfg or {}
         local h = cCfg.Height or 136
@@ -3939,7 +4178,7 @@ local function CreateElementFactory(Container, Window, Cfg, TriggerHaptic, Write
 end
 
 -- ==========================================
--- CREATE MAIN WINDOW + GLOWING GOLD ARCHITECT CREDITS CARD
+-- CREATE MAIN WINDOW (WITH MANDATORY GOLD STARTUP INTRO)
 -- ==========================================
 function TryxzLib:CreateWindow(config)
     config = config or {}
@@ -4268,16 +4507,19 @@ function TryxzLib:CreateWindow(config)
         end
     end)
 
-    local KeyConfig = config.KeySystem
-    if KeyConfig and KeyConfig.Enabled ~= false then
-        if Cfg.SaveEnabled and Cfg.SaveKey and Cfg.SavedKey and CheckKeyValid(KeyConfig, Cfg.SavedKey) then
-            OpenMainWindow(true)
+    -- Always execute mandatory glowing gold startup intro first, then KeySystem / Window
+    RunMandatoryGoldStartupIntro(function()
+        local KeyConfig = config.KeySystem
+        if KeyConfig and KeyConfig.Enabled ~= false then
+            if Cfg.SaveEnabled and Cfg.SaveKey and Cfg.SavedKey and CheckKeyValid(KeyConfig, Cfg.SavedKey) then
+                OpenMainWindow(true)
+            else
+                BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OpenMainWindow)
+            end
         else
-            BuildKeySystem(KeyConfig, Cfg, TriggerHaptic, WriteConfigFile, OpenMainWindow)
+            OpenMainWindow(false)
         end
-    else
-        OpenMainWindow(false)
-    end
+    end)
 
     -- Topbar
     local Topbar = Instance.new("Frame")
@@ -4822,7 +5064,7 @@ function TryxzLib:CreateWindow(config)
     CTitle.Size = UDim2.new(1, -155, 0, 17)
     CTitle.Position = UDim2.new(0, 64, 0, 8)
     CTitle.BackgroundTransparency = 1
-    CTitle.Text = "TryxzLib v5.1"
+    CTitle.Text = "TryxzLib v5.2"
     CTitle.TextColor3 = Theme.Text
     CTitle.Font = Enum.Font.GothamBold
     CTitle.TextSize = 12
